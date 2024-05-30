@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tip Calculator</title>
+    <style>
+        table {
+            width: 50%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #000;
+            text-align: center;
+            padding: 8px;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        #tipTable {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Tip Calculator</h1>
+    <form id="tipForm" method="POST">
+        <label for="tipAmount">Enter Tip Amount:</label>
+        <input type="number" id="tipAmount" name="tipAmount" required>
+        <button type="submit">Calculate Tip</button>
+    </form>
+
+    <table id="tipTable">
+        <thead>
+            <tr>
+                <th>Employee</th>
+                <th>Hours Worked</th>
+                <th>Tip Amount</th>
+            </tr>
+        </thead>
+        <tbody id="employeeTableBody">
+            <!-- Employee rows will be added here dynamically -->
+        </tbody>
+    </table>
+
+    <script>
+        function submitForm() {
+            const tipAmount = document.getElementById('tipAmount').value;
+    
+            // Create a JSON object with the tip amount
+            const data = { tipAmount };
+    
+            // Send a POST request to the server
+            fetch('/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Server response:', data);
+                // Call the calculateTip function with the received data
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
+    
+</body>
+</html>

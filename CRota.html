@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Work Hours Table</title>
+    <style>
+                body {
+            /* Set the background image and specify its source */
+            background-image: url('https://www.oxfordmail.co.uk/resources/images/12727861/');
+            /* Set background size to cover the entire viewport */
+            background-size: cover;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            text-transform: uppercase;
+            color: rgb(53, 38, 5);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color:rgba(231, 220, 209, 0.692);
+            
+        }
+        th, td {
+            border: 1px solid #000;
+            text-align: center;
+            padding: 8px;
+            white-space: nowrap;
+            background-color:rgba(172, 133, 96, 0.692);
+        }
+        th {
+            background-color:rgba(172, 133, 96, 0.692);
+        }
+        .delete-btn {
+            cursor: pointer;
+            color: red;
+            font-weight: bold;
+            background-color:rgba(172, 133, 96, 0.692);
+        }
+        .btn{
+            background-color:rgba(172, 133, 96, 0.692);
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            align-self: center;
+            margin-top: 20px;
+        }
+        h1{
+            text-align: center;
+        }
+    </style>
+</head>
+<body onload="loadrota()">
+    <h1>Work Hours Table</h1>
+    <table id="rota">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Last Name</th>
+                <th>Monday</th>
+                <th>Tuesday</th>
+                <th>Wednesday</th>
+                <th>Thursday</th>
+                <th>Friday</th>
+                <th>Saturday</th>
+                <th>Sunday</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Data will be inserted here -->
+        </tbody>
+    </table>
+    <button class="btn" onclick="updateRota()">Update</button>
+
+    <script>
+        function loadrota() {
+            fetch('/rota')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Fetched data:', data); // Debugging: Check the fetched data
+                    const tbody = document.querySelector('#rota tbody');
+                    tbody.innerHTML = ''; // Clear existing rows
+
+                    const groupedData = groupByPerson(data);
+                    console.log('Grouped data:', groupedData); // Debugging: Check the grouped data
+                    groupedData.forEach(person => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${person.name}</td>
+                            <td>${person.lastName}</td>
+                            ${generateDayCells(person.days)}
+                        `;
+                        tbody.appendChild(row);
+                    });
+                })
+                .catch(error => console.error('Error fetching employee data:', error));
+        }
+
+        function groupByPerson(data) {
+            const groupedData = [];
+            const map = new Map();
+            data.forEach(entry => {
+                const key = `${entry.name} ${entry.lastName}`;
+                if (!map.has(key)) {
+                    map.set(key, { name: entry.name, lastName: entry.lastName, days: {} });
+                }
+                const day = map.get(key).days[entry.day] || [];
+                day.push({ startTime: entry.startTime, endTime: entry.endTime });
+                map.get(key).days[entry.day] = day;
+            });
+            map.forEach((value, key) => {
+                groupedData.push(value);
+            });
+            return groupedData;
+        }
+
+        function generateDayCells(days) {
+            const weekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+            return weekDays.map(day => {
+                if (days[day]) {
+                    return `<td>${days[day].map(time => `${time.startTime} - ${time.endTime} <span class="delete-btn" onclick="deleteTime('${day}', '${time.startTime}', '${time.endTime}')">Delete</span>`).join('<br>')}</td>`;
+                } else {
+                    return `<td></td>`;
+                }
+            }).join('');
+        }
+
+        function deleteTime(day, startTime, endTime) {
+            // Send a request to delete the time entry from the database
+            fetch('/deleteTime', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ day, startTime, endTime }),
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Reload the table after successful deletion
+                    loadrota();
+                } else {
+                    throw new Error('Failed to delete time entry');
+                }
+            })
+            .catch(error => console.error('Error deleting time entry:', error));
+        }
+
+        function updateRota() {
+            // Send a request to update the rota
+            fetch('/updateRota', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ /* Any necessary data for the update */ }),
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Reload the table after successful update
+                    loadrota();
+                    alert('Rota updated successfully and email sent');
+                } else {
+                    throw new Error('Failed to update rota');
+                }
+            })
+            .catch(error => console.error('Error updating rota:', error));
+        }
+    </script>
+</body>
+</html>

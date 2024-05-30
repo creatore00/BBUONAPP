@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Work Hours Summary</title>
+    <style>
+                body {
+            /* Set the background image and specify its source */
+            background-image: url('https://www.oxfordmail.co.uk/resources/images/12727861/');
+            /* Set background size to cover the entire viewport */
+            background-size: cover;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            text-transform: uppercase;
+            color: rgb(53, 38, 5);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color:rgba(231, 220, 209, 0.692);
+            
+        }
+        th, td {
+            border: 1px solid #000;
+            text-align: center;
+            padding: 8px;
+            white-space: nowrap;
+            background-color:rgba(172, 133, 96, 0.692);
+        }
+        th {
+            background-color:rgba(172, 133, 96, 0.692);
+        }
+        .delete-btn {
+            cursor: pointer;
+            color: red;
+            font-weight: bold;
+            background-color:rgba(172, 133, 96, 0.692);
+        }
+        .btn{
+            background-color:rgba(172, 133, 96, 0.692);
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            align-self: center;
+            margin-top: 20px;
+        }
+        h1{
+            text-align: center;
+        }
+        .text{
+            color: rgb(53, 38, 5);
+            background-color:rgba(172, 133, 96, 0.692);
+        }
+        button{
+            background-color:rgba(172, 133, 96, 0.692);
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            align-self: center;
+            margin-top: 20px;
+        }
+        input{
+            background-color:rgba(172, 133, 96, 0.692);
+            color: rgb(53, 38, 5);
+            text-shadow: #000;
+        }
+    </style>
+</head>
+<body>
+    <h1>Work Hours Summary</h1>
+    <label class="text" for="weekStart">Select Week Start Date:</label>
+    <input type="date" id="weekStart">
+    <button onclick="loadRota()">Load Week</button>
+    <div>
+        <label class="text" for="tip">Enter Tip Amount:</label>
+        <input type="number" id="tip" min="0">
+        <button onclick="calculateTip()">Calculate Tip</button>
+    </div>
+    <div id="hoursSummary">
+        <!-- Total hours, wage, tip, result before tax, tax, and result after tax will be displayed here -->
+    </div>
+
+    <footer>
+        <button onclick="navigateWeek(-1)">Previous Week</button>
+        <button onclick="navigateWeek(1)">Next Week</button>
+    </footer>
+
+    <script>
+        function loadRota() {
+            const weekStart = document.getElementById('weekStart').value;
+            if (!weekStart) {
+                alert('Please select a start date.');
+                return;
+            }
+
+            const startDate = getMonday(new Date(weekStart));
+
+            fetch(`/rota?startDate=${startDate.toISOString().split('T')[0]}`)
+                .then(response => response.json())
+                .then(data => {
+                    const totalHours = calculateTotalHours(data);
+                    displayTotalHours(totalHours);
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        }
+
+        function calculateTotalHours(data) {
+            const totalHours = {};
+            let total = 0;
+
+            data.forEach(entry => {
+                const name = entry.name + ' ' + entry.lastName; // Concatenate first and last name
+                const startTime = new Date(`1970-01-01T${entry.startTime}Z`);
+                const endTime = new Date(`1970-01-01T${entry.endTime}Z`);
+                const hoursWorked = (endTime - startTime) / (1000 * 60 * 60); // Convert milliseconds to hours
+                total += hoursWorked;
+
+                if (!totalHours[name]) {
+                    totalHours[name] = { hoursWorked: 0, wage: entry.wage }; // Initialize hours and wage for the person
+                }
+                totalHours[name].hoursWorked += hoursWorked; // Accumulate hours worked for the person
+            });
+
+            return { totalHours, total };
+        }
+
+        function calculateTip() {
+            const totalHours = parseFloat(document.getElementById('hoursSummary').dataset.totalHours || 0); // Retrieve total hours
+            const tip = parseFloat(document.getElementById('tip').value || 0); // Retrieve tip amount
+            const calculatedTip = calculateTotalTip(totalHours, tip);
+            displayTip(calculatedTip, totalHours); // Pass totalHours to displayTip function
+        }
+
+        function calculateTotalTip(totalHours, tip) {
+            const tax = 0.02;
+            const tipAfterTax = tip * (1 - tax);
+            const totalTip = tipAfterTax;
+            return totalTip.toFixed(2);
+        }
+
+        function calculateResult(hoursWorked, wage, tip, tax) {
+            const resultBeforeTax = (hoursWorked * wage) + parseFloat(tip);
+            const resultAfterTax = resultBeforeTax - tax; // Subtracts tax as a value
+            return resultAfterTax;
+        }
+
+        function displayTotalHours(totalHours) {
+            const container = document.getElementById('hoursSummary');
+            container.innerHTML = ''; // Clear existing content
+
+            const table = document.createElement('table');
+            const headerRow = document.createElement('tr');
+            headerRow.innerHTML = '<th>Name</th><th>Total Hours</th><th>Wage</th><th>Tip</th><th>Result Before Tax</th><th>Tax (£)</th><th>Result After Tax</th>'; // Adjusted header row
+            table.appendChild(headerRow);
+
+            const tip = parseFloat(document.getElementById('tip').value || 0); // Get the tip amount
+
+            for (const [name, { hoursWorked, wage }] of Object.entries(totalHours.totalHours)) {
+                const row = document.createElement('tr');
+                const tipPerHour = totalHours.total > 0 ? (tip / totalHours.total) : 0; // Calculate tip per hour
+                const tipAmount = hoursWorked * tipPerHour; // Calculate tip amount for this person
+                const taxInput = `<input type="number" min="0" class="taxInput" onchange="calculateAndDisplayResult(this)">`; // Input for tax
+                row.innerHTML = `<td>${name}</td><td>${hoursWorked.toFixed(2)}</td><td>${wage}</td><td>${tipAmount.toFixed(2)}</td><td></td><td>${taxInput}</td><td></td>`; // Display wage and result
+                table.appendChild(row);
+            }
+
+            container.appendChild(table);
+            container.dataset.totalHours = totalHours.total; // Store total hours in dataset for later use
+        }
+
+        function displayTip(tip, totalHours) {
+            const container = document.getElementById('hoursSummary');
+            const table = container.querySelector('table');
+            const rows = table.getElementsByTagName('tr');
+
+            // Iterate through each row (excluding the header row)
+            for (let i = 1; i < rows.length; i++) {
+                const cells = rows[i].getElementsByTagName('td');
+                const hoursWorked = parseFloat(cells[1].textContent); // Get hours worked from the second cell
+                const tipAmount = (tip / totalHours) * hoursWorked; // Calculate tip amount for this row
+                const tax = parseFloat(cells[5].querySelector('.taxInput').value || 0); // Retrieve tax input
+                const resultBeforeTax = calculateResult(hoursWorked, parseFloat(cells[2].textContent), tipAmount, 0); // Calculate result before tax
+                const resultAfterTax = calculateResult(hoursWorked, parseFloat(cells[2].textContent), tipAmount, tax); // Calculate result after tax
+                // Append the tip amount and results to the respective cells
+                cells[3].textContent = `£${tipAmount.toFixed(2)}`;
+                cells[4].textContent = `£${resultBeforeTax.toFixed(2)}`;
+                cells[6].textContent = `£${resultAfterTax.toFixed(2)}`;
+            }
+        }
+
+        function navigateWeek(offset) {
+            const weekStart = document.getElementById('weekStart').value;
+            if (!weekStart) {
+                alert('Please select a start date.');
+                return;
+            }
+
+            const currentStartDate = new Date(weekStart);
+            const newStartDate = new Date(currentStartDate);
+            newStartDate.setDate(currentStartDate.getDate() + (offset * 7));
+
+            document.getElementById('weekStart').value = newStartDate.toISOString().split('T')[0];
+            loadRota();
+        }
+
+        function getMonday(date) {
+            date = new Date(date);
+            const day = date.getDay();
+            const diff = date.getDate() - day + (day === 0 ? -6 : 1); // Adjust when day is Sunday
+            return new Date(date.setDate(diff));
+        }
+
+        function setCurrentWeek() {
+            const today = new Date();
+            const monday = getMonday(today); 
+            document.getElementById('weekStart').value = monday.toISOString().split('T')[0];
+            loadRota();
+        }
+
+        // Function to calculate and display result after tax
+        function calculateAndDisplayResult(input) {
+            const row = input.parentNode.parentNode; // Get the row of the input
+            const cells = row.getElementsByTagName('td');
+            const hoursWorked = parseFloat(cells[1].textContent); // Get hours worked from the second cell
+            const wage = parseFloat(cells[2].textContent); // Get wage from the third cell
+            const tipAmount = parseFloat(cells[3].textContent.replace('£', '')); // Get tip amount from the fourth cell
+            const tax = parseFloat(input.value || 0); // Retrieve tax input as a value
+            const resultAfterTax = calculateResult(hoursWorked, wage, tipAmount, tax); // Calculate result after tax
+            // Display the result after tax in the last cell of the row
+            cells[6].textContent = `£${resultAfterTax.toFixed(2)}`;
+        }
+
+        document.getElementById('weekStart').addEventListener('change', loadRota);
+        window.onload = setCurrentWeek;
+    </script>
+</body>
+</html>
+

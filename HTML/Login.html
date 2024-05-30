@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BBuona Login</title>
+    <link rel="icon" href="https://bbuona.com/wp-content/uploads/2019/11/marker.png" type="image/x-icon">
+<style>
+    
+body {
+    /* Set the background image and specify its source */
+    background-image: url('https://www.oxfordmail.co.uk/resources/images/12727861/');
+    /* Set background size to cover the entire viewport */
+    background-size: cover;
+    /* Specify background position as center */
+    background-position: center;
+    /* Add a background overlay to improve text readability (optional) */
+    background-color: rgba(0, 0, 0, 0.5); /* Adjust the last value for transparency */
+    /* Set background attachment to fixed for a fixed background effect */
+    background-attachment: fixed;
+    /* Specify other styles as needed */
+    color: whitesmoke; /* Text color */
+    font-family: Arial, sans-serif; /* Font family for text */
+    display: flex;
+    align-content: center;
+    justify-content: center;
+}
+a {
+        text-decoration: none; /* Remove underline */
+        color:#fff;
+        cursor: pointer; /* Set cursor to pointer on hover */
+        display: flex;
+        align-content: center;
+        justify-content: center;
+    }
+/* Add styles for other elements as needed */
+h1 {
+    color: #333;
+    text-align: center;
+    font-size: 3vw;
+    position: relative; /* Bring the text to the front */
+    z-index: 1; /* Ensure the text is above the overlay */
+    /* Add a margin to separate text from the edges */
+    margin: 50px;
+}
+
+.login-container {
+    background-color: rgba(206, 172, 137, 0.692);
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    width: 100%;
+    margin-top: 150px;
+}
+
+.login-container h2 {
+    text-align: center;
+    color: BEIGE;
+}
+
+.login-form {
+    margin-top: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+}
+
+.form-group button {
+    background-color:rgba(172, 133, 96, 0.692);
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+}
+</style>
+
+</head>
+<body>
+    <div class="login-container">
+    <h2>Login</h2>
+        <form class="login-form" id="loginForm" action="checkLogin.js" method="post">
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <div class="form-group">
+                <button type="submit">Login</button>
+            </div>
+        </form>
+        <form class="login-form" id="loginForm" action="fp.html" method="post">
+            <div class="form-group">
+            <button type="submit">Forgot Password?</button><br>
+        </div>
+        </form>
+    </div>
+    <script>
+        function submitForm() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            // Create a JSON object with email and password
+            const data = { email, password };
+
+            // Send a POST request to the server
+            fetch('/checkLogin.js', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Server response:', data);
+                // Handle the response as needed (e.g., redirect, show a message)
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>

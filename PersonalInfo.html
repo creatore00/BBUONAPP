@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Information</title>
+    <style>
+        body {
+    /* Set the background image and specify its source */
+    background-image: url('https://www.oxfordmail.co.uk/resources/images/12727861/');
+    /* Set background size to cover the entire viewport */
+    background-size: cover;
+    margin: 0;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    text-transform: uppercase;
+    color: rgb(53, 38, 5);
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color:rgba(231, 220, 209, 0.692);
+    margin-top: 20px;
+}
+th, td {
+    border: 1px solid #000;
+    text-align: center;
+    padding: 8px;
+    white-space: nowrap;
+    background-color:rgba(172, 133, 96, 0.692);
+}
+th {
+    background-color:rgba(172, 133, 96, 0.692);
+}
+.delete-btn {
+    cursor: pointer;
+    color: red;
+    font-weight: bold;
+    background-color:rgba(172, 133, 96, 0.692);
+}
+.btn{
+    background-color:rgba(172, 133, 96, 0.692);
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    align-self: center;
+}
+.btn1{
+    background-color:rgba(172, 133, 96, 0.692);
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    align-self: center;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+h1{
+    text-align: center;
+}
+.text{
+    color: rgb(53, 38, 5);
+    background-color:rgba(172, 133, 96, 0.692);
+}
+button{
+    background-color:rgba(172, 133, 96, 0.692);
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    align-self: center;
+}
+input{
+    background-color:rgba(172, 133, 96, 0.692);
+    color: rgb(53, 38, 5);
+    text-shadow: #000;
+}
+form{
+    background-color:rgba(172, 133, 96, 0.692);;
+}
+</style>
+</head>
+<body>
+    <div class="container">
+        <h1>Employee Information</h1>
+
+        <button id="showFormButton">Add New Employee</button> <!-- Button to show the form -->
+
+        <form class="form" id="employeeForm" enctype="multipart/form-data" style="display: none;">
+            <h2>Add New Employee</h2>
+            <div>
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            <div>
+                <label for="lastName">LastName:</label>
+                <input type="text" id="lastName" name="lastName" required>
+            </div>
+            <div>
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div>
+                <label for="phone">Phone Number:</label>
+                <input type="text" id="phone" name="phone" required>
+            </div>
+            <div>
+                <label for="address">Address:</label>
+                <input type="text" id="address" name="address" required>
+            </div>
+            <div>
+                <label for="nin">NIN:</label>
+                <input type="text" id="nin" name="nin" required>
+            </div>
+            <div>
+                <label for="wage">Wage (£)</label>
+                <input type="text" id="wage" name="wage" required>
+            </div>
+            <div>
+                <input type="radio" id="foh" name="designation" value="FOH" checked>
+                <label for="foh">Front of House</label><br>
+                <input type="radio" id="boh" name="designation" value="BOH">
+                <label for="boh">Back of House</label><br>
+            </div>
+            <div>
+                <label for="passportImage">Passport Image:</label>
+                <input type="file" id="passportImage" name="passportImage" accept="image/*" required>
+            </div>
+            <button class="btn1" type="submit">Add Employee</button></form></n>
+        </form>
+
+        <table id="employeeTable">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>LastName</th>
+                    <th>Email</th>
+                    <th>Phone Number</th>
+                    <th>Address</th>
+                    <th>NIN</th>
+                    <th>Wage</th>
+                    <th>Role</th>
+                    <th>Passport Image</th>
+                    <th>Actions</th> <!-- Added Actions column -->
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Data will be inserted here -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        document.getElementById('showFormButton').addEventListener('click', () => {
+            const form = document.getElementById('employeeForm');
+            if (form.style.display === 'none') {
+                form.style.display = 'block';
+            } else {
+                form.style.display = 'none';
+            }
+        });
+
+        document.getElementById('employeeForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent default form submission
+
+            const formData = new FormData(this);
+
+            fetch('/', {
+                method: 'POST',
+                body: formData,
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Server response:', data);
+                if (data.success) {
+                    alert('Employee added successfully');
+                    loadEmployees();
+                    this.reset(); // Reset the form after submission
+                    this.style.display = 'none'; // Hide the form after submission
+                } else {
+                    alert('Error adding employee');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+
+        function loadEmployees() {
+            fetch('/employees')
+                .then(response => response.json())
+                .then(data => {
+                    const tbody = document.querySelector('#employeeTable tbody');
+                    tbody.innerHTML = ''; // Clear existing rows
+
+                    data.forEach(employee => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${employee.name}</td>
+                            <td>${employee.lastName}</td>
+                            <td>${employee.email}</td>
+                            <td>${employee.phone}</td>
+                            <td>${employee.address}</td>
+                            <td>${employee.nin}</td>
+                            <td>${employee.wage}</td>
+                            <td>${employee.designation}</td>
+                            <td><button onclick="downloadImage('${employee.passportImage}')">Download Image</button></td>
+                            <td><button onclick="deleteEmployee(${employee.id})">Delete</button></td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                })
+                .catch(error => console.error('Error fetching employee data:', error));
+        }
+
+        function downloadImage(filename) {
+            fetch(`/uploads/${filename}`)
+                .then(response => response.blob())
+                .then(blob => {
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                })
+                .catch(error => console.error('Error downloading image:', error));
+        }
+
+        function deleteEmployee(id) {
+            fetch(`/employee/${id}`, {
+                method: 'DELETE',
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Employee deleted successfully');
+                    loadEmployees(); // Refresh the table
+                } else {
+                    alert('Error deleting employee');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        // Load employees when the page loads
+        window.onload = loadEmployees;
+    </script>
+</body>
+</html>

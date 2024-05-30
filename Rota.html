@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Work Hours Table</title>
+    <style>
+                body {
+            /* Set the background image and specify its source */
+            background-image: url('https://www.oxfordmail.co.uk/resources/images/12727861/');
+            /* Set background size to cover the entire viewport */
+            background-size: cover;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            text-transform: uppercase;
+            color: rgb(53, 38, 5);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color:rgba(231, 220, 209, 0.692);
+            
+        }
+        th, td {
+            border: 1px solid #000;
+            text-align: center;
+            padding: 8px;
+            white-space: nowrap;
+            background-color:rgba(172, 133, 96, 0.692);
+        }
+        th {
+            background-color:rgba(172, 133, 96, 0.692);
+        }
+        .btn{
+            background-color:rgba(172, 133, 96, 0.692);
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            align-self: center;
+        }
+        .btn1{
+            background-color:rgba(172, 133, 96, 0.692);
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            align-self: center;
+            margin-top: 20px;
+        }
+        .draggable {
+            cursor: pointer;
+        }
+        .dragging {
+            opacity: 0.5;
+        }
+        .dragover {
+            background-color: #e0e0e0;
+        }
+        .time-frame {
+            margin-bottom: 5px;
+            cursor: move;
+            border: 1px solid transparent; /* Added for highlighting */
+        }
+        .selected {
+            background-color: #f0f0f0; /* Added for highlighting */
+            border-color: #ccc; /* Added for highlighting */
+        }
+        #timeFrameInput {
+            display: none;
+            position: absolute;
+            background-color:rgba(231, 220, 209, 0.692);
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+        #timeFrameInput.show {
+            display: block;
+        }
+        #popupMessage {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <h1>Work Hours Table</h1>
+    <table id="hoursTable">
+        <tr>
+            <th>Name</th>
+            <th>LastName</th>
+            <th>Wage</th>
+            <th id="mondayHeader">Monday</th>
+            <th id="tuesdayHeader">Tuesday</th>
+            <th id="wednesdayHeader">Wednesday</th>
+            <th id="thursdayHeader">Thursday</th>
+            <th id="fridayHeader">Friday</th>
+            <th id="saturdayHeader">Saturday</th>
+            <th id="sundayHeader">Sunday</th>
+        </tr>
+        <tbody id="employeeRows">
+            <!-- Employee rows will be dynamically generated here -->
+        </tbody>
+    </table>
+
+    <div id="timeFrameInput" class="time-frame">
+        <label for="startTime">Start Time:</label>
+        <input type="time" id="startTime">
+        <label for="endTime">End Time:</label>
+        <input type="time" id="endTime">
+        <button class="btn" onclick="addTime()">Add Time</button>
+        <button class="btn" onclick="deleteTime()">Delete Time</button>
+    </div>
+
+    <div id="popupMessage">Rota Updated Successfully</div>
+
+    <button class="btn1" onclick="submitData()">Submit</button>
+    <button class="btn1" onclick="clearTable()">Clear All</button>
+
+    <script>
+// Function to fetch employee data from the backend server
+function fetchEmployeeData() {
+    fetch('/employees')
+        .then(response => response.json())
+        .then(data => {
+            console.log('Fetched employee data:', data);
+            populateEmployeeRows(data); // Call the function to populate employee rows
+        })
+        .catch(error => console.error('Error fetching employee data:', error));
+}
+
+// Function to generate HTML markup for each employee row
+function generateEmployeeRow(employee) {
+    return `
+        <tr>
+            <td>${employee.name}</td>
+            <td>${employee.lastName}</td>
+            <td>${employee.wage}</td>
+            <td class="draggable" data-day="Monday"></td>
+            <td class="draggable" data-day="Tuesday"></td>
+            <td class="draggable" data-day="Wednesday"></td>
+            <td class="draggable" data-day="Thursday"></td>
+            <td class="draggable" data-day="Friday"></td>
+            <td class="draggable" data-day="Saturday"></td>
+            <td class="draggable" data-day="Sunday"></td>
+        </tr>
+    `;
+}
+
+// Function to populate employee rows in the table
+function populateEmployeeRows(employees) {
+    const employeeRowsContainer = document.getElementById('employeeRows');
+    let employeeRowsHTML = '';
+    employees.forEach(employee => {
+        employeeRowsHTML += generateEmployeeRow(employee);
+    });
+    employeeRowsContainer.innerHTML = employeeRowsHTML;
+
+    // Attach event listeners to draggable elements
+    const draggables = document.querySelectorAll('.draggable');
+    draggables.forEach(draggable => {
+        draggable.addEventListener('dragstart', (e) => {
+            e.dataTransfer.setData('text/plain', e.target.textContent);
+            e.target.classList.add('dragging');
+        });
+        draggable.addEventListener('dragend', (e) => {
+            e.target.classList.remove('dragging');
+        });
+        draggable.addEventListener('dragover', (e) => {
+            e.preventDefault();
+        });
+        draggable.addEventListener('drop', (e) => {
+            e.preventDefault();
+            const data = e.dataTransfer.getData('text/plain');
+            const sourceCell = document.querySelector('.dragging');
+            if (sourceCell !== e.target) {
+                e.target.appendChild(sourceCell);
+            }
+            sourceCell.classList.remove('dragging');
+        });
+        draggable.addEventListener('dragenter', (e) => {
+            e.preventDefault();
+            e.target.classList.add('dragover');
+        });
+        draggable.addEventListener('dragleave', () => {
+            e.target.classList.remove('dragover');
+        });
+        draggable.addEventListener('click', (e) => {
+            if (currentCell) {
+                currentCell.classList.remove('selected');
+            }
+            currentCell = e.target;
+            currentCell.classList.add('selected');
+            const rect = e.target.getBoundingClientRect();
+            timeFrameInput.style.top = `${rect.top + window.scrollY}px`;
+            timeFrameInput.style.left = `${rect.left + window.scrollX}px`;
+            timeFrameInput.classList.add('show');
+        });
+    });
+}
+
+// Fetch employee data when the page loads
+window.onload = function() {
+    fetchEmployeeData();
+};
+
+
+        function populateDates() {
+            const headers = ['mondayHeader', 'tuesdayHeader', 'wednesdayHeader', 'thursdayHeader', 'fridayHeader', 'saturdayHeader', 'sundayHeader'];
+            const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            const today = new Date();
+            const firstDayOfWeek = today.getDate() - today.getDay() + 1; // Adjust for Monday as first day
+            const month = today.getMonth();
+            const year = today.getFullYear();
+
+            headers.forEach((header, index) => {
+                const date = new Date(year, month, firstDayOfWeek + index);
+                const dateString = `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}/${date.getFullYear()} (${daysOfWeek[date.getDay()]})`;
+                document.getElementById(header).textContent = dateString;
+            });
+        }
+
+        populateDates();
+
+        // Populate time selection options
+        function populateTimeOptions(selectElement) {
+            for (let hour = 0; hour < 24; hour++) {
+                for (let min = 0; min < 60; min += 30) {
+                    const time = `${String(hour).padStart(2, '0')}:${String(min).padStart(2, '0')}`;
+                    const option = document.createElement('option');
+                    option.value = time;
+                    option.textContent = time;
+                    selectElement.appendChild(option);
+                }
+            }
+        };
+
+        populateTimeOptions(document.getElementById('startTime'));
+        populateTimeOptions(document.getElementById('endTime'));
+
+            // Global variables
+            const draggables = document.querySelectorAll('.draggable');
+            const timeFrameInput = document.getElementById('timeFrameInput');
+            let currentCell;
+
+        function addTime() {
+            const startTime = document.getElementById('startTime').value;
+            const endTime = document.getElementById('endTime').value;
+            const timeFrame = document.createElement('div');
+            timeFrame.textContent = `${startTime} - ${endTime}`;
+            timeFrame.classList.add('time-frame', 'draggable');
+            timeFrame.setAttribute('draggable', 'true');
+            timeFrame.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('text/plain', e.target.textContent);
+                e.target.classList.add('dragging');
+            });
+            timeFrame.addEventListener('dragend', (e) => {
+                e.target.classList.remove('dragging');
+            });
+            currentCell.appendChild(timeFrame);
+            timeFrameInput.classList.remove('show');
+        }
+
+        function deleteTime() {
+            if (currentCell) {
+                currentCell.innerHTML = ''; // Remove all content from the cell
+                currentCell.classList.remove('selected'); // Remove the selected class
+            }
+            timeFrameInput.classList.remove('show'); // Hide the input form
+        }
+
+        function clearTable() {
+            const cells = document.querySelectorAll('.draggable');
+            cells.forEach(cell => {
+                cell.innerHTML = ''; // Remove all content from each cell
+            });
+        }
+
+        function submitData() {
+            console.log('Submit button clicked');
+            const tableData = [];
+            const cells = document.querySelectorAll('.draggable[data-day]');
+            cells.forEach(cell => {
+                const dayHeaderId = cell.getAttribute('data-day').toLowerCase() + 'Header';
+                const day = document.getElementById(dayHeaderId).textContent;
+                const name = cell.parentNode.querySelector('td').textContent;
+                const lastName = cell.parentNode.querySelectorAll('td')[1].textContent;
+                const wage = cell.parentNode.querySelectorAll('td')[2].textContent;
+                const timeFrames = Array.from(cell.querySelectorAll('.time-frame')).map(tf => {
+                    const [startTime, endTime] = tf.textContent.split(' - ');
+                    return { startTime, endTime };
+                });
+
+                timeFrames.forEach(timeFrame => {
+                    if (timeFrame.startTime && timeFrame.endTime) {
+                        tableData.push({ name, lastName, wage, day, startTime: timeFrame.startTime, endTime: timeFrame.endTime });
+                    }
+                });
+            });
+
+            console.log('Table Data:', tableData);
+
+            fetch('/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(tableData),
+            })
+            .then(response => {
+                if (response.ok) {
+                    showPopupMessage('Rota Updated Successfully');
+                    return response.json();
+                } else {
+                    throw new Error('Network response was not ok.');
+                }
+            })
+            .then(data => {
+                console.log('Server response:', data);
+                // Handle the response as needed (e.g., redirect, show a message)
+            })
+            .catch(error => console.error('Error:', error));   
+        }
+
+        function showPopupMessage(message) {
+            const popupMessage = document.getElementById('popupMessage');
+            popupMessage.textContent = message;
+            popupMessage.style.display = 'block';
+            setTimeout(() => {
+                popupMessage.style.display = 'none';
+            }, 3000); // Hide the message after 3 seconds
+        }
+        showPopupMessage();
+    </script>
+    
+</body>
+</html>

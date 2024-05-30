@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="icon" href="https://bbuona.com/wp-content/uploads/2019/11/marker.png" type="image/x-icon">
+    <style>
+        body {
+            /* Set the background image and specify its source */
+            background-image: url('https://www.oxfordmail.co.uk/resources/images/12727861/');
+            /* Set background size to cover the entire viewport */
+            background-size: cover;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .sidebar {
+            height: 100%;
+            width: 250px;
+            position: fixed;
+            top: 0;
+            left: -250px;
+            background-color:rgba(172, 133, 96, 0.692);
+            color: white;
+            transition: 0.3s;
+            padding-top: 60px;
+        }
+        .sidebar a {
+            padding: 15px 25px;
+            text-decoration: none;
+            font-size: 18px;
+            color: white;
+            display: block;
+            transition: 0.3s;
+        }
+        .sidebar a:hover {
+            background-color: #a55f30;
+        }
+        .main {
+            margin-left: 0;
+            transition: margin-left 0.3s;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .menu-btn {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            font-size: 30px;
+            cursor: pointer;
+            background-color:rgba(172, 133, 96, 0.692);
+            color: white;
+        }
+        .header {
+            text-align: center;
+            padding: 20px;
+            background-color: rgba(206, 172, 137, 0.692);
+            width: 150%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2em;
+            color: BEIGE;
+        }
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .button-group a {
+            background-color:rgba(172, 133, 96, 0.692);
+            color: #fff;
+            padding: 15px 30px;
+            border-radius: 5px;
+            text-align: center;
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+        .button-group a:hover {
+            background-color: #a55f30;
+        }
+        .logout-btn {
+            background-color: #c0392b;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            position: absolute;
+            top: 15px;
+            right: 15px;
+        }
+        .logout-btn:hover {
+            background-color: #e74c3c;
+        }
+        .open-menu {
+            margin-left: 250px;
+        }
+        .open-sidebar {
+            left: 0;
+        }
+        .sidebar-open .button-group a {
+            background-color:rgba(172, 133, 96, 0.692);
+        }
+        .sidebar-open .menu-btn {
+            background-color:rgba(172, 133, 96, 0.692);
+            border-radius: 5px;
+            padding: 5px 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar" id="sidebar">
+        <a href="http://localhost:5008">New Rota</a>
+        <a href="http://localhost:5005">Current Rota</a>
+        <a href="http://localhost:5002">New Access</a>
+        <a href="">Personal Information</a>
+        <a href="http://localhost:5010">Payslip</a>
+        <a href="http://localhost:5007">Employees</a>
+        <a href="http://localhost:5004">Holidays</a>
+        <a href="page8.html">Requests</a>
+    </div>
+    <div class="main" id="main">
+        <span class="menu-btn" id="menuBtn">&#9776;</span>
+        <div class="header">
+            <h1>Welcome to the Dashboard</h1>
+        </div>
+        <div class="button-group">
+            <a href="http://localhost:5008">New Rota</a>
+            <a href="http://localhost:5005">Current Rota</a>
+            <a href="http://localhost:5002">New Access</a>
+            <a href="">Personal Information</a>
+            <a href="http://localhost:5010">Payslip</a>
+            <a href="http://localhost:5007">Employees</a>
+            <a href="http://localhost:5004">Holidays</a>
+            <a href="page8.html">Requests</a>
+        </div>
+        <button class="logout-btn" id="logoutBtn">Logout</button> <!-- Logout button -->
+    </div>
+
+    <script>
+        const menuBtn = document.getElementById('menuBtn');
+        const sidebar = document.getElementById('sidebar');
+        const main = document.getElementById('main');
+        const body = document.body;
+
+        menuBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('open-sidebar');
+            main.classList.toggle('open-menu');
+            body.classList.toggle('sidebar-open');
+        });
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            // Manipulate browser history to prevent going back to the dashboard
+            history.pushState(null, null, window.location.href);
+            // Redirect to login page
+            window.location.href = 'http://localhost:8080';
+        });
+    </script>
+</body>
+</html>
