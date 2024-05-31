@@ -102,9 +102,18 @@ app.get('/checkLogin.html', (req, res) => {
   res.sendFile(__dirname + '/checkLogin.html');
 });
 app.get('/CRota.js', (req, res) => {
-  res.sendFile(path.join(__dirname, 'CRota.js'));
+  res.sendFile(path.join(__dirname, 'CRota.html'));
 });
+app.get('/Rota.js', (req, res) => {
+  res.sendFile(path.join(__dirname, 'Rota.html'));
+});
+app.get('/UpdateInfo.js', (req, res) => {
+  res.sendFile(path.join(__dirname, 'PersonalInfo.html'));
+});
+
 app.use('/CRota', crota);
+app.use('/Rota', rota);
+app.use('/UI', updateinfo);
 // Start the Express server
 
 app.listen(port, () => {

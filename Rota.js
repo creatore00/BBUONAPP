@@ -15,6 +15,8 @@ const mysql = require('mysql2');
 const express = require('express');
 const bodyParser = require('body-parser');
 const { v4: uuidv4 } = require('uuid');
+const router = express.Router();
+
 
 const app = express();
 
@@ -143,5 +145,8 @@ app.get('/employees', (req, res) => {
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/Rota.html');
 });
-
+router.get('/', (req, res) => {
+    res.send('Rota main route');
+});
+module.exports = router;
 // Start the server

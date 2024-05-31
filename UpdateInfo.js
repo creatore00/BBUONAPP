@@ -14,6 +14,8 @@ const crota = require('./CRota.js');
 const hours = require('./Hours.js');
 const updatehours = require('./updateHours.js');
 const tip = require('./Tip.js');
+const router = express.Router();
+
 
 const app = express();
 
@@ -36,6 +38,7 @@ connection.connect((err) => {
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
@@ -126,4 +129,7 @@ app.delete('/employee/:id', (req, res) => {
         });
     });
 });
-
+router.get('/', (req, res) => {
+    res.send('UI main route');
+});
+module.exports = router;

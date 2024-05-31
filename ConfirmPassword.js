@@ -12,6 +12,8 @@ const rota = require('./Rota.js');
 const updatehours = require('./updateHours.js');
 const tip = require('./Tip.js');
 const http = require('http');
+const router = express.Router();
+
 
 const app = express();
 
@@ -52,8 +54,11 @@ app.post('/', (req, res) => {
 
   });
 });
-
+router.get('/', (req, res) => {
+  res.send('CPassword main route');
+});
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/ConfirmPassword.html');
   });
   // Start the Express server
+  module.exports = router;

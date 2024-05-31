@@ -14,6 +14,8 @@ const rota = require('./Rota.js');
 const updatehours = require('./updateHours.js');
 const tip = require('./Tip.js');
 const http = require('http');
+const router = express.Router();
+
 // Create Express app
 const app = express();
 
@@ -75,6 +77,8 @@ app.post('/submitHolidayRequest', (req, res) => {
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/UserHolidays.html');
 });
-
-
+router.get('/', (req, res) => {
+    res.send('UH main route');
+});
+module.exports = router;
   exports.handler = app; // Export for deployment on GCP

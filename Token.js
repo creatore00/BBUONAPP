@@ -12,6 +12,8 @@ const hours = require('./Hours.js');
 const updatehours = require('./updateHours.js');
 const tip = require('./Tip.js');
 const http = require('http');
+const router = express.Router();
+
 const app = express();
 
 
@@ -64,5 +66,8 @@ app.get('/ConfirmPassword.html', (req, res) => {
 app.get('/WrongToken.html', (req, res) => {
   res.sendFile(__dirname + '/WrongToken.html');
 });
+router.get('/', (req, res) => {
+  res.send('T main route');
+});
 // Start the server
-
+module.exports = router;

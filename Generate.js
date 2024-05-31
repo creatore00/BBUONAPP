@@ -14,6 +14,8 @@ const rota = require('./Rota.js');
 const updatehours = require('./updateHours.js');
 const tip = require('./Tip.js');
 const http = require('http');
+const router = express.Router();
+
 // Create Express app
 const app = express();
 
@@ -134,5 +136,8 @@ app.get('/Token.html', (req, res) => {
   app.get('/Admin.html', (req, res) => {
     res.sendFile(__dirname + '/Admin.html');
   });
-
+  router.get('/', (req, res) => {
+    res.send('G main route');
+});
 // Start the server
+module.exports = router;

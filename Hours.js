@@ -12,6 +12,7 @@ const fs = require('fs');
 const mysql = require('mysql2');
 const express = require('express');
 const bodyParser = require('body-parser');
+const router = express.Router();
 const { v4: uuidv4 } = require('uuid');
 
 
@@ -73,4 +74,7 @@ WHERE
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/Hours.html');
 });
-
+router.get('/', (req, res) => {
+    res.send('H main route');
+});
+module.exports = router;
