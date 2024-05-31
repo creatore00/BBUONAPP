@@ -74,6 +74,3 @@ app.get('/', (req, res) => {
     res.sendFile(__dirname + '/Hours.html');
 });
 
-app.listen(port, () => {
-    console.log(`Server listening at http://localhost:${port}`);
-});

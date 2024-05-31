@@ -57,6 +57,3 @@ app.get('/', (req, res) => {
     res.sendFile(__dirname + '/ConfirmPassword.html');
   });
   // Start the Express server
-  app.listen(port, () => {
-    console.log(`Server listening at http://localhost:${port}`);
-  });

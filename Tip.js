@@ -67,7 +67,5 @@ app.get('/', (req, res) => {
   
   // Start the Express server
   
-  app.listen(port, () => {
-    console.log(`Server listening at http://localhost:${port}`);
-  });
+
   exports.handler = app; // Export for deployment on GCP

@@ -65,6 +65,4 @@ app.get('/WrongToken.html', (req, res) => {
   res.sendFile(__dirname + '/WrongToken.html');
 });
 // Start the server
-app.listen(port, () => {
-    console.log(`Server listening at http://localhost:${port}`);
-});
+

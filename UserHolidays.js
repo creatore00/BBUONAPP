@@ -76,7 +76,5 @@ app.get('/', (req, res) => {
     res.sendFile(__dirname + '/UserHolidays.html');
 });
 
-app.listen(port, () => {
-    console.log(`Server listening at http://localhost:${port}`);
-  });
+
   exports.handler = app; // Export for deployment on GCP
