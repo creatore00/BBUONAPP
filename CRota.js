@@ -14,6 +14,7 @@ const hours = require('./Hours.js');
 const nodemailer = require('nodemailer');
 const http = require('http');
 const fs = require('fs');
+const router = express.Router();
 
 const app = express();
 
@@ -45,7 +46,9 @@ const transporter = nodemailer.createTransport({
         pass: 'oxih iwuk crfq ghjk'
       }
 });
-
+router.get('/', (req, res) => {
+    res.send('CRota main route');
+});
 // Function to get all email addresses from the Employees table
 function getAllEmails(callback) {
     const query = 'SELECT email FROM Employees';
@@ -135,5 +138,5 @@ app.post('/updateRota', (req, res) => {
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/CRota.html');
 });
-
+module.exports = router;
 // Start the server
