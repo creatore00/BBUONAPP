@@ -15,7 +15,7 @@ const http = require('http');
 const fs = require('fs');
 
 const app = express();
-const port = process.env.PORT || 8080;
+const port =  8080;
 
 // Create a connection to the database
 const connection = mysql.createConnection({
