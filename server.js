@@ -100,7 +100,7 @@ app.get('/User.html', (req, res) => {
 app.get('/checkLogin.html', (req, res) => {
   res.sendFile(__dirname + '/checkLogin.html');
 });
-
+app.use('/CRota', crota);
 // Start the Express server
 
 app.listen(port, () => {
