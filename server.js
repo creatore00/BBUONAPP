@@ -13,6 +13,7 @@ const userholidays = require('./UserHolidays.js');
 const hours = require('./Hours.js');
 const http = require('http');
 const fs = require('fs');
+const path = require('path');
 
 const app = express();
 const port = process.env.PORT || 8080;
@@ -99,6 +100,9 @@ app.get('/User.html', (req, res) => {
 });
 app.get('/checkLogin.html', (req, res) => {
   res.sendFile(__dirname + '/checkLogin.html');
+});
+app.get('/CRota.js', (req, res) => {
+  res.sendFile(path.join(__dirname, 'CRota.js'));
 });
 app.use('/CRota', crota);
 // Start the Express server
