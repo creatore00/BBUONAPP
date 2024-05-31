@@ -16,7 +16,7 @@ const tip = require('./Tip.js');
 const http = require('http');
 // Create Express app
 const app = express();
-const port = 5002;
+const port = process.env.PORT || 5002;
 
 // Create a connection to the database
 const connection = mysql.createConnection({

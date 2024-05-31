@@ -16,7 +16,7 @@ const { v4: uuidv4 } = require('uuid');
 
 
 const app = express();
-const port = 5010;
+const port = process.env.PORT || 5010;
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));

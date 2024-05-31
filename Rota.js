@@ -17,7 +17,7 @@ const bodyParser = require('body-parser');
 const { v4: uuidv4 } = require('uuid');
 
 const app = express();
-const port = 5008;
+const port = process.env.PORT || 5008;
 
 // Create a connection to the database
 const connection = mysql.createConnection({

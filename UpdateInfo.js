@@ -16,7 +16,7 @@ const updatehours = require('./updateHours.js');
 const tip = require('./Tip.js');
 
 const app = express();
-const port = 5007;
+const port = process.env.PORT || 5007;
 
 // Create a connection to the database
 const connection = mysql.createConnection({
