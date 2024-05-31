@@ -13,7 +13,7 @@ const updatehours = require('./updateHours.js');
 const tip = require('./Tip.js');
 const http = require('http');
 const app = express();
-const port = process.env.PORT || 5003;
+
 
 const connection = mysql.createConnection({
   host: 'sql8.freesqldatabase.com',

@@ -16,7 +16,7 @@ const http = require('http');
 const fs = require('fs');
 
 const app = express();
-const port = process.env.PORT || 5005;
+
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));

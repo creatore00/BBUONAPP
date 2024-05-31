@@ -15,7 +15,7 @@ const http = require('http');
 const fs = require('fs');
 
 const app = express();
-const port = process.env.PORT || 5011;
+
 // Create a connection to the database
 const connection = mysql.createConnection({
   host: 'sql8.freesqldatabase.com',

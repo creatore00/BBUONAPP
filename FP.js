@@ -15,7 +15,7 @@ const hours = require('./Hours.js');
 const http = require('http');
 // Create Express app
 const app = express();
-const port = process.env.PORT || 5006;
+
 
 // Create a connection to the database
 const connection = mysql.createConnection({

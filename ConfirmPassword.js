@@ -14,7 +14,7 @@ const tip = require('./Tip.js');
 const http = require('http');
 
 const app = express();
-const port = process.env.PORT || 5001;
+
 
 const connection = mysql.createConnection({
   host: 'sql8.freesqldatabase.com',
