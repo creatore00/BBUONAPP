@@ -24,9 +24,10 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const pool = require('./db.js'); // Import the connection pool
+const pagePorts = require('./pagePorts.js');
 
 const app = express();
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || pagePorts['server'];
 
 // Middleware to parse JSON data
 app.use(express.json());
