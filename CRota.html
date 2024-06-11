@@ -2,172 +2,240 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=100%, initial-scale=1.0">
     <title>Work Hours Table</title>
-    <style>
-                body {
-            /* Set the background image and specify its source */
-            background-image: url('https://www.oxfordmail.co.uk/resources/images/12727861/');
-            /* Set background size to cover the entire viewport */
-            background-size: cover;
-            margin: 0;
-            font-family: Arial, sans-serif;
-            text-align: center;
-            text-transform: uppercase;
-            color: rgb(53, 38, 5);
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background-color:rgba(231, 220, 209, 0.692);
-            
-        }
-        th, td {
-            border: 1px solid #000;
-            text-align: center;
-            padding: 8px;
-            white-space: nowrap;
-            background-color:rgba(172, 133, 96, 0.692);
-        }
-        th {
-            background-color:rgba(172, 133, 96, 0.692);
-        }
-        .delete-btn {
-            cursor: pointer;
-            color: red;
-            font-weight: bold;
-            background-color:rgba(172, 133, 96, 0.692);
-        }
-        .btn{
-            background-color:rgba(172, 133, 96, 0.692);
-            color: #fff;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            align-self: center;
-            margin-top: 20px;
-        }
-        h1{
-            text-align: center;
-        }
-    </style>
+<style>
+    body {
+    /* Set the background color with gradient effect */
+    background: linear-gradient(135deg, #4A90E2 0%, #B0E0E6 100%);
+    margin: 0;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    text-transform: uppercase;
+    color: #60a2ee; /* Text color */
+}
+
+table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background-color: #1E90FF; /* Blue background */
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Added box shadow for depth */
+}
+
+th, td {
+    text-align: center;
+    padding: 12px;
+    white-space: nowrap;
+    background-color: #4A90E2; /* Light blue background */
+    color: #fff; /* White text */
+    font-weight: bold; /* Bold text */
+}
+
+.btn, .btn1 {
+    background-color: #4A90E2; /* Light blue button background */
+    color: #fff; /* White text */
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    align-self: center;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    transition: background-color 0.3s ease; /* Smooth color transition */
+    font-size: 14px; /* Font size */
+}
+
+.btn:hover, .btn1:hover {
+    background-color: #1E90FF; /* Darker blue button background on hover */
+    transform: scale(1.05); /* Increase size by 5% */
+    transition: transform 0.3s ease; /* Add smooth transition effect */
+}
+
+.draggable {
+    cursor: pointer;
+}
+
+.dragging {
+    opacity: 0.5;
+}
+
+.dragover {
+    background-color: #70ace7; /* Lighter blue background */
+}
+
+.time-frame {
+    margin-bottom: 5px;
+    cursor: move;
+    border: 1px solid transparent; /* Added for highlighting */
+}
+
+.selected {
+    background-color: #70ace7; /* Lighter blue background */
+    border-color: #ccc; /* Added for highlighting */
+}
+
+#timeFrameInput {
+    display: none;
+    position: absolute;
+    background-color: rgba(176, 224, 230, 0.8); /* Light blue background */
+    border: 1px solid #ccc;
+    padding: 10px;
+}
+
+#timeFrameInput.show {
+    display: block;
+}
+
+#popupMessage {
+    display: none;
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #4CAF50; /* Green background */
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    z-index: 1000;
+    transition: opacity 0.3s ease; /* Smooth transition */
+}
+
+#popupMessage.show {
+    display: block;
+    opacity: 1;
+}
+
+#customWeekNavigation {
+    margin-bottom: 10px; /* Add some space above the new line */
+}
+
+.date {
+    background-color: #70ace7; /* Blue background */
+    font-family: Arial, sans-serif;
+    text-transform: uppercase;
+    color: white;
+    border-radius: 5px; /* Rounded corners */
+    padding: 6px 12px; /* Adjust padding for better fit */
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2); /* Added shadow for depth */
+}
+
+/* Animation for table rows */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+tbody tr {
+    animation: fadeInUp 0.5s ease;
+}
+
+</style>
 </head>
-<body onload="loadrota()">
-    <h1>Work Hours Table</h1>
-    <table id="rota">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Last Name</th>
-                <th>Monday</th>
-                <th>Tuesday</th>
-                <th>Wednesday</th>
-                <th>Thursday</th>
-                <th>Friday</th>
-                <th>Saturday</th>
-                <th>Sunday</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Data will be inserted here -->
+<body>
+    <h1>New Rota</h1>
+    <button class="btn1" onclick="navigateWeek(-1)">Previous Week</button>
+    <button class="btn1" onclick="navigateWeek(0)">Current Week</button>
+    <button class="btn1" onclick="navigateWeek(1)">Next Week</button>
+    <div id="customWeekNavigation">
+        <input type="date" id="weekStartDate" class="date">
+        <button class="btn1" onclick="navigateToCustomWeek()">Go to Week</button>
+    </div>
+    <table id="hoursTable">
+        <tr>
+            <th>Name</th>
+            <th>LastName</th>
+            <th>Wage</th>
+            <th>Designation</th>
+            <th id="mondayHeader">Monday</th>
+            <th id="tuesdayHeader">Tuesday</th>
+            <th id="wednesdayHeader">Wednesday</th>
+            <th id="thursdayHeader">Thursday</th>
+            <th id="fridayHeader">Friday</th>
+            <th id="saturdayHeader">Saturday</th>
+            <th id="sundayHeader">Sunday</th>
+        </tr>
+        <tbody id="employeeRows">
+            <!-- Employee rows will be dynamically generated here -->
         </tbody>
     </table>
-    <button class="btn" onclick="updateRota()">Update</button>
+    <div id="timeFrameInput" class="time-frame">
+        <label for="startTime">Start Time:</label>
+        <input type="time" id="startTime">
+        <label for="endTime">End Time:</label>
+        <input type="time" id="endTime">
+        <button class="btn" onclick="addTime()" >Add Time</button>
+        <button class="btn" onclick="deleteTime()">Delete Time</button>
 
+    </div>
+    <div id="popupMessage">Rota Updated Successfully</div>
+    <button class="btn1" onclick="saveData()">Save</button>
+    <button class="btn1" onclick="clearTable()">Clear All</button>
+    <button class="btn1" onclick="submitData()">Submit</button>
     <script>
-        function loadrota() {
-            fetch('/rota')
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Fetched data:', data); // Debugging: Check the fetched data
-                    const tbody = document.querySelector('#rota tbody');
-                    tbody.innerHTML = ''; // Clear existing rows
-
-                    const groupedData = groupByPerson(data);
-                    console.log('Grouped data:', groupedData); // Debugging: Check the grouped data
-                    groupedData.forEach(person => {
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td>${person.name}</td>
-                            <td>${person.lastName}</td>
-                            ${generateDayCells(person.days)}
-                        `;
-                        tbody.appendChild(row);
-                    });
-                })
-                .catch(error => console.error('Error fetching employee data:', error));
-        }
-
-        function groupByPerson(data) {
-            const groupedData = [];
-            const map = new Map();
-            data.forEach(entry => {
-                const key = `${entry.name} ${entry.lastName}`;
-                if (!map.has(key)) {
-                    map.set(key, { name: entry.name, lastName: entry.lastName, days: {} });
-                }
-                const day = map.get(key).days[entry.day] || [];
-                day.push({ startTime: entry.startTime, endTime: entry.endTime });
-                map.get(key).days[entry.day] = day;
-            });
-            map.forEach((value, key) => {
-                groupedData.push(value);
-            });
-            return groupedData;
-        }
-
-        function generateDayCells(days) {
-            const weekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-            return weekDays.map(day => {
-                if (days[day]) {
-                    return `<td>${days[day].map(time => `${time.startTime} - ${time.endTime} <span class="delete-btn" onclick="deleteTime('${day}', '${time.startTime}', '${time.endTime}')">Delete</span>`).join('<br>')}</td>`;
-                } else {
-                    return `<td></td>`;
-                }
-            }).join('');
-        }
-
-        function deleteTime(day, startTime, endTime) {
-            // Send a request to delete the time entry from the database
-            fetch('/deleteTime', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ day, startTime, endTime }),
+    // Function to fetch employee data from the backend server for the specified week start date
+    function fetchEmployeeData(weekStart) {
+        // Construct the URL with the week start date as a query parameter
+        const url = `/rota?weekStart=${weekStart.toISOString()}`;
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                console.log('Fetched employee data:', data);
+                populateEmployeeRows(data); // Call the function to populate employee rows
             })
-            .then(response => {
-                if (response.ok) {
-                    // Reload the table after successful deletion
-                    loadrota();
-                } else {
-                    throw new Error('Failed to delete time entry');
-                }
-            })
-            .catch(error => console.error('Error deleting time entry:', error));
+            .catch(error => console.error('Error fetching employee data:', error));
+    }
+    // Function to generate HTML markup for each employee row
+    function generateEmployeeRow(employee) {
+        return `
+            <tr>
+                <td>${employee.name}</td>
+                <td>${employee.lastName}</td>
+                <td>${employee.wage}</td>
+                <td>${employee.designation}</td>
+                <td class="draggable" data-day="Monday"></td>
+                <td class="draggable" data-day="Tuesday"></td>
+                <td class="draggable" data-day="Wednesday"></td>
+                <td class="draggable" data-day="Thursday"></td>
+                <td class="draggable" data-day="Friday"></td>
+                <td class="draggable" data-day="Saturday"></td>
+                <td class="draggable" data-day="Sunday"></td>
+            </tr>
+        `;
+    }
+    // Function to populate employee rows in the table
+    function populateEmployeeRows(employees) {
+        // Sort employees by designation with 'foh' first and 'boh' second
+        const sortedEmployees = employees.sort((a, b) => {
+        // First level sort by designation
+        if (a.designation === 'FOH' && b.designation === 'BOH') {
+            return -1;
         }
-
-        function updateRota() {
-            // Send a request to update the rota
-            fetch('/updateRota', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ /* Any necessary data for the update */ }),
-            })
-            .then(response => {
-                if (response.ok) {
-                    // Reload the table after successful update
-                    loadrota();
-                    alert('Rota updated successfully and email sent');
-                } else {
-                    throw new Error('Failed to update rota');
-                }
-            })
-            .catch(error => console.error('Error updating rota:', error));
+        if (a.designation === 'BOH' && b.designation === 'FOH') {
+            return 1;
         }
-    </script>
+    
+        // If designations are the same, sort by name
+        if (a.designation === b.designation) {
+            if (a.name < b.name) {
+                return -1;
+            }
+            if (a.name > b.name) {
+                return 1;
+            }
+        }
+        // If designations and names are the same, return 0
+        return 0;
+    });
+}
+</script>
 </body>
 </html>

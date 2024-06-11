@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Work Hours Table</title>
+    <style>
+        body {
+        /* Set the background color with gradient effect */
+        background: linear-gradient(135deg, #4A90E2 0%, #B0E0E6 100%);
+        margin: 0;
+        font-family: Arial, sans-serif;
+        text-align: center;
+        text-transform: uppercase;
+        color: #60a2ee; /* Text color */
+    }
+    
+    table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        background-color: #1E90FF; /* Blue background */
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Added box shadow for depth */
+    }
+    
+    th, td {
+        text-align: center;
+        padding: 12px;
+        white-space: nowrap;
+        background-color: #4A90E2; /* Light blue background */
+        color: #fff; /* White text */
+        font-weight: bold; /* Bold text */
+    }
+    
+    .btn, .btn1 {
+        background-color: #4A90E2; /* Light blue button background */
+        color: #fff; /* White text */
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        align-self: center;
+        margin-top: 10px;
+        margin-bottom: 10px;
+        transition: background-color 0.3s ease; /* Smooth color transition */
+        font-size: 14px; /* Font size */
+    }
+    
+    .btn:hover, .btn1:hover {
+        background-color: #1E90FF; /* Darker blue button background on hover */
+        transform: scale(1.05); /* Increase size by 5% */
+        transition: transform 0.3s ease; /* Add smooth transition effect */
+    }
+    
+    .draggable {
+        cursor: pointer;
+    }
+    
+    .dragging {
+        opacity: 0.5;
+    }
+    
+    .dragover {
+        background-color: #70ace7; /* Lighter blue background */
+    }
+    
+    .time-frame {
+        margin-bottom: 5px;
+        cursor: move;
+        border: 1px solid transparent; /* Added for highlighting */
+    }
+    
+    .selected {
+        background-color: #70ace7; /* Lighter blue background */
+        border-color: #ccc; /* Added for highlighting */
+    }
+    
+    #timeFrameInput {
+        display: none;
+        position: absolute;
+        background-color: rgba(176, 224, 230, 0.8); /* Light blue background */
+        border: 1px solid #ccc;
+        padding: 10px;
+    }
+    
+    #timeFrameInput.show {
+        display: block;
+    }
+    
+    #popupMessage {
+        display: none;
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: #4CAF50; /* Green background */
+        color: white;
+        padding: 10px;
+        border-radius: 5px;
+        z-index: 1000;
+        transition: opacity 0.3s ease; /* Smooth transition */
+    }
+    
+    #popupMessage.show {
+        display: block;
+        opacity: 1;
+    }
+    
+    #customWeekNavigation {
+        margin-bottom: 10px; /* Add some space above the new line */
+    }
+    
+    .date {
+        background-color: #70ace7; /* Blue background */
+        font-family: Arial, sans-serif;
+        text-transform: uppercase;
+        color: white;
+        border-radius: 5px; /* Rounded corners */
+        padding: 6px 12px; /* Adjust padding for better fit */
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.2); /* Added shadow for depth */
+    }
+    
+    /* Animation for table rows */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    tbody tr {
+        animation: fadeInUp 0.5s ease;
+    }
+    
+    </style>
+</head>
+<body>
+    <h1>Confirm Rota</h1>
+    <table id="rotaTable">
+        <thead>
+            <tr>
+                <th>Day</th>
+                <th>Name</th>
+                <th>Last Name</th>
+                <th>Wage</th>
+                <th>Designation</th>
+                <th>Start and End Times</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Data will be inserted here by JavaScript -->
+        </tbody>
+    </table>
+    <button class="btn" id="confirmButton">Confirm Rota</button>
+    <script>
+        async function getTodayRota() {
+            const today = getTodayDate();
+            const response = await fetch(`/api/rota?day=${encodeURIComponent(today)}`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return await response.json();
+        }
+
+        function getTodayDate() {
+            const today = new Date();
+            const day = String(today.getDate()).padStart(2, '0');
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const year = today.getFullYear();
+            const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+            const dayOfWeek = daysOfWeek[today.getDay()];
+            return `${day}/${month}/${year} (${dayOfWeek})`;
+        }
+
+        async function populateTable() {
+            try {
+                const rotaData = await getTodayRota(); // Fetch rota data
+                const tableBody = document.querySelector('#rotaTable tbody');
+                tableBody.innerHTML = ''; // Clear existing rows
+
+                if (rotaData.length === 0) {
+                    const row = document.createElement('tr');
+                    const cell = document.createElement('td');
+                    cell.colSpan = 6;
+                    cell.textContent = "No data for today.";
+                    row.appendChild(cell);
+                    tableBody.appendChild(row);
+                } else {
+                    // Sort rotaData by designation (FOH first, then BOH)
+                    rotaData.sort((a, b) => {
+                        if (a.designation === 'FOH' && b.designation === 'BOH') return -1;
+                        if (a.designation === 'BOH' && b.designation === 'FOH') return 1;
+                        return 0;
+                    });
+
+                    // Group rotaData by name and designation
+                    const groupedData = rotaData.reduce((acc, entry) => {
+                        const key = `${entry.name} ${entry.lastName} ${entry.designation}`;
+                        if (!acc[key]) {
+                            acc[key] = {
+                                day: entry.day,
+                                name: entry.name,
+                                lastName: entry.lastName,
+                                wage: entry.wage,
+                                designation: entry.designation,
+                                times: []
+                            };
+                        }
+                        acc[key].times.push(`${entry.startTime} - ${entry.endTime}`);
+                        return acc;
+                    }, {});
+
+                    // Loop through each entry in groupedData
+                    Object.values(groupedData).forEach(entry => {
+                        const row = document.createElement('tr');
+
+                        const dayCell = document.createElement('td');
+                        dayCell.textContent = entry.day;
+                        row.appendChild(dayCell);
+
+                        const nameCell = document.createElement('td');
+                        nameCell.textContent = entry.name;
+                        row.appendChild(nameCell);
+
+                        const lastNameCell = document.createElement('td');
+                        lastNameCell.textContent = entry.lastName;
+                        row.appendChild(lastNameCell);
+
+                        const wageCell = document.createElement('td');
+                        wageCell.textContent = entry.wage;
+                        row.appendChild(wageCell);
+
+                        const designationCell = document.createElement('td');
+                        designationCell.textContent = entry.designation;
+                        row.appendChild(designationCell);
+
+                        const timesCell = document.createElement('td');
+                        timesCell.innerHTML = entry.times.join('<br>'); // Use <br> to insert new lines
+                        row.appendChild(timesCell);
+
+                        tableBody.appendChild(row);
+                    });
+                }
+
+                return rotaData; // Return the rota data
+            } catch (error) {
+                console.error('Error fetching rota data:', error);
+            }
+        }
+
+        async function confirmRota() {
+    try {
+        const rotaData = await populateTable(); // Fetch rota data
+        console.log('Rota data to be confirmed:', rotaData); // Log rotaData to debug
+
+        // Ensure that we send only the necessary data
+        const formattedData = rotaData.map(entry => ({
+            name: entry.name,
+            lastName: entry.lastName,
+            wage: entry.wage,
+            day: entry.day,
+            startTime: entry.startTime,
+            endTime: entry.endTime,
+            designation: entry.designation
+        }));
+
+        const response = await fetch('/confirm-rota', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formattedData) // Send formatted rota data to server
+        });
+
+        if (response.ok) {
+            console.log('Rota confirmed successfully.');
+        } else {
+            const errorText = await response.text();
+            console.error('Error confirming rota:', errorText);
+        }
+    } catch (error) {
+        console.error('Error confirming rota:', error.message);
+    }
+}
+
+
+
+        // Add event listener to confirm button
+        const confirmButton = document.getElementById('confirmButton');
+        confirmButton.addEventListener('click', confirmRota);
+
+        // Fetch rota data when the page loads
+        window.onload = populateTable;
+    </script>
+</body>
+</html>

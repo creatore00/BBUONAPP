@@ -7,27 +7,45 @@
     <link rel="icon" href="https://bbuona.com/wp-content/uploads/2019/11/marker.png" type="image/x-icon">
     <style>
         body {
-            /* Set the background image and specify its source */
-            background-image: url('https://www.oxfordmail.co.uk/resources/images/12727861/');
-            /* Set background size to cover the entire viewport */
-            background-size: cover;
+            background: linear-gradient(135deg, #4A90E2 0%, #B0E0E6 100%);
             margin: 0;
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-            display: flex;
+            font-family: 'Arial', sans-serif;
             height: 100vh;
             overflow: hidden;
+            align-items: center;
+            justify-content: center;
         }
+        table {
+        width: 60%;
+        margin: 0 auto; /* This centers the table horizontally */
+        border-collapse: separate;
+        border-spacing: 0;
+        background-image: linear-gradient(135deg, #4a91e260 0%, #32bacc 100%);
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Added box shadow for depth */
+    }
+    
+    th, td {
+        text-align: center;
+        padding: 12px;
+        white-space: nowrap;
+        background-color: linear-gradient(135deg, #4A90E2 0%, #B0E0E6 100%);
+        color: #fff; /* White text */
+        font-weight: bold; /* Bold text */
+    }
         .sidebar {
             height: 100%;
+            margin-top: 20px;
             width: 250px;
             position: fixed;
             top: 0;
             left: -250px;
-            background-color:rgba(172, 133, 96, 0.692);
+            background: linear-gradient(135deg, #1E90FF 0%, #ADD8E6 100%);
             color: white;
-            transition: 0.3s;
+            transition: left 0.5s ease;
             padding-top: 60px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
         }
         .sidebar a {
             padding: 15px 25px;
@@ -35,14 +53,14 @@
             font-size: 18px;
             color: white;
             display: block;
-            transition: 0.3s;
+            transition: background-color 0.3s ease;
         }
         .sidebar a:hover {
-            background-color: #a55f30;
+            background-color: #4682B4;
         }
         .main {
             margin-left: 0;
-            transition: margin-left 0.3s;
+            transition: margin-left 0.5s ease;
             flex-grow: 1;
             display: flex;
             flex-direction: column;
@@ -55,20 +73,28 @@
             left: 15px;
             font-size: 30px;
             cursor: pointer;
-            background-color:rgba(172, 133, 96, 0.692);
+            background-color: #4682B4;
             color: white;
+            padding: 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+        .menu-btn:hover {
+            background-color: #1E90FF;
+            transform: rotate(90deg);
         }
         .header {
             text-align: center;
             padding: 20px;
-            background-color: rgba(206, 172, 137, 0.692);
-            width: 150%;
+            background: linear-gradient(135deg, #1E90FF 0%, #ADD8E6 100%);
+            width: 100%;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            color: white;
+            transition: background-color 0.5s ease;
         }
         .header h1 {
             margin: 0;
-            font-size: 2em;
-            color: BEIGE;
+            font-size: 2.5em;
         }
         .button-group {
             display: flex;
@@ -78,31 +104,68 @@
             margin-top: 20px;
         }
         .button-group a {
-            background-color:rgba(172, 133, 96, 0.692);
-            color: #fff;
+            background-color: #4682B4;
+            color: white;
             padding: 15px 30px;
             border-radius: 5px;
             text-align: center;
             text-decoration: none;
-            transition: background-color 0.3s;
+            transition: background-color 0.3s ease, transform 0.3s ease;
         }
         .button-group a:hover {
-            background-color: #a55f30;
+            background-color: #1E90FF;
+            transform: scale(1.1);
         }
-        .logout-btn {
-            background-color: #c0392b;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            color: white;
-            cursor: pointer;
-            transition: background-color 0.3s;
+        .dropdown {
             position: absolute;
             top: 15px;
             right: 15px;
+            margin-top: 80px;
         }
-        .logout-btn:hover {
-            background-color: #e74c3c;
+        .dropbtn {
+            background-color: #4682B4;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+        .dropbtn:hover {
+            background-color: #1E90FF;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background-color: white;
+            min-width: 160px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        .dropdown-content a {
+            color: #333;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+        .dropdown-content a:hover {
+            background-color: #f1f1f1;
+            transform: scale(1.05);
+        }
+        .dropdown:hover .dropdown-content {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        .dropdown:hover .dropbtn {
+            background-color: #1E90FF;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
         .open-menu {
             margin-left: 250px;
@@ -110,47 +173,143 @@
         .open-sidebar {
             left: 0;
         }
-        .sidebar-open .button-group a {
-            background-color:rgba(172, 133, 96, 0.692);
-        }
-        .sidebar-open .menu-btn {
-            background-color:rgba(172, 133, 96, 0.692);
-            border-radius: 5px;
-            padding: 5px 10px;
-        }
     </style>
-    
 </head>
 <body>
     <div class="sidebar" id="sidebar">
-        <a href="\Rota.js">New Rota</a>
-        <a href="\CRota.js">Current Rota</a>
-        <a href="http://localhost:5002">New Access</a>
-        <a href="">Personal Information</a>
-        <a href="http://localhost:5010">Payslip</a>
-        <a href="\UpdateInfo.js">Employees</a>
-        <a href="http://localhost:5004">Holidays</a>
-        <a href="page8.html">Requests</a>
+        <a href="http://localhost:3007">New Rota</a>
+        <a href="http://localhost:3015">Confirm Rota</a>
+        <a href="http://localhost:3014">Daily Tips</a>
+        <a href="http://localhost:3001">Employees</a>
+        <a href="http://localhost:3002">Holidays Request</a>
+        <a href="http://localhost:3008">Requests</a>
     </div>
     <div class="main" id="main">
         <span class="menu-btn" id="menuBtn">&#9776;</span>
         <div class="header">
-            <h1>Welcome to the Dashboard</h1>
+            <h1>BBuona Management</h1>
         </div>
         <div class="button-group">
-            <a href="\Rota.js">New Rota</a>
-            <a href="\CRota.js">Current Rota</a>
-            <a href="http://localhost:5002">New Access</a>
-            <a href="">Personal Information</a>
-            <a href="http://localhost:5010">Payslip</a>
-            <a href="\UpdateInfo.js">Employees</a>
-            <a href="http://localhost:5004">Holidays</a>
-            <a href="page8.html">Requests</a>
+            <a href="http://localhost:3007">New Rota</a>
+            <a href="http://localhost:3015">Confirm Rota</a>
+            <a href="http://localhost:3014">Daily Tips</a>
+            <a href="http://localhost:3001">Employees</a>
+            <a href="http://localhost:3002">Holidays Request</a>
+            <a href="http://localhost:3008">Requests</a>
         </div>
-        <button class="logout-btn" id="logoutBtn">Logout</button> <!-- Logout button -->
+        <div class="dropdown">
+            <button class="dropbtn">Account</button>
+            <div class="dropdown-content">
+                <a href="http://localhost:3018">Profile</a>
+                <a href="http://localhost:3005">New Access</a>
+                <a href="http://localhost:3010">Hours Worked</a>
+                <a href="http://localhost:3006">Tips Report</a>
+                <a href="http://localhost:3016">Holidays Report</a>
+                <a href="http://localhost:3017">Upload Payslips</a>
+                <a href="http://localhost:3011">Past Payslips</a>
+                <a href="#" id="logoutBtn">Logout</a>
+            </div>
+        </div>
     </div>
+    <br>
+    <table id="rotaTable">
+        <thead>
+            <tr>
+                <th>Name</th>
+
+                <th>Designation</th>
+                <th>Shift</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Data will be inserted here by JavaScript -->
+        </tbody>
+    </table>
 
     <script>
+async function getTodayRota() {
+    const today = getTodayDate();
+    const response = await fetch(`/api/rota?day=${encodeURIComponent(today)}`);
+    if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    return await response.json();
+}
+
+function getTodayDate() {
+    const today = new Date();
+    const day = String(today.getDate()).padStart(2, '0');
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const year = today.getFullYear();
+    const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const dayOfWeek = daysOfWeek[today.getDay()];
+    return `${day}/${month}/${year} (${dayOfWeek})`;
+}
+
+async function populateTable() {
+    try {
+        const rotaData = await getTodayRota();
+        const tableBody = document.querySelector('#rotaTable tbody');
+        tableBody.innerHTML = ''; // Clear existing rows
+
+        if (rotaData.length === 0) {
+            const row = document.createElement('tr');
+            const cell = document.createElement('td');
+            cell.colSpan = 3;
+            cell.textContent = "No data for today.";
+            row.appendChild(cell);
+            tableBody.appendChild(row);
+        } else {
+            // Group rotaData by designation (FOH first, then BOH)
+            const groupedByDesignation = rotaData.reduce((acc, entry) => {
+                acc[entry.designation] = acc[entry.designation] || [];
+                acc[entry.designation].push(entry);
+                return acc;
+            }, {});
+
+            // Loop through each designation group
+            const designations = ['FOH', 'BOH'];
+            designations.forEach(designation => {
+                if (groupedByDesignation[designation]) {
+                    // Group entries within each designation by name
+                    const groupedByName = groupedByDesignation[designation].reduce((acc, entry) => {
+                        const key = `${entry.name} ${entry.lastName}`;
+                        acc[key] = acc[key] || [];
+                        acc[key].push({ startTime: entry.startTime, endTime: entry.endTime });
+                        return acc;
+                    }, {});
+
+                    // Loop through each name group within the designation
+                    Object.keys(groupedByName).forEach(name => {
+                        const row = document.createElement('tr');
+
+                        const nameCell = document.createElement('td');
+                        nameCell.textContent = name;
+                        row.appendChild(nameCell);
+
+                        const designationCell = document.createElement('td');
+                        designationCell.textContent = designation;
+                        row.appendChild(designationCell);
+
+                        const timeCell = document.createElement('td');
+                        const times = groupedByName[name]; // Get array of start time and end time objects
+                        const formattedTimes = times.map(time => `${time.startTime} - ${time.endTime}`); // Format start time and end time
+                        timeCell.innerHTML = formattedTimes.join('<br>'); // Join formatted times with comma and space
+                        row.appendChild(timeCell);
+
+                        tableBody.appendChild(row);
+                    });
+                }
+            });
+        }
+    } catch (error) {
+        console.error('Error fetching rota data:', error);
+    }
+}
+
+
+document.addEventListener('DOMContentLoaded', populateTable);
+
         const menuBtn = document.getElementById('menuBtn');
         const sidebar = document.getElementById('sidebar');
         const main = document.getElementById('main');
@@ -161,6 +320,7 @@
             main.classList.toggle('open-menu');
             body.classList.toggle('sidebar-open');
         });
+
         document.getElementById('logoutBtn').addEventListener('click', () => {
             // Manipulate browser history to prevent going back to the dashboard
             history.pushState(null, null, window.location.href);

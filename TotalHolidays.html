@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Holiday Report</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.3/jspdf.umd.min.js"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #4A90E2 0%, #B0E0E6 100%);
+            margin: 0;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            text-transform: uppercase;
+            color: #60a2ee;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            background-color: #1E90FF;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        
+        th, td {
+            text-align: center;
+            padding: 12px;
+            white-space: nowrap;
+            background-color: #4A90E2;
+            color: #fff;
+            font-weight: bold;
+        }
+        
+        .btn {
+            background-color: #4A90E2;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            align-self: center;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            transition: background-color 0.3s ease;
+            font-size: 14px;
+        }
+        
+        .btn:hover {
+            background-color: #1E90FF;
+            transform: scale(1.05);
+            transition: transform 0.3s ease;
+        }
+        
+        .date {
+            background-color: #70ace7;
+            font-family: Arial, sans-serif;
+            text-transform: uppercase;
+            color: white;
+            border-radius: 5px;
+            padding: 6px 12px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        tbody tr {
+            animation: fadeInUp 0.5s ease;
+        }
+        
+    </style>
+</head>
+<body>
+    <h2>Holiday Report</h2>
+    <input class="btn" type="month" id="monthSelector" onchange="handleMonthSelection()">
+    <table id="employeeData">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Last Name</th>
+                <th>Wage</th>
+                <th>Total Hours Worked</th>
+                <th>Total Days on Holiday</th>
+                <th>Cost per Day of Holiday</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+            <!-- Data will be inserted here -->
+        </tbody>
+    </table>
+    <button class="btn" onclick="downloadPDF()">Download PDF</button>
+    <script>
+        window.onload = function () {
+            handleMonthSelection(); // Fetch data for the current month on page load
+        }
+        function fetchDataForMonth(startDate, endDate) {
+    fetch(`/rota?startDate=${startDate}&endDate=${endDate}`)
+        .then(response => response.json())
+        .then(rotaData => {
+            console.log('Rota data:', rotaData);
+            const tableBody = document.getElementById('tableBody');
+            const employeeData = {};
+            rotaData.forEach(entry => {
+                if (!employeeData[entry.name]) {
+                    employeeData[entry.name] = {
+                        name: entry.name,
+                        lastName: entry.lastName,
+                        wage: entry.wage,
+                        totalHours: 0,
+                        totalDaysOnHoliday: 0
+                    };
+                }
+                const startTime = new Date(`2000-01-01T${entry.startTime}`);
+                const endTime = new Date(`2000-01-01T${entry.endTime}`);
+                const hoursWorked = (endTime - startTime) / (1000 * 60 * 60);
+                employeeData[entry.name].totalHours += hoursWorked;
+            });
+
+            fetch(`/holiday?startDate=${startDate}&endDate=${endDate}`)
+                .then(response => response.json())
+                .then(holidayData => {
+                    console.log('Holiday data:', holidayData);
+                    holidayData.forEach(holiday => {
+                        const matchingEmployee = Object.values(employeeData).find(employee => {
+                            return employee.name === holiday.name && employee.lastName === holiday.lastName;
+                        });
+                        if (matchingEmployee) {
+                            const start = new Date(holiday.startDate);
+                            const end = new Date(holiday.endDate);
+                            const timeDifference = Math.abs(end.getTime() - start.getTime());
+                            const totalDaysOnHoliday = Math.ceil(timeDifference / (1000 * 3600 * 24)) + 1;
+                            matchingEmployee.totalDaysOnHoliday += totalDaysOnHoliday;
+                            // Retrieve wage from the employee data
+                            const wage = matchingEmployee.wage; // Assuming the wage is stored in the employee data
+                            // Calculate cost per day of holiday
+                            const costPerDay = wage * matchingEmployee.totalHours;
+                            matchingEmployee.costPerDay = costPerDay;
+                        }
+                    });
+
+                    tableBody.innerHTML = '';
+                    Object.values(employeeData).forEach(employee => {
+                        if (employee.totalDaysOnHoliday > 0) {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${employee.name}</td>
+                                <td>${employee.lastName}</td>
+                                <td>${employee.wage}</td>
+                                <td>${employee.totalHours}</td>
+                                <td>${employee.totalDaysOnHoliday}</td>
+                                <td>${employee.costPerDay}</td>`;
+                            tableBody.appendChild(row);
+                        }
+                    });
+                })
+                .catch(error => console.error('Error fetching holiday data:', error));
+        })
+        .catch(error => console.error('Error fetching rota data:', error));
+}
+        function handleMonthSelection() {
+            const selectedMonth = document.getElementById('monthSelector').value;
+            const [year, month] = selectedMonth.split('-');
+            const startDate = `${year}-${month}-01`;
+            const lastDay = new Date(year, month, 0).getDate();
+            const endDate = `${year}-${month}-${lastDay}`;
+            fetchDataForMonth(startDate, endDate);
+        }
+// Initial load: Fetch data for the current month
+const currentDate = new Date();
+const currentMonth = currentDate.getMonth() + 1;
+const currentYear = currentDate.getFullYear();
+const startDate = `${currentYear}-${currentMonth}-01`;
+const lastDay = new Date(currentYear, currentMonth, 0).getDate();
+const endDate = `${currentYear}-${currentMonth}-${lastDay}`;
+fetchDataForMonth(startDate, endDate);
+function downloadPDF() {
+    const table = document.getElementById('employeeData');
+    const html = table.outerHTML;
+
+    fetch('/generate-pdf', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ html: html })
+    })
+    .then(response => response.blob())
+    .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Holiday_${currentMonth}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+    })
+    .catch(error => console.error('Error generating PDF:', error));
+}
+
+</script>
+</body>
+</html>

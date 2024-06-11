@@ -2,135 +2,277 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=100%, initial-scale=1.0">
     <title>Work Hours Table</title>
-    <style>
-                body {
-            /* Set the background image and specify its source */
-            background-image: url('https://www.oxfordmail.co.uk/resources/images/12727861/');
-            /* Set background size to cover the entire viewport */
-            background-size: cover;
-            margin: 0;
-            font-family: Arial, sans-serif;
-            text-align: center;
-            text-transform: uppercase;
-            color: rgb(53, 38, 5);
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background-color:rgba(231, 220, 209, 0.692);
-            
-        }
-        th, td {
-            border: 1px solid #000;
-            text-align: center;
-            padding: 8px;
-            white-space: nowrap;
-            background-color:rgba(172, 133, 96, 0.692);
-        }
-        th {
-            background-color:rgba(172, 133, 96, 0.692);
-        }
-        .btn{
-            background-color:rgba(172, 133, 96, 0.692);
-            color: #fff;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            align-self: center;
-        }
-        .btn1{
-            background-color:rgba(172, 133, 96, 0.692);
-            color: #fff;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            align-self: center;
-            margin-top: 20px;
-        }
-        .draggable {
-            cursor: pointer;
-        }
-        .dragging {
-            opacity: 0.5;
-        }
-        .dragover {
-            background-color: #e0e0e0;
-        }
-        .time-frame {
-            margin-bottom: 5px;
-            cursor: move;
-            border: 1px solid transparent; /* Added for highlighting */
-        }
-        .selected {
-            background-color: #f0f0f0; /* Added for highlighting */
-            border-color: #ccc; /* Added for highlighting */
-        }
-        #timeFrameInput {
-            display: none;
-            position: absolute;
-            background-color:rgba(231, 220, 209, 0.692);
-            border: 1px solid #ccc;
-            padding: 10px;
-        }
-        #timeFrameInput.show {
-            display: block;
-        }
-        #popupMessage {
-            display: none;
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px;
-            border-radius: 5px;
-            z-index: 1000;
-        }
-    </style>
+<style>
+* {
+    box-sizing: border-box;
+}
+body {
+    /* Set the background color with gradient effect */
+    background: linear-gradient(135deg, #4A90E2 0%, #B0E0E6 100%);
+    margin: 0;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    text-transform: uppercase;
+    color: #60a2ee; /* Text color */
+    overflow-x: hidden; /* Prevent horizontal scrolling */
+}
+table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background-color: #1E90FF; /* Blue background */
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Added box shadow for depth */
+    border: 0.1px solid #000; /* Border around the table */
+}
+th, td {
+    text-align: center;
+    border: 1px solid #ffffff; /* Border for table cells */
+    padding: 12px;
+    white-space: nowrap;
+    background-color: #4A90E2; /* Light blue background */
+    color: #fff; /* White text */
+    font-weight: bold; /* Bold text */
+}
+.table1 {
+    width: 74%;
+    border-collapse: separate;
+    margin: 0 auto; /* This centers the table horizontally */
+    border-spacing: 0;
+    background-color: #1E90FF; /* Blue background */
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Added box shadow for depth */
+    border: 0.1px solid #000; /* Border around the table */
+}
+.td1 {
+    text-align: center;
+    border: 1px solid #ffffff; /* Border for table cells */
+    padding: 5px;
+    white-space: nowrap;
+    background-color: #4A90E2; /* Light blue background */
+    color: #fff; /* White text */
+    font-weight: bold; /* Bold text */
+}
+.td2 {
+    width: 15%;
+    text-align: center;
+    border: 1px solid #ffffff; /* Border for table cells */
+    padding: 5px;
+    white-space: nowrap;
+    background-color: #4A90E2; /* Light blue background */
+    color: #fff; /* White text */
+    font-weight: bold; /* Bold text */
+}
+.btn, .btn1 {
+    background-color: #4A90E2; /* Light blue button background */
+    color: #fff; /* White text */
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    align-self: center;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    transition: background-color 0.3s ease; /* Smooth color transition */
+    font-size: 14px; /* Font size */
+}
+.btn:hover, .btn1:hover {
+    background-color: #1E90FF; /* Darker blue button background on hover */
+    transform: scale(1.05); /* Increase size by 5% */
+    transition: transform 0.3s ease; /* Add smooth transition effect */
+}
+.draggable {
+    cursor: pointer;
+}
+.dragging {
+    opacity: 0.5;
+}
+.dragover {
+    background-color: #70ace7; /* Lighter blue background */
+}
+.time-frame {
+    margin-bottom: 5px;
+    cursor: move;
+    border: 1px solid transparent; /* Added for highlighting */
+}
+.selected {
+    background-color: #659ed6; /* Lighter blue background */
+    border-color: #ccc; /* Added for highlighting */
+}
+#timeFrameInput {
+    display: none;
+    position:relative; /* Ensure it is positioned relative to the viewport */
+    width: 20%;
+    background: linear-gradient(135deg, #4A90E2 0%, #B0E0E6 100%);
+    border: 1px solid #ccc;
+    padding: 10px;
+    color: white;
+}
+#timeFrameInput.show {
+    display: block;
+}
+#popupMessage {
+    display: none;
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #4CAF50; /* Green background */
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    z-index: 1000;
+    transition: opacity 0.3s ease; /* Smooth transition */
+}
+#popupMessage.show {
+    display: block;
+    opacity: 1;
+}
+#customWeekNavigation {
+    margin-bottom: 10px; /* Add some space above the new line */
+}
+.date {
+    background-color: #70ace7; /* Blue background */
+    font-family: Arial, sans-serif;
+    text-transform: uppercase;
+    color: white;
+    border-radius: 5px; /* Rounded corners */
+    padding: 6px 12px; /* Adjust padding for better fit */
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2); /* Added shadow for depth */
+}
+.date1 {
+    width: 50%;
+    background-color: #70ace7; /* Blue background */
+    font-family: Arial, sans-serif;
+    text-transform: uppercase;
+    color: white;
+    border-radius: 5px; /* Rounded corners */
+    padding: 6px 12px; /* Adjust padding for better fit */
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2); /* Added shadow for depth */
+}
+.holiday-cell {
+      background-color: green;
+      color: white;
+}
+    #comment-section {
+    margin: 20px;
+}
+#comment-box {
+    color: white;
+    border-radius: 5px;
+    width: 25%;
+    height: 100px;
+    margin-bottom: 10px;
+    background: linear-gradient(135deg, #4A90E2 0%, #B0E0E6 100%);
+}
+#char-count {
+    margin-bottom: 10px;
+    font-size: 14px;
+    color: #1286a3;
+}
+#submit-comment {
+    padding: 10px 20px;
+    background-color: #1E90FF;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+#submit-comment:hover:enabled {
+    background-color: #1C86EE;
+}
+#submit-comment:disabled {
+    background-color: #ffffff;
+    cursor: not-allowed;
+}
+/* Animation for table rows */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+tbody tr {
+    animation: fadeInUp 0.5s ease;
+}
+</style>
 </head>
 <body>
-    <h1>Work Hours Table</h1>
+    <h1>New Rota</h1>
+    <button class="btn1" onclick="navigateWeek(-1)">Previous Week</button>
+    <button class="btn1" onclick="navigateWeek(0)">Current Week</button>
+    <button class="btn1" onclick="navigateWeek(1)">Next Week</button>
+    <div id="customWeekNavigation">
+        <input type="date" id="weekStartDate" class="date">
+        <button class="btn1" onclick="navigateToCustomWeek()">Go to Week</button>
+    </div>
+    <div id="timeFrameInput" class="time-frame">
+        <label for="startTime">Start Time:</label>
+        <input type="time" id="startTime" class="date">
+        <label for="endTime">End Time:</label>
+        <input type="time" id="endTime" class="date">
+        <button class="btn" onclick="addTime()" >Add Time</button>
+        <button class="btn" onclick="deleteTime()">Delete Time</button>
+    </div>
+    <button class="btn1" id="submitForecast">Submit Forecast</button>
+    <table class="table1">
+        <tr>
+            <td colspan="5">Forecast</td>
+            <td class="td1"><input type="number" class="date1" class="forecast-input" id="forecastMonday"> £</td>
+            <td class="td1"><input type="number" class="date1" class="forecast-input" id="forecastTuesday"> £</td>
+            <td class="td2"><input type="number" class="date1" class="forecast-input" id="forecastWednesday"> £</td>
+            <td><input type="number" class="date1" class="forecast-input" id="forecastThursday"> £</td>
+            <td><input type="number" class="date1" class="forecast-input" id="forecastFriday"> £</td>
+            <td><input type="number" class="date1" class="forecast-input" id="forecastSaturday"> £</td>
+            <td><input type="number" class="date1" class="forecast-input" id="forecastSunday"> £</td>
+        </tr>
+    </table>
     <table id="hoursTable">
+        <thead>
         <tr>
             <th>Name</th>
             <th>LastName</th>
             <th>Wage</th>
-            <th id="mondayHeader">Monday</th>
-            <th id="tuesdayHeader">Tuesday</th>
-            <th id="wednesdayHeader">Wednesday</th>
-            <th id="thursdayHeader">Thursday</th>
-            <th id="fridayHeader">Friday</th>
-            <th id="saturdayHeader">Saturday</th>
-            <th id="sundayHeader">Sunday</th>
+            <th>Role</th>
+            <th id="mondayHeader" data-day="monday">Monday</th>
+            <th id="tuesdayHeader" data-day="tuesday">Tuesday</th>
+            <th id="wednesdayHeader" data-day="wednesday">Wednesday</th>
+            <th id="thursdayHeader" data-day="thursday">Thursday</th>
+            <th id="fridayHeader" data-day="friday">Friday</th>
+            <th id="saturdayHeader" data-day="saturday">Saturday</th>
+            <th id="sundayHeader" data-day="sunday">Sunday</th>
+            <th>Total Hours</th>
+            <th>Total Spent</th>
         </tr>
+    </thead>
         <tbody id="employeeRows">
             <!-- Employee rows will be dynamically generated here -->
         </tbody>
     </table>
 
-    <div id="timeFrameInput" class="time-frame">
-        <label for="startTime">Start Time:</label>
-        <input type="time" id="startTime">
-        <label for="endTime">End Time:</label>
-        <input type="time" id="endTime">
-        <button class="btn" onclick="addTime()">Add Time</button>
-        <button class="btn" onclick="deleteTime()">Delete Time</button>
-    </div>
-
     <div id="popupMessage">Rota Updated Successfully</div>
-
-    <button class="btn1" onclick="submitData()">Submit</button>
+    <button class="btn1" onclick="saveData()">Save</button>
     <button class="btn1" onclick="clearTable()">Clear All</button>
-
+    <button class="btn1" onclick="submitData()">Submit</button>
+    <div id="comment-section">
+        <textarea id="comment-box" placeholder="Add your comment here..."></textarea>
+        <div id="char-count">0/255</div>
+        <button id="submit-comment">Submit</button>
+    </div>
+    
     <script>
-// Function to fetch employee data from the backend server
-function fetchEmployeeData() {
-    fetch('/employees')
+// Function to fetch employee data from the backend server for the specified week start date
+function fetchEmployeeData(weekStart) {
+    // Construct the URL with the week start date as a query parameter
+    const url = `/employees?weekStart=${weekStart.toISOString()}`;
+    fetch(url)
         .then(response => response.json())
         .then(data => {
             console.log('Fetched employee data:', data);
@@ -138,7 +280,6 @@ function fetchEmployeeData() {
         })
         .catch(error => console.error('Error fetching employee data:', error));
 }
-
 // Function to generate HTML markup for each employee row
 function generateEmployeeRow(employee) {
     return `
@@ -146,6 +287,7 @@ function generateEmployeeRow(employee) {
             <td>${employee.name}</td>
             <td>${employee.lastName}</td>
             <td>${employee.wage}</td>
+            <td>${employee.designation}</td>
             <td class="draggable" data-day="Monday"></td>
             <td class="draggable" data-day="Tuesday"></td>
             <td class="draggable" data-day="Wednesday"></td>
@@ -156,17 +298,173 @@ function generateEmployeeRow(employee) {
         </tr>
     `;
 }
-
 // Function to populate employee rows in the table
 function populateEmployeeRows(employees) {
+    // Sort employees by designation with 'foh' first and 'boh' second
+    const sortedEmployees = employees.sort((a, b) => {
+    // First level sort by designation
+    if (a.designation === 'FOH' && b.designation === 'BOH') {
+        return -1;
+    }
+    if (a.designation === 'BOH' && b.designation === 'FOH') {
+        return 1;
+    }
+
+    // If designations are the same, sort by name
+    if (a.designation === b.designation) {
+        if (a.name < b.name) {
+            return -1;
+        }
+        if (a.name > b.name) {
+            return 1;
+        }
+    }
+    // If designations and names are the same, return 0
+    return 0;
+});
     const employeeRowsContainer = document.getElementById('employeeRows');
     let employeeRowsHTML = '';
-    employees.forEach(employee => {
+    sortedEmployees.forEach(employee => {
         employeeRowsHTML += generateEmployeeRow(employee);
     });
     employeeRowsContainer.innerHTML = employeeRowsHTML;
-
     // Attach event listeners to draggable elements
+// Attach event listeners to draggable elements
+const draggables = document.querySelectorAll('.draggable');
+draggables.forEach(draggable => {
+    draggable.addEventListener('dragstart', (e) => {
+        e.dataTransfer.setData('text/plain', e.target.textContent);
+        e.target.classList.add('dragging');
+    });
+    draggable.addEventListener('dragend', (e) => {
+        e.target.classList.remove('dragging');
+        updateTotalRow(); // Update total row after dragging ends
+        calculateTotalSpent();
+    });
+    draggable.addEventListener('dragover', (e) => {
+        e.preventDefault();
+    });
+    draggable.addEventListener('drop', (e) => {
+        e.preventDefault();
+        const data = e.dataTransfer.getData('text/plain');
+        const sourceCell = document.querySelector('.dragging');
+        if (sourceCell !== e.target) {
+            e.target.appendChild(sourceCell);
+        }
+        sourceCell.classList.remove('dragging');
+        updateTotalRow(); // Update total row after dropping
+        calculateTotalSpent();
+    });
+    draggable.addEventListener('dragenter', (e) => {
+        e.preventDefault();
+        e.target.classList.add('dragover');
+    });
+    draggable.addEventListener('dragleave', (e) => {
+        e.target.classList.remove('dragover');
+    });
+    draggable.addEventListener('click', (e) => {
+    if (currentCell) {
+        currentCell.classList.remove('selected');
+    }
+    timeFrameInput.classList.remove('show');
+    currentCell = e.target;
+    currentCell.classList.add('selected');
+    const rect = e.target.getBoundingClientRect();
+    timeFrameInput.style.top = `${rect.top + window.scrollY}px`;
+    timeFrameInput.style.left = `${rect.left + window.scrollX}px`;
+    timeFrameInput.classList.add('show');
+    updateTotalRow();
+    calculateTotalSpent();
+
+    // Prevent the click event from propagating to the document
+    e.stopPropagation();
+});
+
+document.addEventListener('click', (e) => {
+    // Check if the click is outside the draggable and timeFrameInput elements
+    if (!draggable.contains(e.target) && !timeFrameInput.contains(e.target)) {
+        if (currentCell) {
+            currentCell.classList.remove('selected');
+            currentCell = null;
+        }
+        timeFrameInput.classList.remove('show');
+    }
+});
+
+});
+}
+// Function to fetch data from the rota table and populate the cells
+function fetchRotaData() {
+    fetch('/rota')
+        .then(response => response.json())
+        .then(data => {
+            console.log('Fetched rota data:', data);
+            populateRotaCells(data); // Call the function to populate rota cells
+        })
+        .catch(error => console.error('Error fetching rota data:', error));
+}
+
+// Function to populate rota cells with data
+function populateRotaCells(rotaData) {
+    console.log('Rota data received:', rotaData);
+    const table = document.getElementById('hoursTable');
+    const headerRow = table.querySelector('thead tr');
+
+    if (Array.isArray(rotaData)) {
+    rotaData.forEach(rotaEntry => {
+        const { name, lastName, day, startTime, endTime } = rotaEntry;
+        const rowIndex = findEmployeeRowIndex(table, name, lastName);
+        if (rowIndex !== -1) {
+            const dayHeaderCell = findDayHeaderCell(headerRow, day);
+            if (dayHeaderCell) {
+                const cellIndex = Array.from(dayHeaderCell.parentNode.children).indexOf(dayHeaderCell);
+                const cell = table.rows[rowIndex].cells[cellIndex];
+                const [startTimeFormatted, endTimeFormatted] = formatTime(startTime, endTime);
+                
+                const timeFrame = document.createElement('div');
+                timeFrame.classList.add('time-frame', 'draggable');
+                timeFrame.draggable = true; // Make the element draggable
+                timeFrame.textContent = `${startTimeFormatted} - ${endTimeFormatted}`;
+                timeFrame.setAttribute('data-day', day); // Add day attribute to the time frame
+                cell.appendChild(timeFrame);
+            }
+        }
+    });
+}
+    attachEventListenersToCells();
+}
+
+// Function to find the row index of an employee in the table
+function findEmployeeRowIndex(table, name, lastName) {
+    for (let i = 1; i < table.rows.length; i++) {
+        const row = table.rows[i];
+        const cellName = row.cells[0].textContent.trim();
+        const cellLastName = row.cells[1].textContent.trim();
+        if (cellName === name && cellLastName === lastName) {
+            return i;
+        }
+    }
+    return -1; // Employee not found
+}
+
+// Function to find the header cell corresponding to a day of the week
+function findDayHeaderCell(headerRow, day) {
+    for (let i = 0; i < headerRow.cells.length; i++) {
+        const cellText = headerRow.cells[i].textContent.trim();
+        if (cellText.includes(day)) {
+            return headerRow.cells[i];
+        }
+    }
+    return null; // Day header cell not found
+}
+
+// Function to format time from 'HH:mm:ss' to 'HH:mm'
+function formatTime(startTime, endTime) {
+    return [startTime.slice(0, 5), endTime.slice(0, 5)];
+}
+
+// Function to attach event listeners to the cells
+function attachEventListenersToCells() {
     const draggables = document.querySelectorAll('.draggable');
     draggables.forEach(draggable => {
         draggable.addEventListener('dragstart', (e) => {
@@ -175,173 +473,788 @@ function populateEmployeeRows(employees) {
         });
         draggable.addEventListener('dragend', (e) => {
             e.target.classList.remove('dragging');
+            updateTotalRow(); // Update total row after dragging ends
+            calculateTotalSpent();
         });
-        draggable.addEventListener('dragover', (e) => {
+    });
+
+    const cells = document.querySelectorAll('#hoursTable td');
+    cells.forEach(cell => {
+        cell.addEventListener('dragover', (e) => {
             e.preventDefault();
         });
-        draggable.addEventListener('drop', (e) => {
+        cell.addEventListener('drop', (e) => {
             e.preventDefault();
             const data = e.dataTransfer.getData('text/plain');
-            const sourceCell = document.querySelector('.dragging');
-            if (sourceCell !== e.target) {
-                e.target.appendChild(sourceCell);
+            const sourceElement = document.querySelector('.dragging');
+            if (sourceElement && sourceElement !== e.target) {
+                cell.appendChild(sourceElement);
+                sourceElement.classList.remove('dragging');
+                updateTotalRow(); // Update total row after dropping
+                calculateTotalSpent();
             }
-            sourceCell.classList.remove('dragging');
-        });
-        draggable.addEventListener('dragenter', (e) => {
-            e.preventDefault();
-            e.target.classList.add('dragover');
-        });
-        draggable.addEventListener('dragleave', () => {
-            e.target.classList.remove('dragover');
-        });
-        draggable.addEventListener('click', (e) => {
-            if (currentCell) {
-                currentCell.classList.remove('selected');
-            }
-            currentCell = e.target;
-            currentCell.classList.add('selected');
-            const rect = e.target.getBoundingClientRect();
-            timeFrameInput.style.top = `${rect.top + window.scrollY}px`;
-            timeFrameInput.style.left = `${rect.left + window.scrollX}px`;
-            timeFrameInput.classList.add('show');
         });
     });
 }
 
+// Function to find the row index of an employee in the table
+function findEmployeeRowIndex(table, name, lastName) {
+    for (let i = 1; i < table.rows.length; i++) {
+        const row = table.rows[i];
+        const cellName = row.cells[0].textContent.trim();
+        const cellLastName = row.cells[1].textContent.trim();
+        if (cellName === name && cellLastName === lastName) {
+            return i;
+        }
+    }
+    return -1; // Employee not found
+}
+// Function to find the header cell corresponding to a day of the week
+function findDayHeaderCell(headerRow, day) {
+    for (let i = 0; i < headerRow.cells.length; i++) {
+        const cellText = headerRow.cells[i].textContent.trim();
+        if (cellText.includes(day)) {
+            return headerRow.cells[i];
+        }
+    }
+    return null; // Day header cell not found
+}
+// Function to format time from 'HH:mm:ss' to 'HH:mm'
+function formatTime(startTime, endTime) {
+    return [startTime.slice(0, 5), endTime.slice(0, 5)];
+}
+
+// Function to extract the day of the week from the full date string
+function getDayOfWeek(dateString) {
+    const dayOfWeekMatch = dateString.match(/\((.*?)\)/);
+    return dayOfWeekMatch ? dayOfWeekMatch[1] : null;
+}
+
 // Fetch employee data when the page loads
 window.onload = function() {
-    fetchEmployeeData();
+    const currentDate = new Date(); // Get the current date
+    const currentWeekStart = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() - currentDate.getDay() + 1); // Calculate the start of the current week
+    populateDates(currentWeekStart); // Populate dates for the current week
+    fetchEmployeeData(currentWeekStart); // Fetch employee data for the current week
+    fetchRotaData(currentWeekStart);
+    populateRotaCells(currentWeekStart);
+    renderHolidayData();
+    fetchAndPopulateCommentForCurrentWeek();
+    fetchAndPopulateForecastForCurrentWeek();
+};
+// Function to populate dates for the specified week start date
+function populateDates(weekStart) {
+    const headers = ['mondayHeader', 'tuesdayHeader', 'wednesdayHeader', 'thursdayHeader', 'fridayHeader', 'saturdayHeader', 'sundayHeader'];
+    const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    for (let i = 0; i < headers.length; i++) {
+        const date = new Date(weekStart);
+        date.setDate(date.getDate() + i);
+        const dateString = `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}/${date.getFullYear()} (${daysOfWeek[date.getDay()]})`;
+        document.getElementById(headers[i]).textContent = dateString;
+    }
+}
+// Function to navigate to the previous or next week
+function navigateWeek(offset) {
+    const currentDate = new Date(); // Get the current date
+    const currentWeekStart = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() - currentDate.getDay() + 1); // Calculate the start of the current week
+    const newWeekStart = new Date(currentWeekStart); // Create a new date object for the new week start
+    newWeekStart.setDate(newWeekStart.getDate() + (offset * 7)); // Adjust the date to the previous or next week
+    populateDates(newWeekStart); // Populate dates for the new week
+    fetchEmployeeData(newWeekStart); // Fetch employee data for the new week
+    fetchRotaData(newWeekStart);
+    fetchAndPopulateCommentForCurrentWeek()
+    fetchAndPopulateForecastForCurrentWeek();
+}
+function navigateToCustomWeek() {
+    const selectedDate = new Date(document.getElementById('weekStartDate').value);
+    if (!isNaN(selectedDate.getTime())) { // Check if the selected date is valid
+        const currentWeekStart = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate() - selectedDate.getDay() + 1); // Calculate the start of the selected week
+        const newWeekStart = new Date(currentWeekStart); // Create a new date object for the new week start
+        populateDates(newWeekStart); // Populate dates for the new week
+        fetchEmployeeData(newWeekStart); // Fetch employee data for the new week
+        fetchRotaData(newWeekStart);
+        fetchAndPopulateCommentForCurrentWeek();
+        fetchAndPopulateForecastForCurrentWeek();
+    } else {
+        alert('Please select a valid date.');
+    }
+}
+
+// Populate time selection options
+function populateTimeOptions(selectElement) {
+    for (let hour = 0; hour < 24; hour++) {
+        for (let min = 0; min < 60; min += 30) {
+            const time = `${String(hour).padStart(2, '0')}:${String(min).padStart(2, '0')}`;
+            const option = document.createElement('option');
+            option.value = time;
+            option.textContent = time;
+            selectElement.appendChild(option);
+        }
+    }
+}
+populateTimeOptions(document.getElementById('startTime'));
+populateTimeOptions(document.getElementById('endTime'));
+// Global variables
+const draggables = document.querySelectorAll('.draggable');
+const timeFrameInput = document.getElementById('timeFrameInput');
+let currentCell;
+
+let totalHours = {
+    monday: 0,
+    tuesday: 0,
+    wednesday: 0,
+    thursday: 0,
+    friday: 0,
+    saturday: 0,
+    sunday: 0
 };
 
-
-        function populateDates() {
-            const headers = ['mondayHeader', 'tuesdayHeader', 'wednesdayHeader', 'thursdayHeader', 'fridayHeader', 'saturdayHeader', 'sundayHeader'];
-            const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-            const today = new Date();
-            const firstDayOfWeek = today.getDate() - today.getDay() + 1; // Adjust for Monday as first day
-            const month = today.getMonth();
-            const year = today.getFullYear();
-
-            headers.forEach((header, index) => {
-                const date = new Date(year, month, firstDayOfWeek + index);
-                const dateString = `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}/${date.getFullYear()} (${daysOfWeek[date.getDay()]})`;
-                document.getElementById(header).textContent = dateString;
-            });
-        }
-
-        populateDates();
-
-        // Populate time selection options
-        function populateTimeOptions(selectElement) {
-            for (let hour = 0; hour < 24; hour++) {
-                for (let min = 0; min < 60; min += 30) {
-                    const time = `${String(hour).padStart(2, '0')}:${String(min).padStart(2, '0')}`;
-                    const option = document.createElement('option');
-                    option.value = time;
-                    option.textContent = time;
-                    selectElement.appendChild(option);
+// Function to calculate the total hours for each row and update the "Total Hours" column
+function calculateRowTotalHours() {
+    const rows = document.querySelectorAll('#hoursTable tbody tr');
+    
+    // Calculate row totals
+    rows.forEach((row, index) => {
+        let rowTotal = 0;
+        const cells = row.querySelectorAll('.draggable[data-day]');
+        cells.forEach(cell => {
+            const timeFrames = cell.querySelectorAll('.time-frame');
+            timeFrames.forEach(timeFrame => {
+                const timeFrameText = timeFrame.textContent.trim();
+                if (timeFrameText !== '') {
+                    const [startTime, endTime] = timeFrameText.split(' - ');
+                    const [startHour, startMinute] = startTime.split(':').map(Number);
+                    const [endHour, endMinute] = endTime.split(':').map(Number);
+                    const duration = (endHour + endMinute / 60) - (startHour + startMinute / 60);
+                    rowTotal += duration;
                 }
+            });
+        });
+        
+        // Update row total cell
+        let totalCell = row.querySelector('.row-total');
+        if (!totalCell) {
+            totalCell = document.createElement('td');
+            totalCell.classList.add('row-total');
+            row.appendChild(totalCell);
+        }
+        totalCell.textContent = rowTotal.toFixed(2);
+    });
+
+    // Sum up the "Total Hours Week" column for all rows
+    let totalHoursSum = 0;
+    rows.forEach(row => {
+        const totalCell = row.querySelector('.row-total');
+        if (totalCell) {
+            const totalHoursWeek = parseFloat(totalCell.textContent);
+            if (!isNaN(totalHoursWeek)) {
+                totalHoursSum += totalHoursWeek;
             }
-        };
-
-        populateTimeOptions(document.getElementById('startTime'));
-        populateTimeOptions(document.getElementById('endTime'));
-
-            // Global variables
-            const draggables = document.querySelectorAll('.draggable');
-            const timeFrameInput = document.getElementById('timeFrameInput');
-            let currentCell;
-
-        function addTime() {
-            const startTime = document.getElementById('startTime').value;
-            const endTime = document.getElementById('endTime').value;
-            const timeFrame = document.createElement('div');
-            timeFrame.textContent = `${startTime} - ${endTime}`;
-            timeFrame.classList.add('time-frame', 'draggable');
-            timeFrame.setAttribute('draggable', 'true');
-            timeFrame.addEventListener('dragstart', (e) => {
-                e.dataTransfer.setData('text/plain', e.target.textContent);
-                e.target.classList.add('dragging');
-            });
-            timeFrame.addEventListener('dragend', (e) => {
-                e.target.classList.remove('dragging');
-            });
-            currentCell.appendChild(timeFrame);
-            timeFrameInput.classList.remove('show');
         }
+    });
 
-        function deleteTime() {
-            if (currentCell) {
-                currentCell.innerHTML = ''; // Remove all content from the cell
-                currentCell.classList.remove('selected'); // Remove the selected class
+    // Update the last cell of the "Total Hours Week" column with the sum
+    const lastRowIndex = rows.length - 1;
+    if (lastRowIndex >= 0) {
+        const lastRowTotalHoursCell = rows[lastRowIndex].querySelector('.row-total');
+        if (lastRowTotalHoursCell) {
+            const lastRowTotalHours = parseFloat(lastRowTotalHoursCell.textContent);
+            if (!isNaN(lastRowTotalHours)) {
+                lastRowTotalHoursCell.textContent = (lastRowTotalHours + totalHoursSum).toFixed(2);
             }
-            timeFrameInput.classList.remove('show'); // Hide the input form
         }
+    }
+}
 
-        function clearTable() {
-            const cells = document.querySelectorAll('.draggable');
-            cells.forEach(cell => {
-                cell.innerHTML = ''; // Remove all content from each cell
-            });
-        }
+function updateTotalRow() {
+    totalHours = {
+        monday: 0,
+        tuesday: 0,
+        wednesday: 0,
+        thursday: 0,
+        friday: 0,
+        saturday: 0,
+        sunday: 0
+    };
 
-        function submitData() {
-            console.log('Submit button clicked');
-            const tableData = [];
-            const cells = document.querySelectorAll('.draggable[data-day]');
-            cells.forEach(cell => {
-                const dayHeaderId = cell.getAttribute('data-day').toLowerCase() + 'Header';
-                const day = document.getElementById(dayHeaderId).textContent;
-                const name = cell.parentNode.querySelector('td').textContent;
-                const lastName = cell.parentNode.querySelectorAll('td')[1].textContent;
-                const wage = cell.parentNode.querySelectorAll('td')[2].textContent;
-                const timeFrames = Array.from(cell.querySelectorAll('.time-frame')).map(tf => {
-                    const [startTime, endTime] = tf.textContent.split(' - ');
-                    return { startTime, endTime };
-                });
+    const cells = document.querySelectorAll('.draggable[data-day]');
+    cells.forEach(cell => {
+        const day = cell.getAttribute('data-day').toLowerCase();
+        const timeFrames = cell.querySelectorAll('.time-frame');
+        
+        // Calculate duration for each time frame and sum up for the day
+        timeFrames.forEach(timeFrame => {
+            const timeFrameText = timeFrame.textContent.trim();
+            if (timeFrameText !== '') { // Check if time frame is not empty
+                const [startTime, endTime] = timeFrameText.split(' - ');
+                const [startHour, startMinute] = startTime.split(':').map(Number);
+                const [endHour, endMinute] = endTime.split(':').map(Number);
+                const duration = (endHour + endMinute / 60) - (startHour + startMinute / 60);
+                // Ensure totalHours[day] is initialized to 0 if undefined
+                if (totalHours[day] === undefined) {
+                    totalHours[day] = 0;
+                }
+                totalHours[day] += duration;
+            }
+        });
+    });
 
-                timeFrames.forEach(timeFrame => {
-                    if (timeFrame.startTime && timeFrame.endTime) {
-                        tableData.push({ name, lastName, wage, day, startTime: timeFrame.startTime, endTime: timeFrame.endTime });
+    // If total row exists, update it; otherwise, create it
+    let totalRow = document.getElementById('totalRow');
+    if (!totalRow) {
+        // Create a single total row and append it to the table body
+        totalRow = document.createElement('tr');
+        totalRow.id = 'totalRow';
+        document.querySelector('#hoursTable tbody').appendChild(totalRow);
+    }
+
+    // Generate the total hours row with empty cells for days with no data
+    totalRow.innerHTML = `
+        <td colspan="4">Total Hours Daily</td>
+        <td>${totalHours.monday.toFixed(2)}</td>
+        <td>${totalHours.tuesday.toFixed(2)}</td>
+        <td>${totalHours.wednesday.toFixed(2)}</td>
+        <td>${totalHours.thursday.toFixed(2)}</td>
+        <td>${totalHours.friday.toFixed(2)}</td>
+        <td>${totalHours.saturday.toFixed(2)}</td>
+        <td>${totalHours.sunday.toFixed(2)}</td>
+    `;
+    calculateRowTotalHours();
+}
+
+function calculateTotalSpent() {
+    console.log("Calculating total spent...");
+
+    const rows = document.querySelectorAll('#hoursTable tbody tr');
+    let totalSpentAllRows = 0; // Initialize total spent for all rows
+
+    rows.forEach((row, index) => {
+        // Skip calculations on the header row
+          if (index !== -1 && index < rows.length - 1) {
+            // Initialize Total Spent cell content to 0 if it doesn't exist
+            let spentCell = row.cells[12];
+            if (!spentCell) {
+                spentCell = document.createElement('td');
+                row.appendChild(spentCell);
+                spentCell.textContent = '£0.00';
+            }
+
+            // Check if the row has enough cells before accessing their content
+            if (row.cells.length >= 12) {
+                const wageCell = row.cells[2]; // Get the wage cell from the third column
+                const totalHoursCell = row.cells[11]; // Get the total hours cell from the twelfth column
+                
+                // Check if both wageCell and totalHoursCell are defined and not null
+                if (wageCell && totalHoursCell) {
+                    const wage = parseFloat(wageCell.textContent); // Get wage from the third column
+                    const totalHours = parseFloat(totalHoursCell.textContent); // Get total hours from the twelfth column
+
+                    if (!isNaN(wage) && !isNaN(totalHours)) {
+                        // Calculate total spent for each row
+                        const totalSpent = wage * totalHours; // Calculate total spent based on row index
+
+                        // Update the content of the cell in column 13 (Total Spent) with the calculated total spent
+                        spentCell.textContent = '£' + totalSpent.toFixed(2);
+
+                        // Add total spent for each row to the total spent for all rows
+                        totalSpentAllRows += totalSpent;
                     }
-                });
-            });
+                } else {
+                    console.error("Wage Cell or Total Hours Cell is undefined for row:", row);
+                }
+            } else {
+                console.error("Row doesn't have enough cells:", row);
+            }
+        }
+    });
 
-            console.log('Table Data:', tableData);
+    // Ensure the last row exists for displaying the total spent
+    const lastRow = rows[rows.length - 1];
+    if (lastRow) {
+        let totalSpentCell = lastRow.cells[11];
+        if (!totalSpentCell) {
+            totalSpentCell = document.createElement('td');
+            lastRow.appendChild(totalSpentCell);
+        }
+        totalSpentCell.textContent = '£' + totalSpentAllRows.toFixed(2); // Update the content with the total spent for all rows
+    } else {
+        console.error("No last row found in the table body.");
+    }
+}
 
-            fetch('/', {
-                method: 'POST',
+function addTime() {
+    const startTime = document.getElementById('startTime').value;
+    const endTime = document.getElementById('endTime').value;
+    const timeFrame = document.createElement('div');
+    timeFrame.textContent = `${startTime} - ${endTime}`;
+    timeFrame.classList.add('time-frame', 'draggable');
+    timeFrame.setAttribute('draggable', 'true');
+    timeFrame.addEventListener('dragstart', (e) => {
+        e.dataTransfer.setData('text/plain', e.target.textContent);
+        e.target.classList.add('dragging');
+    });
+    timeFrame.addEventListener('dragend', (e) => {
+        e.target.classList.remove('dragging');
+    });
+    currentCell.appendChild(timeFrame);
+    timeFrame.addEventListener('click', (e) => {
+        if (currentCell) {
+            currentCell.classList.remove('selected');
+        }
+        currentCell = e.target.parentNode;
+        currentCell.classList.add('selected');
+        const rect = e.target.getBoundingClientRect();
+        timeFrameInput.style.top = `${rect.top + window.scrollY}px`;
+        timeFrameInput.style.left = `${rect.left + window.scrollX}px`;
+        timeFrameInput.classList.add('show');
+    });
+    timeFrameInput.classList.remove('show');
+    updateTotalRow(); // Update total hours after adding time
+    calculateTotalSpent();
+}
+
+function deleteTime() {
+    if (currentCell) {
+        console.log("Current Cell:", currentCell);
+
+        // Check if the current cell is a time frame
+        const isTimeFrame = currentCell.classList.contains('time-frame');
+
+        // Extract the time frame details from the current cell if it's a time frame
+        const timeFrameText = isTimeFrame ? currentCell.textContent.trim() : null;
+        const [startTime, endTime] = isTimeFrame ? timeFrameText.split(' - ') : [null, null];
+
+        // Extract the day directly from the data-day attribute of the time frame element
+        const dayAttribute = currentCell.getAttribute('data-day');
+        const day = dayAttribute ? dayAttribute.trim() : null;
+
+        if (isTimeFrame || (day || startTime !== null || endTime !== null)) {
+            // Traverse the DOM to find the row containing the name and last name
+            const row = currentCell.closest('tr');
+            if (!row) {
+                console.error('Parent row not found');
+                return;
+            }
+
+            const nameElement = row.querySelector('td:nth-child(1)');
+            const lastNameElement = row.querySelector('td:nth-child(2)');
+
+            if (!nameElement || !lastNameElement) {
+                console.error('Name or Last Name element not found');
+                return;
+            }
+
+            const name = nameElement.textContent.trim();
+            const lastName = lastNameElement.textContent.trim();
+
+            // Construct the data object to send to the backend
+            const timeFrameData = { day, name, lastName, startTime, endTime };
+
+            console.log('Time frame data to delete:', timeFrameData);
+
+            // Send the data to the backend to delete the time frame from the database
+            fetch('/deleteTimeFrame', {
+                method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(tableData),
+                body: JSON.stringify(timeFrameData),
             })
             .then(response => {
                 if (response.ok) {
-                    showPopupMessage('Rota Updated Successfully');
-                    return response.json();
+                    console.log(`Time frame for ${name} ${lastName} on ${day} from ${startTime} to ${endTime} deleted.`);
+                    
+                    // Remove the time frame element from the current cell if it's a time frame
+                    if (isTimeFrame) {
+                        currentCell.remove();
+                    }
+                    
+                    // Update total hours after deleting time
+                    updateTotalRow();
+                    calculateTotalSpent();
+                    // Hide the input form
+                    timeFrameInput.classList.remove('show');
                 } else {
                     throw new Error('Network response was not ok.');
                 }
             })
-            .then(data => {
-                console.log('Server response:', data);
-                // Handle the response as needed (e.g., redirect, show a message)
-            })
-            .catch(error => console.error('Error:', error));   
+            .catch(error => console.error('Error:', error));
+        } else {
+            console.error('Invalid cell or time frame selected');
         }
+    } else {
+        console.error('No cell selected');
+    }
+}
 
-        function showPopupMessage(message) {
-            const popupMessage = document.getElementById('popupMessage');
-            popupMessage.textContent = message;
-            popupMessage.style.display = 'block';
-            setTimeout(() => {
-                popupMessage.style.display = 'none';
-            }, 3000); // Hide the message after 3 seconds
+function clearTable() {
+    const cells = document.querySelectorAll('.draggable');
+    cells.forEach(cell => {
+        cell.innerHTML = ''; // Remove all content from each cell
+    });
+    updateTotalRow();
+    calculateTotalSpent();
+}
+// Function to fetch holiday data from the server
+function fetchHolidayData() {
+    return fetch('/getHolidayData')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to fetch holiday data');
+            }
+            return response.json();
+        })
+        .catch(error => {
+            console.error('Error fetching holiday data:', error);
+            return [];
+        });
+}
+function renderHolidayData() {
+    fetchHolidayData().then(holidayData => {
+        holidayData.forEach(holiday => {
+            const name = holiday.name;
+            const lastName = holiday.lastName;
+            const startDate = new Date(holiday.startDate);
+            const endDate = new Date(holiday.endDate);
+
+            for (let date = new Date(startDate); date <= endDate; date.setDate(date.getDate() + 1)) {
+                const formattedDate = formatDate(date);
+                findCellAndColor(formattedDate, name, lastName, holiday.accepted);
+            }
+        });
+    });
+}
+
+function findCellAndColor(formattedDate, name, lastName, accepted) {
+    const table = document.getElementById('hoursTable');
+    let dayCellIndex = -1; // Initialize dayCellIndex outside the interval function
+
+    // Define a function to check the header cells every 1000 ms
+    const checkHeaderInterval = setInterval(() => {
+        const headerRow = table.rows[0]; // Assuming the first row contains the header cells
+        const headerCells = headerRow.cells;
+
+        for (let i = 0; i < headerCells.length; i++) {
+            const headerCell = headerCells[i];
+            if (headerCell.textContent.trim() === formattedDate) {
+                dayCellIndex = i;
+                clearInterval(checkHeaderInterval); // Stop the interval once the date is found
+
+                // Define the rest of the function logic to find the cell after the header check is complete
+                const rows = table.rows; // Now rows represent the rows of the table
+                for (let rowIndex = 1; rowIndex < rows.length; rowIndex++) { // Start from 1 to skip header row
+                    const row = rows[rowIndex];
+                    const nameCell = row.cells[0]; // Name cell in the current row
+                    const lastNameCell = row.cells[1]; // Last name cell in the current row
+                    const dayCell = row.cells[dayCellIndex]; // Day cell based on index found in header row
+
+                    // Check if name and last name match
+                    if (nameCell.textContent.trim() === name && lastNameCell.textContent.trim() === lastName) {
+                        if (accepted === 'Accepted') {
+                            dayCell.classList.add('holiday-cell');
+                            console.log(`Added holiday-cell class to cell for ${name} ${lastName} on ${formattedDate}`);
+                        }
+                        return; // Exit the function after applying the class
+                    }
+                }
+                console.log(`Cell not found for ${name} ${lastName} on ${formattedDate}`);
+                return;
+            }
         }
-        showPopupMessage();
-    </script>
-    
+    }, 1000);
+}
+function formatDate(date) {
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    const dayName = getDayName(date);
+    return `${day}/${month}/${year} (${dayName})`;
+}
+function getDayName(date) {
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    return days[date.getDay()];
+}
+
+function saveData() {
+    const tableData = [];
+    const cells = document.querySelectorAll('.draggable[data-day]');
+    cells.forEach(cell => {
+        const dayHeaderId = cell.getAttribute('data-day').toLowerCase() + 'Header';
+        console.log('Day Header ID:', dayHeaderId); // Log the dayHeaderId
+        const dayHeaderElement = document.getElementById(dayHeaderId);
+        if (!dayHeaderElement) {
+            console.error(`Element with ID ${dayHeaderId} not found.`);
+            return; // Exit the loop if element is not found
+        }
+        const day = document.getElementById(dayHeaderId).textContent;
+        const name = cell.parentNode.querySelector('td').textContent;
+        const lastName = cell.parentNode.querySelectorAll('td')[1].textContent;
+        const wage = cell.parentNode.querySelectorAll('td')[2].textContent;
+        const designation = cell.parentNode.querySelectorAll('td')[3].textContent;
+        const timeFrames = Array.from(cell.querySelectorAll('.time-frame')).map(tf => {
+            const [startTime, endTime] = tf.textContent.split(' - ');
+            return { startTime, endTime };
+        });
+        timeFrames.forEach(timeFrame => {
+            if (timeFrame.startTime && timeFrame.endTime) {
+                tableData.push({ name, lastName, wage, designation, day, startTime: timeFrame.startTime, endTime: timeFrame.endTime });
+            }
+        });
+    });
+
+    console.log('Table Data:', tableData);
+
+    fetch('/saveData', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(tableData),
+    })
+    .then(response => {
+        if (response.ok) {
+            location.reload(); // Move this line here
+            return response.json();
+        } else {
+            throw new Error('Network response was not ok.');
+        }
+    })
+    .then(data => {
+        console.log('Server response:', data);
+        // Handle the response as needed (e.g., redirect, show a message)
+    })
+    .catch(error => console.error('Error:', error));   
+}
+
+function submitData() {
+    console.log('Submit button clicked');
+    const tableData = [];
+    const cells = document.querySelectorAll('.draggable[data-day]');
+    cells.forEach(cell => {
+        const dayHeaderId = cell.getAttribute('data-day').toLowerCase() + 'Header';
+        console.log('Day Header ID:', dayHeaderId); // Log the dayHeaderId
+        const dayHeaderElement = document.getElementById(dayHeaderId);
+        if (!dayHeaderElement) {
+            console.error(`Element with ID ${dayHeaderId} not found.`);
+            return; // Exit the loop if element is not found
+        }
+        const day = document.getElementById(dayHeaderId).textContent;
+        const name = cell.parentNode.querySelector('td').textContent;
+        const lastName = cell.parentNode.querySelectorAll('td')[1].textContent;
+        const wage = cell.parentNode.querySelectorAll('td')[2].textContent;
+        const designation = cell.parentNode.querySelectorAll('td')[3].textContent;
+        const timeFrames = Array.from(cell.querySelectorAll('.time-frame')).map(tf => {
+            const [startTime, endTime] = tf.textContent.split(' - ');
+            return { startTime, endTime };
+        });
+        timeFrames.forEach(timeFrame => {
+            if (timeFrame.startTime && timeFrame.endTime) {
+                tableData.push({ name, lastName, wage, designation, day, startTime: timeFrame.startTime, endTime: timeFrame.endTime });
+            }
+        });
+    });
+
+    console.log('Table Data:', tableData);
+
+    fetch('/submitData', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(tableData),
+    })
+    .then(response => {
+        if (response.ok) {
+            location.reload(); // Move this line here
+            return response.json();
+        } else {
+            throw new Error('Network response was not ok.');
+        }
+    })
+    .then(data => {
+        console.log('Server response:', data);
+        // Handle the response as needed (e.g., redirect, show a message)
+    })
+    .catch(error => console.error('Error:', error));   
+}
+
+const commentBox = document.getElementById('comment-box');
+const charCount = document.getElementById('char-count');
+const submitButton = document.getElementById('submit-comment');
+
+commentBox.addEventListener('input', () => {
+    const commentLength = commentBox.value.length;
+    charCount.textContent = `${commentLength}/255`;
+
+    if (commentLength > 255) {
+        commentBox.value = commentBox.value.substring(0, 255); // Trim the excess characters
+        charCount.textContent = '255/255';
+    }
+});
+
+submitButton.addEventListener('click', () => {
+    const comment = commentBox.value;
+    const weekStartDate = getWeekStartDate(); // Implement this function to get the current week's start date
+
+    if (comment.trim() !== "") {
+        fetch('/submit-comment', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ comment, weekStartDate })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Comment added successfully');
+                commentBox.value = ""; // Clear the comment box
+                charCount.textContent = '0/255';
+            } else {
+                alert('Failed to add comment');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    } else {
+        alert('Comment cannot be empty');
+    }
+});
+// Function to retrieve the start date of the current week from the header
+function getWeekStartDate() {
+    const table = document.getElementById('hoursTable');
+    const headerRow = table.rows[0]; // Assuming the first row is the header
+    const headerCells = headerRow.cells;
+
+    for (let i = 4; i < headerCells.length; i++) { // Start from the 5th column (index 4)
+        const headerCell = headerCells[i];
+        const dateMatch = headerCell.textContent.match(/\d{2}\/\d{2}\/\d{4}/); // Extract the date in dd/mm/yyyy format
+
+        if (dateMatch) {
+            const dateStr = dateMatch[0];
+            const [day, month, year] = dateStr.split('/').map(Number);
+            const date = new Date(year, month - 1, day);
+
+            // Adjust to Monday if the extracted date is not Monday
+            const dayOfWeek = date.getDay();
+            if (dayOfWeek !== 1) { // If not Monday
+                date.setDate(date.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1)); // Adjust to previous Monday
+            }
+            return date.toISOString().split('T')[0]; // Return date in YYYY-MM-DD format
+        }
+    }
+    throw new Error('No valid date found in header');
+}
+// Function to fetch and populate comment box with comments for the specified week start date
+function fetchCommentForWeek(weekStartDate) {
+    getWeekStartDate();
+    fetch(`/get-comments?weekStartDate=${weekStartDate}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to fetch comments');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                const comments = data.comments;
+                // Clear existing comments
+                document.getElementById('comment-box').value = '';
+                // Populate comment box with multiple comments (if any)
+                comments.forEach(comment => {
+                    // Append each comment to the comment box
+                    document.getElementById('comment-box').value += comment;
+                });
+                const charCount = document.getElementById('char-count');
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching comments:', error);
+        });
+}
+// Fetch and populate comment box with comment for the current week
+function fetchAndPopulateCommentForCurrentWeek() {
+    try {
+        const weekStartDate = getWeekStartDate();
+        fetchCommentForWeek(weekStartDate);    
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+document.getElementById('submitForecast').addEventListener('click', function() {
+            const weekStartDate = getWeekStartDate();
+            const forecastValues = {
+                Monday: document.getElementById('forecastMonday').value,
+                Tuesday: document.getElementById('forecastTuesday').value,
+                Wednesday: document.getElementById('forecastWednesday').value,
+                Thursday: document.getElementById('forecastThursday').value,
+                Friday: document.getElementById('forecastFriday').value,
+                Saturday: document.getElementById('forecastSaturday').value,
+                Sunday: document.getElementById('forecastSunday').value
+            };
+
+            // Send the forecast values to the backend for insertion
+            fetch('/insert-forecast', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ weekStartDate, forecastValues })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to submit forecast');
+                }
+            })
+            .catch(error => {
+                console.error('Error submitting forecast:', error);
+            });
+        });
+// Function to fetch and populate forecast data for the specified week start date
+function fetchForecastForWeek(weekStartDate) {
+            console.log(`Fetching forecast data for week starting on: ${weekStartDate}`);
+            fetch(`/get-forecast?weekStartDate=${weekStartDate}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch forecast data');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+    if (data.success) {
+        const forecasts = data.forecasts;
+        console.log(`Forecast data received for week starting on: ${weekStartDate}`, forecasts);
+        
+        // Iterate over each day of the week and populate the forecast inputs
+        const headerCells = document.querySelectorAll('th[data-day]');
+        headerCells.forEach(headerCell => {
+            const day = headerCell.getAttribute('data-day');
+            const forecastInput = document.getElementById(`forecast${day.charAt(0).toUpperCase() + day.slice(1)}`);
+            if (forecasts[day]) {
+                forecastInput.value = forecasts[day];
+            } else {
+                forecastInput.value = ''; // Clear input if no forecast data exists
+            }
+        });
+    } else {
+        console.log(data.message);
+    }
+})
+.catch(error => {
+    console.error('Error fetching forecast data:', error);
+});
+        }
+// Fetch and populate forecast data for the current week
+function fetchAndPopulateForecastForCurrentWeek() {
+            try {
+                const weekStartDate = getWeekStartDate();
+                fetchForecastForWeek(weekStartDate);
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to fetch forecast data. Please try again.');
+            }
+        }
+</script>
 </body>
 </html>

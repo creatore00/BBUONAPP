@@ -3,70 +3,245 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tip Calculator</title>
+    <title>Work Hours Summary</title>
     <style>
-        table {
-            width: 50%;
-            margin-top: 20px;
-            border-collapse: collapse;
-        }
-        th, td {
-            border: 1px solid #000;
+        body {
+            background: linear-gradient(135deg, #4A90E2 0%, #B0E0E6 100%);
+            margin: 0;
+            font-family: Arial, sans-serif;
             text-align: center;
-            padding: 8px;
+            text-transform: uppercase;
+            color: #60a2ee;
         }
-        th {
-            background-color: #f2f2f2;
+        
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            background-color: #1E90FF;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
         }
-        #tipTable {
-            display: none;
+        
+        th, td {
+            text-align: center;
+            padding: 12px;
+            white-space: nowrap;
+            background-color: #4A90E2;
+            color: #fff;
+            font-weight: bold;
         }
+        
+        .btn {
+            background-color: #4A90E2;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            align-self: center;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            transition: background-color 0.3s ease;
+            font-size: 14px;
+        }
+        
+        .btn:hover {
+            background-color: #1E90FF;
+            transform: scale(1.05);
+            transition: transform 0.3s ease;
+        }
+        
+        .date {
+            background-color: #70ace7;
+            font-family: Arial, sans-serif;
+            text-transform: uppercase;
+            color: white;
+            border-radius: 5px;
+            padding: 6px 12px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        tbody tr {
+            animation: fadeInUp 0.5s ease;
+        }
+        
     </style>
 </head>
 <body>
-    <h1>Tip Calculator</h1>
-    <form id="tipForm" method="POST">
-        <label for="tipAmount">Enter Tip Amount:</label>
-        <input type="number" id="tipAmount" name="tipAmount" required>
-        <button type="submit">Calculate Tip</button>
-    </form>
+    <h1>Daily Tip Calculation</h1>
+    <label class="date" for="monthStart">Select Day:</label>
+    <input type="date" id="monthStart" class="date">
+    <button onclick="loadRota()" class="btn">Load Day</button>
+    <div>
+        <label class="date" for="tip">Enter Tip Amount:</label>
+        <input class="date" type="number" id="tip" min="0">
+        <button onclick="calculateTip()" class="btn">Calculate Tip</button>
+    </div>
+    <div id="hoursSummary">
+        <!-- Total hours and tip will be displayed here -->
+    </div>
 
-    <table id="tipTable">
-        <thead>
-            <tr>
-                <th>Employee</th>
-                <th>Hours Worked</th>
-                <th>Tip Amount</th>
-            </tr>
-        </thead>
-        <tbody id="employeeTableBody">
-            <!-- Employee rows will be added here dynamically -->
-        </tbody>
-    </table>
-
+    <footer>
+        <button onclick="navigateDay(-1)" class="btn">Previous Day</button>
+        <button onclick="navigateDay(1)" class="btn">Next Day</button>
+        <div>
+            <button id="submitBtn" onclick="submitPayslips()" class="btn">Save Data</button>
+        </div>
+    </footer>
     <script>
-        function submitForm() {
-            const tipAmount = document.getElementById('tipAmount').value;
-    
-            // Create a JSON object with the tip amount
-            const data = { tipAmount };
-    
-            // Send a POST request to the server
-            fetch('/', {
+        function loadRota() {
+            const monthStart = document.getElementById('monthStart').value;
+            const startDate = new Date(monthStart);
+
+            fetch(`/rota?startDate=${startDate.toISOString().split('T')[0]}`)
+                .then(response => response.json())
+                .then(data => {
+                    const totalHours = calculateTotalHours(data);
+                    displayTotalHours(totalHours);
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        }
+
+        function calculateTotalHours(data) {
+            const totalHours = {};
+            let total = 0;
+
+            data.forEach(entry => {
+                const name = entry.name + ' ' + entry.lastName;
+                const startTime = new Date(`1970-01-01T${entry.startTime}Z`);
+                const endTime = new Date(`1970-01-01T${entry.endTime}Z`);
+                const hoursWorked = (endTime - startTime) / (1000 * 60 * 60);
+                total += hoursWorked;
+
+                if (!totalHours[name]) {
+                    totalHours[name] = { hoursWorked: 0 };
+                }
+                totalHours[name].hoursWorked += hoursWorked;
+            });
+
+            return { totalHours, total };
+        }
+
+        function calculateTip() {
+            const totalHours = parseFloat(document.getElementById('hoursSummary').dataset.totalHours || 0);
+            const tip = parseFloat(document.getElementById('tip').value || 0);
+            displayTip(tip, totalHours);
+        }
+
+        function displayTotalHours(totalHours) {
+            const container = document.getElementById('hoursSummary');
+            container.innerHTML = '';
+
+            const table = document.createElement('table');
+            const headerRow = document.createElement('tr');
+            headerRow.innerHTML = '<th>Name</th><th>Total Hours</th><th>Tip</th>';
+            table.appendChild(headerRow);
+
+            const tip = parseFloat(document.getElementById('tip').value || 0);
+
+            for (const [name, { hoursWorked }] of Object.entries(totalHours.totalHours)) {
+                const row = document.createElement('tr');
+                const tipPerHour = totalHours.total > 0 ? (tip / totalHours.total) : 0;
+                const tipAmount = hoursWorked * tipPerHour * 0.98; // Apply 2% tax
+                row.innerHTML = `<td>${name}</td><td>${hoursWorked.toFixed(2)}</td><td>£${tipAmount.toFixed(2)}</td>`;
+                table.appendChild(row);
+            }
+
+            container.appendChild(table);
+            container.dataset.totalHours = totalHours.total;
+        }
+
+        function displayTip(tip, totalHours) {
+            const container = document.getElementById('hoursSummary');
+            const table = container.querySelector('table');
+            const rows = table.getElementsByTagName('tr');
+
+            for (let i = 1; i < rows.length; i++) {
+                const cells = rows[i].getElementsByTagName('td');
+                const hoursWorked = parseFloat(cells[1].textContent);
+                const tipAmount = (tip / totalHours) * hoursWorked * 0.9; // Apply 10% tax
+                cells[2].textContent = `£${tipAmount.toFixed(2)}`;
+            }
+        }
+
+        function navigateDay(offset) {
+            const monthStart = document.getElementById('monthStart').value;
+            if (!monthStart) {
+                alert('Please select a start date.');
+                return;
+            }
+
+            const currentStartDate = new Date(monthStart);
+            const newStartDate = new Date(currentStartDate);
+            newStartDate.setDate(currentStartDate.getDate() + offset);
+
+            document.getElementById('monthStart').value = newStartDate.toISOString().split('T')[0];
+            loadRota();
+        }
+
+        function setCurrentDay() {
+            const today = new Date();
+            document.getElementById('monthStart').value = today.toISOString().split('T')[0];
+            loadRota();
+        }
+
+        function gatherTableData() {
+            const monthStart = document.getElementById('monthStart').value;
+            const table = document.querySelector('#hoursSummary table');
+            const rows = table.querySelectorAll('tr');
+            const payslipData = [];
+
+            for (let i = 1; i < rows.length; i++) {
+                const cells = rows[i].querySelectorAll('td');
+                const name = cells[0].textContent.split(' ');
+                const firstName = name[0];
+                const lastName = name[1];
+                const totalHours = parseFloat(cells[1].textContent);
+                const tip = parseFloat(cells[2].textContent.replace('£', ''));
+
+                payslipData.push({ firstName, lastName, totalHours, tip, monthStart });
+            }
+
+            return payslipData;
+        }
+
+        function submitPayslips() {
+            const payslipData = gatherTableData();
+
+            fetch('/submitPayslips', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(data),
+                body: JSON.stringify(payslipData),
             })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Server response:', data);
-                // Call the calculateTip function with the received data
+            .then(response => {
+                if (response.ok) {
+                    alert('Data Submitted Successfully!');
+                } else {
+                    throw new Error('Failed to submit payslips');
+                }
             })
-            .catch(error => console.error('Error:', error));
+            .catch((error) => {
+                console.error('Error:', error);
+            });
         }
+
+        document.getElementById('monthStart').addEventListener('change', loadRota);
+        window.onload = setCurrentDay;
     </script>
-    
 </body>
 </html>

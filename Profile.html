@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+    <style>
+        body {
+            background: linear-gradient(135deg, #4A90E2 0%, #B0E0E6 100%);
+            margin: 0;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            text-transform: uppercase;
+            color: #60a2ee;
+        }
+        
+        table {
+            text-align: left;
+            align-content: baseline;
+            margin: 0 auto;
+            width: 50%;
+            border-collapse: separate;
+            border-spacing: 0;
+            background-color: #1E90FF;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        
+        th, td {
+            text-align: center;
+            padding: 12px;
+            white-space: nowrap;
+            background-color: #4A90E2;
+            color: #fff;
+            font-weight: bold;
+        }
+        
+        .btn {
+            background-color: #4A90E2;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            align-self: center;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            transition: background-color 0.3s ease;
+            font-size: 14px;
+        }
+        
+        .btn:hover {
+            background-color: #1E90FF;
+            transform: scale(1.05);
+            transition: transform 0.3s ease;
+        }
+        
+        .date {
+            background-color: #70ace7;
+            font-family: Arial, sans-serif;
+            text-transform: uppercase;
+            color: white;
+            border-radius: 5px;
+            padding: 6px 12px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        tbody tr {
+            animation: fadeInUp 0.5s ease;
+        }
+        
+    </style>
+</head>
+<body>
+    <h1 class="center">User Profile</h1>
+    <table>
+    <th>
+        <tr>
+            <th>Name:</th>
+            <td id="name"></td>
+        </tr>
+        <tr>
+            <th>Last Name:</th>
+            <td id="lastName"></td>
+        </tr>
+        <tr>
+            <th>Email:</th>
+            <td id="email"></td>
+        </tr>
+        <tr>
+            <th>Holiday Left:</th>
+            <td id="holidayLeft"></td>
+        </tr>
+        <tr>
+            <th>Holiday Accrued:</th>
+            <td id="holidayAccrued"></td>
+        </tr>
+        <tr>
+            <th>Wage:</th>
+            <td id="wage"></td>
+        </tr>
+        <tr>
+            <th>Date Employment Started:</th>
+            <td id="dateStart"></td>
+        </tr>
+        <tr>
+            <th>Designation:</th>
+            <td id="designation"></td>
+        </tr>
+    </th>
+        <th>
+            <td colspan="2" class="center">
+                <h2>Change Password</h2>
+                <input class="date" type="password" id="newPassword" placeholder="New Password">
+                <button class="btn" type="button" onclick="updatePassword()">Change Password</button>
+            </td>
+        </th>
+    </table>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const email = urlParams.get('email');
+
+        fetch(`/api/profile?email=${email}`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('name').textContent = data.name;
+                document.getElementById('lastName').textContent = data.lastName;
+                document.getElementById('email').textContent = data.email;
+                document.getElementById('holidayLeft').textContent = data.holidayLeft;
+                document.getElementById('holidayAccrued').textContent = data.holidayAccrued;
+                document.getElementById('wage').textContent = data.wage;
+                document.getElementById('dateStart').textContent = data.dateStart;
+                document.getElementById('designation').textContent = data.designation;
+            })
+            .catch(error => console.error('Error fetching profile data:', error));
+
+        function updatePassword() {
+            const newPassword = document.getElementById('newPassword').value;
+
+            fetch('/api/update-password', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email, newPassword })
+            })
+                .then(response => response.text())
+                .then(data => alert(data))
+                .catch(error => console.error('Error updating password:', error));
+        }
+    </script>
+</body>
+</html>

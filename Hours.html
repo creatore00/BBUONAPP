@@ -5,240 +5,253 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Work Hours Summary</title>
     <style>
-                body {
-            /* Set the background image and specify its source */
-            background-image: url('https://www.oxfordmail.co.uk/resources/images/12727861/');
-            /* Set background size to cover the entire viewport */
-            background-size: cover;
+        body {
+            /* Set the background color with gradient effect */
+            background: linear-gradient(135deg, #4A90E2 0%, #B0E0E6 100%);
             margin: 0;
             font-family: Arial, sans-serif;
             text-align: center;
             text-transform: uppercase;
-            color: rgb(53, 38, 5);
+            color: #60a2ee; /* Text color */
         }
+
         table {
-            width: 100%;
-            border-collapse: collapse;
-            background-color:rgba(231, 220, 209, 0.692);
-            
+            width: 80%;
+            border-collapse: separate;
+            margin: 0 auto; /* This centers the table horizontally */
+            background-color: #1E90FF; /* Blue background */
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Added box shadow for depth */
         }
+
         th, td {
-            border: 1px solid #000;
             text-align: center;
-            padding: 8px;
+            padding: 12px;
             white-space: nowrap;
-            background-color:rgba(172, 133, 96, 0.692);
+            background-color: #4A90E2; /* Light blue background */
+            color: #fff; /* White text */
+            font-weight: bold; /* Bold text */
         }
-        th {
-            background-color:rgba(172, 133, 96, 0.692);
-        }
-        .delete-btn {
-            cursor: pointer;
-            color: red;
-            font-weight: bold;
-            background-color:rgba(172, 133, 96, 0.692);
-        }
-        .btn{
-            background-color:rgba(172, 133, 96, 0.692);
-            color: #fff;
+
+        .btn, .btn1 {
+            background-color: #4A90E2; /* Light blue button background */
+            color: #fff; /* White text */
             padding: 10px 20px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
             align-self: center;
-            margin-top: 20px;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            transition: background-color 0.3s ease; /* Smooth color transition */
+            font-size: 14px; /* Font size */
         }
-        h1{
-            text-align: center;
+
+        .btn:hover, .btn1:hover {
+            background-color: #1E90FF; /* Darker blue button background on hover */
+            transform: scale(1.05); /* Increase size by 5% */
+            transition: transform 0.3s ease; /* Add smooth transition effect */
         }
-        .text{
-            color: rgb(53, 38, 5);
-            background-color:rgba(172, 133, 96, 0.692);
-        }
-        button{
-            background-color:rgba(172, 133, 96, 0.692);
-            color: #fff;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
+
+        .draggable {
             cursor: pointer;
-            align-self: center;
-            margin-top: 20px;
         }
-        input{
-            background-color:rgba(172, 133, 96, 0.692);
-            color: rgb(53, 38, 5);
-            text-shadow: #000;
+
+        .dragging {
+            opacity: 0.5;
         }
+
+        .dragover {
+            background-color: #70ace7; /* Lighter blue background */
+        }
+
+        .time-frame {
+            margin-bottom: 5px;
+            cursor: move;
+            border: 1px solid transparent; /* Added for highlighting */
+        }
+
+        .selected {
+            background-color: #70ace7; /* Lighter blue background */
+            border-color: #ccc; /* Added for highlighting */
+        }
+
+        #timeFrameInput {
+            display: none;
+            position: absolute;
+            background-color: rgba(176, 224, 230, 0.8); /* Light blue background */
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+
+        #timeFrameInput.show {
+            display: block;
+        }
+
+        #popupMessage {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #4CAF50; /* Green background */
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            z-index: 1000;
+            transition: opacity 0.3s ease; /* Smooth transition */
+        }
+
+        #popupMessage.show {
+            display: block;
+            opacity: 1;
+        }
+
+        #customWeekNavigation {
+            margin-bottom: 10px; /* Add some space above the new line */
+        }
+
+        .date {
+            background-color: #70ace7; /* Blue background */
+            font-family: Arial, sans-serif;
+            text-transform: uppercase;
+            color: white;
+            border-radius: 5px; /* Rounded corners */
+            padding: 6px 12px; /* Adjust padding for better fit */
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2); /* Added shadow for depth */
+        }
+
+        /* Animation for table rows */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        tbody tr {
+            animation: fadeInUp 0.5s ease;
+        }
+
     </style>
 </head>
 <body>
-    <h1>Work Hours Summary</h1>
-    <label class="text" for="weekStart">Select Week Start Date:</label>
-    <input type="date" id="weekStart">
-    <button onclick="loadRota()">Load Week</button>
+<h1>Work Hours Summary</h1>
+<div id="hoursSummary">
+    <!-- Total hours, wage, tip, result before tax, tax, and result after tax will be displayed here -->
+</div>
+
+<footer>
     <div>
-        <label class="text" for="tip">Enter Tip Amount:</label>
-        <input type="number" id="tip" min="0">
-        <button onclick="calculateTip()">Calculate Tip</button>
+        <button id="submitBtn" onclick="downloadPDF()" class="btn">Downlaod</button>
     </div>
-    <div id="hoursSummary">
-        <!-- Total hours, wage, tip, result before tax, tax, and result after tax will be displayed here -->
-    </div>
+</footer>
+<script>
+    // Function to get the current month in the format 'YYYY-MM'
+    function getCurrentMonth() {
+        const currentDate = new Date();
+        const year = currentDate.getFullYear();
+        let month = currentDate.getMonth() + 1;
+        month = month < 10 ? '0' + month : month;
+        return `${year}-${month}`;
+    }
 
-    <footer>
-        <button onclick="navigateWeek(-1)">Previous Week</button>
-        <button onclick="navigateWeek(1)">Next Week</button>
-    </footer>
+    function retrieveAndPrintData() {
+    const selectedMonth = getCurrentMonth();
 
-    <script>
-        function loadRota() {
-            const weekStart = document.getElementById('weekStart').value;
-            if (!weekStart) {
-                alert('Please select a start date.');
-                return;
+    // Fetch data from both tables for the selected month
+    Promise.all([
+        fetch(`/rota?month=${selectedMonth}`).then(response => response.json()),
+        fetch(`/tip?month=${selectedMonth}`).then(response => response.json())
+    ]).then(([rotaData, tipData]) => {
+// Merge tip data by employee name and sum the tip values
+const tipMap = new Map();
+tipData.forEach(tip => {
+    console.log('Tip:', tip); // Log each tip to see its structure and value
+    const name = tip.name + ' ' + tip.lastName;
+    if (tipMap.has(name)) {
+        tipMap.set(name, tipMap.get(name) + parseFloat(tip.tip)); // Convert tip to float and add
+    } else {
+        tipMap.set(name, parseFloat(tip.tip)); // Convert tip to float
+    }
+});
+console.log('Tip Map:', tipMap); // Log the tipMap to see the accumulated values
+
+
+        // Calculate total hours and total tips for each employee
+        const employeeData = {};
+        rotaData.forEach(entry => {
+            const name = entry.name + ' ' + entry.lastName;
+            if (!employeeData[name]) {
+                employeeData[name] = {
+                    name: entry.name,
+                    lastName: entry.lastName,
+                    wage: entry.wage,
+                    totalHours: 0,
+                    totalTips: 0
+                };
             }
+            // Calculate hours from time frames
+            const startTime = new Date(`1970-01-01T${entry.startTime}Z`);
+            const endTime = new Date(`1970-01-01T${entry.endTime}Z`);
+            const hoursWorked = (endTime - startTime) / (1000 * 60 * 60);
+            employeeData[name].totalHours += hoursWorked;
+            employeeData[name].totalTips = tipMap.get(name) || 0; // Add tip value to total tips
+        });
 
-            const startDate = getMonday(new Date(weekStart));
+        // Print the data in the table
+        const container = document.getElementById('hoursSummary');
+        container.innerHTML = ''; // Clear existing content
 
-            fetch(`/rota?startDate=${startDate.toISOString().split('T')[0]}`)
-                .then(response => response.json())
-                .then(data => {
-                    const totalHours = calculateTotalHours(data);
-                    displayTotalHours(totalHours);
-                })
-                .catch(error => console.error('Error fetching data:', error));
-        }
+        const table = document.createElement('table');
+        const headerRow = document.createElement('tr');
+        headerRow.innerHTML = '<th>Name</th><th>Last Name</th><th>Wage</th><th>Total Hours</th><th>Total Tips</th>';
+        table.appendChild(headerRow);
 
-        function calculateTotalHours(data) {
-            const totalHours = {};
-            let total = 0;
+        Object.values(employeeData).forEach(employee => {
+    const row = document.createElement('tr');
+    row.innerHTML = `<td>${employee.name}</td><td>${employee.lastName}</td><td>${employee.wage}</td><td>${employee.totalHours.toFixed(2)}</td><td>${parseFloat(employee.totalTips).toFixed(2)}</td>`;
 
-            data.forEach(entry => {
-                const name = entry.name + ' ' + entry.lastName; // Concatenate first and last name
-                const startTime = new Date(`1970-01-01T${entry.startTime}Z`);
-                const endTime = new Date(`1970-01-01T${entry.endTime}Z`);
-                const hoursWorked = (endTime - startTime) / (1000 * 60 * 60); // Convert milliseconds to hours
-                total += hoursWorked;
+    table.appendChild(row);
+});
 
-                if (!totalHours[name]) {
-                    totalHours[name] = { hoursWorked: 0, wage: entry.wage }; // Initialize hours and wage for the person
-                }
-                totalHours[name].hoursWorked += hoursWorked; // Accumulate hours worked for the person
-            });
+        container.appendChild(table);
+    }).catch(error => {
+        console.error('Error retrieving and printing data:', error);
+    });
+}
 
-            return { totalHours, total };
-        }
+    function downloadPDF() {
+    // Get the HTML content of the table
+    const tableHTML = document.getElementById('hoursSummary').innerHTML;
 
-        function calculateTip() {
-            const totalHours = parseFloat(document.getElementById('hoursSummary').dataset.totalHours || 0); // Retrieve total hours
-            const tip = parseFloat(document.getElementById('tip').value || 0); // Retrieve tip amount
-            const calculatedTip = calculateTotalTip(totalHours, tip);
-            displayTip(calculatedTip, totalHours); // Pass totalHours to displayTip function
-        }
+    // Get the current month in the format 'YYYY-MM'
+    const selectedMonth = getCurrentMonth();
 
-        function calculateTotalTip(totalHours, tip) {
-            const tax = 0.02;
-            const tipAfterTax = tip * (1 - tax);
-            const totalTip = tipAfterTax;
-            return totalTip.toFixed(2);
-        }
+    // Send a request to the server to generate the PDF with the table content
+    fetch('/generate-pdf', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ tableHTML, selectedMonth }) // Include selectedMonth in the request body
+    })
+    .then(response => {
+        // Redirect to the generated PDF file
+        window.location.href = `/download-pdf?selectedMonth=${selectedMonth}`; // Include selectedMonth in the query parameters
+    })
+    .catch(error => {
+        console.error('Error generating PDF:', error);
+    });
+}
 
-        function calculateResult(hoursWorked, wage, tip, tax) {
-            const resultBeforeTax = (hoursWorked * wage) + parseFloat(tip);
-            const resultAfterTax = resultBeforeTax - tax; // Subtracts tax as a value
-            return resultAfterTax;
-        }
-
-        function displayTotalHours(totalHours) {
-            const container = document.getElementById('hoursSummary');
-            container.innerHTML = ''; // Clear existing content
-
-            const table = document.createElement('table');
-            const headerRow = document.createElement('tr');
-            headerRow.innerHTML = '<th>Name</th><th>Total Hours</th><th>Wage</th><th>Tip</th><th>Result Before Tax</th><th>Tax (£)</th><th>Result After Tax</th>'; // Adjusted header row
-            table.appendChild(headerRow);
-
-            const tip = parseFloat(document.getElementById('tip').value || 0); // Get the tip amount
-
-            for (const [name, { hoursWorked, wage }] of Object.entries(totalHours.totalHours)) {
-                const row = document.createElement('tr');
-                const tipPerHour = totalHours.total > 0 ? (tip / totalHours.total) : 0; // Calculate tip per hour
-                const tipAmount = hoursWorked * tipPerHour; // Calculate tip amount for this person
-                const taxInput = `<input type="number" min="0" class="taxInput" onchange="calculateAndDisplayResult(this)">`; // Input for tax
-                row.innerHTML = `<td>${name}</td><td>${hoursWorked.toFixed(2)}</td><td>${wage}</td><td>${tipAmount.toFixed(2)}</td><td></td><td>${taxInput}</td><td></td>`; // Display wage and result
-                table.appendChild(row);
-            }
-
-            container.appendChild(table);
-            container.dataset.totalHours = totalHours.total; // Store total hours in dataset for later use
-        }
-
-        function displayTip(tip, totalHours) {
-            const container = document.getElementById('hoursSummary');
-            const table = container.querySelector('table');
-            const rows = table.getElementsByTagName('tr');
-
-            // Iterate through each row (excluding the header row)
-            for (let i = 1; i < rows.length; i++) {
-                const cells = rows[i].getElementsByTagName('td');
-                const hoursWorked = parseFloat(cells[1].textContent); // Get hours worked from the second cell
-                const tipAmount = (tip / totalHours) * hoursWorked; // Calculate tip amount for this row
-                const tax = parseFloat(cells[5].querySelector('.taxInput').value || 0); // Retrieve tax input
-                const resultBeforeTax = calculateResult(hoursWorked, parseFloat(cells[2].textContent), tipAmount, 0); // Calculate result before tax
-                const resultAfterTax = calculateResult(hoursWorked, parseFloat(cells[2].textContent), tipAmount, tax); // Calculate result after tax
-                // Append the tip amount and results to the respective cells
-                cells[3].textContent = `£${tipAmount.toFixed(2)}`;
-                cells[4].textContent = `£${resultBeforeTax.toFixed(2)}`;
-                cells[6].textContent = `£${resultAfterTax.toFixed(2)}`;
-            }
-        }
-
-        function navigateWeek(offset) {
-            const weekStart = document.getElementById('weekStart').value;
-            if (!weekStart) {
-                alert('Please select a start date.');
-                return;
-            }
-
-            const currentStartDate = new Date(weekStart);
-            const newStartDate = new Date(currentStartDate);
-            newStartDate.setDate(currentStartDate.getDate() + (offset * 7));
-
-            document.getElementById('weekStart').value = newStartDate.toISOString().split('T')[0];
-            loadRota();
-        }
-
-        function getMonday(date) {
-            date = new Date(date);
-            const day = date.getDay();
-            const diff = date.getDate() - day + (day === 0 ? -6 : 1); // Adjust when day is Sunday
-            return new Date(date.setDate(diff));
-        }
-
-        function setCurrentWeek() {
-            const today = new Date();
-            const monday = getMonday(today); 
-            document.getElementById('weekStart').value = monday.toISOString().split('T')[0];
-            loadRota();
-        }
-
-        // Function to calculate and display result after tax
-        function calculateAndDisplayResult(input) {
-            const row = input.parentNode.parentNode; // Get the row of the input
-            const cells = row.getElementsByTagName('td');
-            const hoursWorked = parseFloat(cells[1].textContent); // Get hours worked from the second cell
-            const wage = parseFloat(cells[2].textContent); // Get wage from the third cell
-            const tipAmount = parseFloat(cells[3].textContent.replace('£', '')); // Get tip amount from the fourth cell
-            const tax = parseFloat(input.value || 0); // Retrieve tax input as a value
-            const resultAfterTax = calculateResult(hoursWorked, wage, tipAmount, tax); // Calculate result after tax
-            // Display the result after tax in the last cell of the row
-            cells[6].textContent = `£${resultAfterTax.toFixed(2)}`;
-        }
-
-        document.getElementById('weekStart').addEventListener('change', loadRota);
-        window.onload = setCurrentWeek;
-    </script>
+    window.onload = retrieveAndPrintData;
+</script>
 </body>
 </html>
 

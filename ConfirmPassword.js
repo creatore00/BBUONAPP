@@ -2,35 +2,12 @@ const express = require('express');
 const mysql = require('mysql2');
 const bodyParser = require('body-parser');
 const server = require('./server.js'); 
-const token = require('./Token.js');
-const generate = require('./Generate.js');
-const updateinfo = require('./UpdateInfo.js');
-const fp = require('./FP.js');
-const crota = require('./CRota.js');
-const hours = require('./Hours.js');
-const rota = require('./Rota.js');
-const updatehours = require('./updateHours.js');
-const tip = require('./Tip.js');
 const http = require('http');
-const router = express.Router();
+const pool = require('./db.js'); // Import the connection pool
 
-
+const port = process.env.PORT || 3003;
 const app = express();
 
-
-const connection = mysql.createConnection({
-  host: 'sql8.freesqldatabase.com',
-  user: 'sql8710584',
-  password: 'UwY6kriwlL',
-  database: 'sql8710584',
-});
-connection.connect((err) => {
-    if (err) {
-      console.error('Error connecting to the database: ' + err.stack);
-      return;
-    }
-    console.log('Connected to the database');
-  });
 // Middleware to parse JSON data
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -44,7 +21,7 @@ app.post('/', (req, res) => {
   const sql = 'UPDATE users SET Password = ? WHERE Email = ?';
 
   // Execute the query
-  connection.query(sql, [password, email], (err, results) => {
+  pool.query(sql, [password, email], (err, results) => {
     if (err) {
       console.error('Error updating password in the database:', err);
       return res.status(500).json({ error: 'Error updating password in the database' });
@@ -54,11 +31,10 @@ app.post('/', (req, res) => {
 
   });
 });
-router.get('/', (req, res) => {
-  res.send('CPassword main route');
-});
+
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/ConfirmPassword.html');
   });
-  // Start the Express server
-  module.exports = router;
+  app.listen(port, () => {
+    console.log(`Server listening at http://localhost:${port}`);
+  });

@@ -3,33 +3,12 @@ const mysql = require('mysql2');
 const bodyParser = require('body-parser');
 const confirmpassword = require('./ConfirmPassword.js'); 
 const server = require('./server.js');
-const generate = require('./Generate.js');
-const updateinfo = require('./UpdateInfo.js');
-const fp = require('./FP.js');
-const rota = require('./Rota.js');
-const crota = require('./CRota.js');
-const hours = require('./Hours.js');
-const updatehours = require('./updateHours.js');
-const tip = require('./Tip.js');
 const http = require('http');
-const router = express.Router();
+const pool = require('./db.js'); // Import the connection pool
 
+const port = process.env.PORT || 3000;
 const app = express();
 
-
-const connection = mysql.createConnection({
-  host: 'sql8.freesqldatabase.com',
-  user: 'sql8710584',
-  password: 'UwY6kriwlL',
-  database: 'sql8710584',
-});
-connection.connect((err) => {
-    if (err) {
-      console.error('Error connecting to the database: ' + err.stack);
-      return;
-    }
-    console.log('Connected to the database');
-  });
 // Middleware to parse JSON data
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -41,7 +20,7 @@ app.post('/', (req, res) => {
 
   // Query the database to check if the token exists
   const sql = 'SELECT Token FROM users WHERE Token = ?';
-  connection.query(sql, [token], (err, results) => {
+  pool.query(sql, [token], (err, results) => {
     if (err) {
       console.error('Error querying database:', err);
       return res.status(500).json({ error: 'Internal Server Error' });
@@ -51,7 +30,7 @@ app.post('/', (req, res) => {
       return res.redirect('/WrongToken.html');
     } else {
       // Token exists, redirect to success page
-      return res.redirect('http://localhost:5001');
+      return res.redirect('http://localhost:3003');
     }
   });
 });
@@ -66,8 +45,6 @@ app.get('/ConfirmPassword.html', (req, res) => {
 app.get('/WrongToken.html', (req, res) => {
   res.sendFile(__dirname + '/WrongToken.html');
 });
-router.get('/', (req, res) => {
-  res.send('T main route');
+app.listen(port, () => {
+  console.log(`Server listening at http://localhost:${port}`);
 });
-// Start the server
-module.exports = router;

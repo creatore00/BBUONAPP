@@ -2,140 +2,317 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=100%, initial-scale=1.0">
     <title>Employee Information</title>
-    <style>
-        body {
-    /* Set the background image and specify its source */
-    background-image: url('https://www.oxfordmail.co.uk/resources/images/12727861/');
-    /* Set background size to cover the entire viewport */
-    background-size: cover;
+<style>
+body {
+    background: linear-gradient(135deg, #4A90E2 0%, #B0E0E6 100%);
     margin: 0;
     font-family: Arial, sans-serif;
     text-align: center;
     text-transform: uppercase;
-    color: rgb(53, 38, 5);
+    color: #60a2ee; 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
 }
+
+.content {
+    width: 100%;
+    max-width: 1500px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
 table {
     width: 100%;
-    border-collapse: collapse;
-    background-color:rgba(231, 220, 209, 0.692);
+    border-collapse: separate;
+    border-spacing: 0;
+    background-color: #1E90FF; 
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); 
     margin-top: 20px;
+    flex: 1; /* This will make the table grow and fill the available space within the content */
 }
+
+
 th, td {
-    border: 1px solid #000;
     text-align: center;
-    padding: 8px;
+    padding: 12px;
     white-space: nowrap;
-    background-color:rgba(172, 133, 96, 0.692);
+    background-color: #4A90E2; 
+    color: #fff; 
+    font-weight: bold; 
 }
-th {
-    background-color:rgba(172, 133, 96, 0.692);
-}
-.delete-btn {
-    cursor: pointer;
-    color: red;
-    font-weight: bold;
-    background-color:rgba(172, 133, 96, 0.692);
-}
-.btn{
-    background-color:rgba(172, 133, 96, 0.692);
-    color: #fff;
+
+.btn, .btn1 {
+    background-color: #4A90E2; 
+    color: #fff; 
     padding: 10px 20px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    align-self: center;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    transition: background-color 0.3s ease; 
+    font-size: 14px; 
 }
-.btn1{
-    background-color:rgba(172, 133, 96, 0.692);
-    color: #fff;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
+
+.btn:hover, .btn1:hover {
+    background-color: #1E90FF; 
+    transform: scale(1.05); 
+    transition: transform 0.3s ease; 
+}
+
+.draggable {
     cursor: pointer;
-    align-self: center;
-    margin-top: 20px;
-    margin-bottom: 20px;
 }
-h1{
+
+.dragging {
+    opacity: 0.5;
+}
+
+.dragover {
+    background-color: #70ace7; 
+}
+
+.time-frame {
+    margin-bottom: 5px;
+    cursor: move;
+    border: 1px solid transparent; 
+}
+
+.selected {
+    background-color: #70ace7; 
+    border-color: #ccc; 
+}
+
+#timeFrameInput {
+    display: none;
+    position: absolute;
+    background-color: rgba(176, 224, 230, 0.8); 
+    border: 1px solid #ccc;
+    padding: 10px;
+}
+
+#timeFrameInput.show {
+    display: block;
+}
+
+#popupMessage {
+    display: none;
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #4CAF50; 
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    z-index: 1000;
+    transition: opacity 0.3s ease; 
+}
+
+#popupMessage.show {
+    display: block;
+    opacity: 1;
+}
+
+#customWeekNavigation {
+    margin-bottom: 10px; 
+}
+
+.date {
+    background-color: #70ace7; 
+    font-family: Arial, sans-serif;
+    text-transform: uppercase;
+    color: white;
+    border-radius: 5px; 
+    padding: 6px 12px; 
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2); 
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+tbody tr {
+    animation: fadeInUp 0.5s ease;
+}
+
+.form-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; 
+    background: linear-gradient(135deg, #4A90E2, #B0E0E6); 
+    margin: 0;
+    font-family: 'Arial', sans-serif;
     text-align: center;
+    color: #60a2ee; 
 }
-.text{
-    color: rgb(53, 38, 5);
-    background-color:rgba(172, 133, 96, 0.692);
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5); 
 }
-button{
-    background-color:rgba(172, 133, 96, 0.692);
+
+.modal-content {
+    background: rgba(255, 255, 255, 0); 
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 400px;
+    box-sizing: border-box;
+    text-align: left; 
+}
+
+form input[type="text"], form input[type="email"], form input[type="password"], form textarea {
+    width: 100%;
+    padding: 12px;
+    margin: 9px 0;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
     color: #fff;
-    padding: 10px 20px;
+    background: rgba(255, 255, 255, 0.3); 
+    text-transform: uppercase; 
+}
+
+form label {
+    font-size: 14px;
+    color: #fff; 
+    text-transform: uppercase; 
+    margin-bottom: 5px;
+}
+
+form button[type="submit"] {
+    background: #4A90E2; 
+    color: #fff; 
+    padding: 12px 20px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    align-self: center;
+    text-transform: uppercase; 
+    font-weight: bold;
+    font-size: 16px;
+    margin-top: 20px;
+    transition: background-color 0.3s ease, transform 0.3s ease; 
 }
-input{
-    background-color:rgba(172, 133, 96, 0.692);
-    color: rgb(53, 38, 5);
-    text-shadow: #000;
+
+form button[type="submit"]:hover {
+    background: #357ae8; 
+    transform: scale(1.05); 
 }
-form{
-    background-color:rgba(172, 133, 96, 0.692);;
+
+::placeholder {
+    color: rgba(255, 255, 255, 0.7); 
+    text-transform: uppercase; 
 }
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+form * {
+    animation: fadeIn 0.5s ease; 
+}
+
+form input[type="text"], form input[type="email"], form input[type="password"], form textarea, form button[type="submit"] {
+    animation-delay: 0.2s; 
+}
+
+form label {
+    animation-delay: 0.1s; 
+}
+
 </style>
 </head>
 <body>
-    <div class="container">
+    <div class="content">
         <h1>Employee Information</h1>
-
-        <button id="showFormButton">Add New Employee</button> <!-- Button to show the form -->
-
-        <form class="form" id="employeeForm" enctype="multipart/form-data" style="display: none;">
-            <h2>Add New Employee</h2>
-            <div>
-                <label for="name">Name:</label>
-                <input type="text" id="name" name="name" required>
+        <button id="showFormButton" class="btn">Add New Employee</button>
+        <!-- Modal Structure -->
+        <div id="employeeModal" class="modal">
+            <div class="modal-content">
+                <form id="employeeForm" enctype="multipart/form-data">
+                    <div>
+                        <label for="name">Name:</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    <div>
+                        <label for="lastName">LastName:</label>
+                        <input type="text" id="lastName" name="lastName" required>
+                    </div>
+                    <div>
+                        <label for="email">Email:</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div>
+                        <label for="phone">Phone Number:</label>
+                        <input type="text" id="phone" name="phone" required>
+                    </div>
+                    <div>
+                        <label for="address">Address:</label>
+                        <input type="text" id="address" name="address" required>
+                    </div>
+                    <div>
+                        <label for="nin">NIN:</label>
+                        <input type="text" id="nin" name="nin" required>
+                    </div>
+                    <div>
+                        <label for="wage">Wage (£)</label>
+                        <input type="text" id="wage" name="wage" required>
+                    </div>
+                    <div>
+                        <label for="holiday">Holidays</label>
+                        <input type="text" id="holiday" name="holiday" required>
+                    </div>
+                    <div>
+                        <input type="radio" id="foh" name="designation" value="FOH" checked>
+                        <label for="foh">Front of House</label><br>
+                        <input type="radio" id="boh" name="designation" value="BOH">
+                        <label for="boh">Back of House</label><br>
+                    </div>
+                    <div>
+                        <label for="dateStart">Start Date</label>
+                        <input class="date" type="date" id="dateStart" name="dateStart" required>
+                    </div>
+                    <div>
+                        <label for="passportImage">Passport Image:</label>
+                        <input type="file" id="passportImage" name="passportImage" accept="image/*" required>
+                    </div>
+                    <button class="btn1" type="submit">Add Employee</button>
+                    <button id="closeModalButton" class="btn1" type="submit">Cancel</button>
+                </form>
             </div>
-            <div>
-                <label for="lastName">LastName:</label>
-                <input type="text" id="lastName" name="lastName" required>
-            </div>
-            <div>
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="email" required>
-            </div>
-            <div>
-                <label for="phone">Phone Number:</label>
-                <input type="text" id="phone" name="phone" required>
-            </div>
-            <div>
-                <label for="address">Address:</label>
-                <input type="text" id="address" name="address" required>
-            </div>
-            <div>
-                <label for="nin">NIN:</label>
-                <input type="text" id="nin" name="nin" required>
-            </div>
-            <div>
-                <label for="wage">Wage (£)</label>
-                <input type="text" id="wage" name="wage" required>
-            </div>
-            <div>
-                <input type="radio" id="foh" name="designation" value="FOH" checked>
-                <label for="foh">Front of House</label><br>
-                <input type="radio" id="boh" name="designation" value="BOH">
-                <label for="boh">Back of House</label><br>
-            </div>
-            <div>
-                <label for="passportImage">Passport Image:</label>
-                <input type="file" id="passportImage" name="passportImage" accept="image/*" required>
-            </div>
-            <button class="btn1" type="submit">Add Employee</button></form></n>
-        </form>
-
+        </div>
         <table id="employeeTable">
             <thead>
                 <tr>
+                    <th>Id</th>
                     <th>Name</th>
                     <th>LastName</th>
                     <th>Email</th>
@@ -144,8 +321,12 @@ form{
                     <th>NIN</th>
                     <th>Wage</th>
                     <th>Role</th>
+                    <th>Date Started</th>
+                    <th>Total Holidays</th>
+                    <th>Left</th>
+                    <th>Accrued</th>
                     <th>Passport Image</th>
-                    <th>Actions</th> <!-- Added Actions column -->
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -153,22 +334,16 @@ form{
             </tbody>
         </table>
     </div>
-
     <script>
         document.getElementById('showFormButton').addEventListener('click', () => {
-            const form = document.getElementById('employeeForm');
-            if (form.style.display === 'none') {
-                form.style.display = 'block';
-            } else {
-                form.style.display = 'none';
-            }
+            document.getElementById('employeeModal').style.display = 'block';
         });
-
+        document.getElementById('closeModalButton').addEventListener('click', () => {
+            document.getElementById('employeeModal').style.display = 'none';
+        });
         document.getElementById('employeeForm').addEventListener('submit', function(event) {
-            event.preventDefault(); // Prevent default form submission
-
+            event.preventDefault(); 
             const formData = new FormData(this);
-
             fetch('/', {
                 method: 'POST',
                 body: formData,
@@ -179,25 +354,25 @@ form{
                 if (data.success) {
                     alert('Employee added successfully');
                     loadEmployees();
-                    this.reset(); // Reset the form after submission
-                    this.style.display = 'none'; // Hide the form after submission
+                    this.reset();
+                    document.getElementById('employeeModal').style.display = 'none';
                 } else {
                     alert('Error adding employee');
                 }
             })
             .catch(error => console.error('Error:', error));
         });
-
         function loadEmployees() {
             fetch('/employees')
                 .then(response => response.json())
                 .then(data => {
                     const tbody = document.querySelector('#employeeTable tbody');
-                    tbody.innerHTML = ''; // Clear existing rows
+                    tbody.innerHTML = ''; 
 
                     data.forEach(employee => {
                         const row = document.createElement('tr');
                         row.innerHTML = `
+                            <td>${employee.id}</td>
                             <td>${employee.name}</td>
                             <td>${employee.lastName}</td>
                             <td>${employee.email}</td>
@@ -206,15 +381,18 @@ form{
                             <td>${employee.nin}</td>
                             <td>${employee.wage}</td>
                             <td>${employee.designation}</td>
-                            <td><button onclick="downloadImage('${employee.passportImage}')">Download Image</button></td>
-                            <td><button onclick="deleteEmployee(${employee.id})">Delete</button></td>
+                            <td>${employee.dateStart}</td>
+                            <td>${employee.startHoliday}</td>
+                            <td>${employee.TotalHoliday}</td>
+                            <td>${employee.Accrued}</td>
+                            <td><button class="btn" onclick="downloadImage('${employee.passportImage}')">Download Image</button></td>
+                            <td><button class="btn" onclick="deleteEmployee(${employee.id})">Delete</button></td>
                         `;
                         tbody.appendChild(row);
                     });
                 })
                 .catch(error => console.error('Error fetching employee data:', error));
         }
-
         function downloadImage(filename) {
             fetch(`/uploads/${filename}`)
                 .then(response => response.blob())
@@ -229,7 +407,6 @@ form{
                 })
                 .catch(error => console.error('Error downloading image:', error));
         }
-
         function deleteEmployee(id) {
             fetch(`/employee/${id}`, {
                 method: 'DELETE',
@@ -238,15 +415,13 @@ form{
             .then(data => {
                 if (data.success) {
                     alert('Employee deleted successfully');
-                    loadEmployees(); // Refresh the table
+                    loadEmployees();
                 } else {
                     alert('Error deleting employee');
                 }
             })
             .catch(error => console.error('Error:', error));
         }
-
-        // Load employees when the page loads
         window.onload = loadEmployees;
     </script>
 </body>

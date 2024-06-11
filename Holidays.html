@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Holiday Request</title>
+    <style>
+        body {
+            background: linear-gradient(135deg, #4A90E2 0%, #B0E0E6 100%);
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            align-items: center;
+            justify-content: center;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #fff;
+            font-size: 16px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Custom font */
+        }
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            font-size: 14px;
+        }
+        .form-group button {
+            background-color: #1E90FF; /* Match page color */
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.3s ease; /* Smooth color transition */
+            font-size: 16px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Custom font */
+            text-transform: uppercase; /* Convert text to uppercase */
+        }
+        .form-group button:hover {
+            background-color: #4682B4; /* Darker color on hover */
+        }
+        a {
+            text-decoration: none;
+            color: #fff;
+            cursor: pointer;
+            display: flex;
+            align-content: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Custom font */
+        }
+        h1 {
+            color: #488ad4; /* Text color */
+            text-align: center;
+            font-size: 3vw;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Holiday Request Form</h1>
+        <form id="holidayRequestForm">
+            <div class="form-group">
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="lastName">Last Name:</label>
+                <input type="text" id="lastName" name="lastName" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="startDate">Start Date:</label>
+                <input type="date" id="startDate" name="startDate" required>
+            </div>
+            <div class="form-group">
+                <label for="endDate">End Date:</label>
+                <input type="date" id="endDate" name="endDate" required>
+            </div>
+            <div class="form-group">
+                <label for="startTime">Start Time (optional):</label>
+                <input type="time" id="startTime" name="startTime">
+            </div>
+            <div class="form-group">
+                <label for="endTime">End Time (optional):</label>
+                <input type="time" id="endTime" name="endTime">
+            </div>
+            <div class="form-group button">
+                <button type="submit">Submit Request</button>
+            </div>
+        </form>
+        <div id="message"></div>
+    </div>
+    <script>
+        // Ensure the start date and end date cannot be before today
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('startDate').setAttribute('min', today);
+        document.getElementById('endDate').setAttribute('min', today);
+        document.getElementById('holidayRequestForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+            const name = document.getElementById('name').value;
+            const lastName = document.getElementById('lastName').value;
+            const email = document.getElementById('email').value;
+            const startDate = new Date(document.getElementById('startDate').value);
+            const endDate = new Date(document.getElementById('endDate').value);
+            const startTime = document.getElementById('startTime').value;
+            const endTime = document.getElementById('endTime').value;
+        
+            const messageDiv = document.getElementById('message');
+            messageDiv.innerHTML = '';
+        
+            // Validate request: must be 14 days in advance and for a maximum of two consecutive weeks
+            const today = new Date();
+            const fourteenDaysLater = new Date();
+            fourteenDaysLater.setDate(today.getDate() + 14);
+        
+            // Calculate the maximum allowable end date based on the start date (14 days)
+            const maxEndDate = new Date(startDate);
+            maxEndDate.setDate(startDate.getDate() + 13); // Add 13 days to cover 14 days including the start date
+        
+            if (startDate < fourteenDaysLater) {
+                messageDiv.innerHTML = '<p style="color: red;">Holiday requests must be made at least 14 days in advance.</p>';
+                return;
+            }
+        
+            if (endDate > maxEndDate) {
+                messageDiv.innerHTML = '<p style="color: red;">Holiday requests can be for a maximum of two consecutive weeks.</p>';
+                return;
+            }
+        
+            const requestData = {
+                name: name,
+                lastName: lastName,
+                email: email,
+                startDate: startDate.toISOString().split('T')[0],
+                endDate: endDate.toISOString().split('T')[0],
+                startTime: startTime,
+                endTime: endTime
+            };
+        
+            fetch('/submitHolidayRequest', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestData),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    messageDiv.innerHTML = '<p style="color: green;">Holiday request submitted successfully!</p>';
+                } else {
+                    messageDiv.innerHTML = `<p style="color: red;">Error: ${data.message}</p>`;
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                messageDiv.innerHTML = '<p style="color: red;">An error occurred while submitting the request.</p>';
+            });
+        });
+        </script>
+        
+</body>
+</html>

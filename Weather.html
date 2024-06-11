@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Forecast</title>
+</head>
+<body>
+    <h2>Weather Forecast</h2>
+    <div id="weather-info">
+        <p>Loading weather information...</p>
+    </div>
+
+    <script>
+        fetch('/weather')
+            .then(response => response.json())
+            .then(data => {
+                const temperature = data.main.temp;
+                const description = data.weather[0].description;
+
+                const weatherInfoElement = document.getElementById('weather-info');
+                weatherInfoElement.innerHTML = `
+                    <p>Temperature: ${temperature} °C</p>
+                    <p>Description: ${description}</p>
+                `;
+            })
+            .catch(error => {
+                console.error('Error fetching weather data:', error);
+                const weatherInfoElement = document.getElementById('weather-info');
+                weatherInfoElement.innerHTML = '<p>Error fetching weather data.</p>';
+            });
+    </script>
+</body>
+</html>

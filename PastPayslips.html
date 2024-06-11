@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Failed</title>
-    <link rel="icon" href="https://bbuona.com/wp-content/uploads/2019/11/marker.png" type="image/x-icon">
+    <title>Payslips</title>
     <style>
         * {
             box-sizing: border-box;
@@ -206,24 +205,85 @@
         </style>
 </head>
 <body>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <!-- Add your meta tags and title here -->
-</head>
-<body>
-<h4>Invalid Token</h4>
+    <h1>Payslips</h1>
+    <table id="payslipsTable">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Last Name</th>
+                <th>Email</th>
+                <th>Payslip Date</th>
+                <th>Download</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Rows will be populated here -->
+        </tbody>
+    </table>
+    <script>
+document.addEventListener('DOMContentLoaded', function() {
+    fetch('/api/payslips')
+        .then(response => response.json())
+        .then(data => {
+            data.sort((a, b) => new Date(b.date) - new Date(a.date)); // Sort by date, newest first
+            populatePayslipsTable(data);
+        })
+        .catch(error => console.error('Error fetching payslips data:', error));
+});
 
-<!-- Return button -->
-<button class="btn" onclick="goBack()">Return Verification</button>
+function populatePayslipsTable(payslips) {
+    const tableBody = document.getElementById('payslipsTable').querySelector('tbody');
+    tableBody.innerHTML = '';
 
-<script>
-    // JavaScript function to go back to the previous page
-    function goBack() {
-        window.history.back();
-    }
-</script>
+    payslips.forEach(payslip => {
+        const row = document.createElement('tr');
 
+        // Trim date to dd/mm/yyyy format
+        const formattedDate = new Date(payslip.date).toLocaleDateString('en-GB');
+
+        row.innerHTML = `
+            <td>${payslip.name}</td>
+            <td>${payslip.lastName}</td>
+            <td>${payslip.email}</td>
+            <td>${formattedDate}</td> <!-- Display trimmed date -->
+            <td><button class="btn" onclick="fetchAndDownloadPayslip(${payslip.id})">Download PDF</button></td>
+        `;
+
+        tableBody.appendChild(row);
+    });
+}
+
+// Function to fetch payslip data and download only if it's a PDF
+function fetchAndDownloadPayslip(payslipId) {
+    fetch(`/api/download-file/${payslipId}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.blob();
+        })
+        .then(blob => {
+            const url = window.URL.createObjectURL(blob);
+            const fileType = blob.type;
+            
+            // Check if the file type is PDF
+            if (fileType === 'application/pdf') {
+                // Extract month from payslip date
+                const payslipDate = new Date(); // Assuming payslip date is retrieved from the server
+                const month = payslipDate.toLocaleString('default', { month: 'long' });
+                
+                // Create a link element to trigger the download
+                const a = document.createElement('a');
+                a.href = url;
+                a.textContent = 'Download Payslip';
+                a.download = `Payslip_${month}.pdf`; // Set the download file name
+                a.click(); // Trigger the download
+            } else {
+                console.error('File is not a PDF');
+            }
+        })
+        .catch(error => console.error('Error fetching payslip:', error));
+}
+    </script>
 </body>
 </html>
-

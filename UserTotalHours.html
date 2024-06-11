@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Failed</title>
-    <link rel="icon" href="https://bbuona.com/wp-content/uploads/2019/11/marker.png" type="image/x-icon">
+    <title>Work Hours Summary</title>
     <style>
         * {
             box-sizing: border-box;
@@ -206,24 +205,121 @@
         </style>
 </head>
 <body>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <!-- Add your meta tags and title here -->
-</head>
-<body>
-<h4>Invalid Token</h4>
+    <h1>Work Hours Summary</h1>
+    <label class="text" for="weekStart"></label>
+    <input type="date" class="date" id="weekStart">
+    <button class="btn1" onclick="loadRota()">Load Week</button>
+    <div id="hoursSummary">
+        <!-- Total hours and name will be displayed here -->
+    </div>
+    <footer>
+        <button class="btn1" onclick="navigateWeek(-1)">Previous Week</button>
+        <button class="btn1" onclick="navigateWeek(1)">Next Week</button>
+    </footer>
 
-<!-- Return button -->
-<button class="btn" onclick="goBack()">Return Verification</button>
+    <script>
+        function loadRota() {
+            const weekStart = document.getElementById('weekStart').value;
+            const startDate = getMonday(new Date(weekStart));
 
-<script>
-    // JavaScript function to go back to the previous page
-    function goBack() {
-        window.history.back();
-    }
-</script>
+            fetch(`/rota?startDate=${startDate.toISOString().split('T')[0]}`)
+                .then(response => response.json())
+                .then(data => {
+                    const totalHours = calculateTotalHours(data);
+                    displayTotalHours(totalHours);
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        }
 
+        function calculateTotalHours(data) {
+            const totalHours = { FOH: {}, BOH: {} }; // Group hours by FOH and BOH
+            let total = 0; // Total hours worked for the entire week
+
+            data.forEach(entry => {
+                const name = entry.name + ' ' + entry.lastName;
+                const designation = entry.designation; // Get the designation from the entry
+                const startTime = new Date(`1970-01-01T${entry.startTime}Z`);
+                const endTime = new Date(`1970-01-01T${entry.endTime}Z`);
+                const hoursWorked = (endTime - startTime) / (1000 * 60 * 60); // Convert milliseconds to hours
+                total += hoursWorked; // Accumulate total hours worked for the week
+
+                // Initialize the designation group if not present
+                if (!totalHours[designation]) {
+                    totalHours[designation] = {};
+                }
+
+                // If the person's name doesn't exist in the designation group, initialize their hours to 0
+                if (!totalHours[designation][name]) {
+                    totalHours[designation][name] = 0;
+                }
+                totalHours[designation][name] += hoursWorked; // Accumulate hours worked for the person
+            });
+
+            return { totalHours, total }; // Return an object containing total hours per person and total hours for the week
+        }
+
+        function displayTotalHours(totalHours) {
+            const container = document.getElementById('hoursSummary');
+            container.innerHTML = ''; // Clear existing content
+
+            const table = document.createElement('table');
+            const headerRow = document.createElement('tr');
+            headerRow.innerHTML = '<th>Name</th><th>Designation</th><th>Total Hours</th>';
+            table.appendChild(headerRow);
+
+            // Add FOH rows first
+            if (totalHours.totalHours.FOH) {
+                for (const [name, hours] of Object.entries(totalHours.totalHours.FOH)) {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `<td>${name}</td><td>FOH</td><td>${hours.toFixed(2)}</td>`;
+                    table.appendChild(row);
+                }
+            }
+
+            // Add BOH rows next
+            if (totalHours.totalHours.BOH) {
+                for (const [name, hours] of Object.entries(totalHours.totalHours.BOH)) {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `<td>${name}</td><td>BOH</td><td>${hours.toFixed(2)}</td>`;
+                    table.appendChild(row);
+                }
+            }
+
+            container.appendChild(table);
+            container.dataset.totalHours = totalHours.total; // Store total hours in dataset for later use
+        }
+
+        function navigateWeek(offset) {
+            const weekStart = document.getElementById('weekStart').value;
+            if (!weekStart) {
+                alert('Please select a start date.');
+                return;
+            }
+
+            const currentStartDate = new Date(weekStart);
+            const newStartDate = new Date(currentStartDate);
+            newStartDate.setDate(currentStartDate.getDate() + (offset * 7));
+
+            document.getElementById('weekStart').value = newStartDate.toISOString().split('T')[0];
+            loadRota();
+        }
+
+        function getMonday(date) {
+            date = new Date(date);
+            const day = date.getDay();
+            const diff = date.getDate() - day + (day === 0 ? -6 : 1); // Adjust when day is Sunday
+            return new Date(date.setDate(diff));
+        }
+
+        function setCurrentWeek() {
+            const today = new Date();
+            const monday = getMonday(today);
+            document.getElementById('weekStart').value = monday.toISOString().split('T')[0];
+            loadRota();
+        }
+
+        document.getElementById('weekStart').addEventListener('change', loadRota);
+        window.onload = setCurrentWeek;
+    </script>
 </body>
 </html>
-

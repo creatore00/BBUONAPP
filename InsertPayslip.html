@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Failed</title>
-    <link rel="icon" href="https://bbuona.com/wp-content/uploads/2019/11/marker.png" type="image/x-icon">
+    <title>Payslips</title>
     <style>
         * {
             box-sizing: border-box;
@@ -20,7 +19,8 @@
             overflow-x: hidden; /* Prevent horizontal scrolling */
         }
         table {
-            width: 100%;
+            width: 60%;
+            margin: 0 auto;
             border-collapse: separate;
             border-spacing: 0;
             background-color: #1E90FF; /* Blue background */
@@ -206,24 +206,96 @@
         </style>
 </head>
 <body>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <!-- Add your meta tags and title here -->
-</head>
-<body>
-<h4>Invalid Token</h4>
+    <h1>Upload Payslips</h1>
+    <table id="employeesTable">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Last Name</th>
+                <th>Email</th>
+                <th>Upload Payslip</th>
+            </tr>
+        </thead>
+        <tbody id="employeesBody">
+            <!-- Table rows will be populated here -->
+        </tbody>
+    </table>
 
-<!-- Return button -->
-<button class="btn" onclick="goBack()">Return Verification</button>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('/api/employees')
+                .then(response => response.json())
+                .then(data => {
+                    populateEmployees(data);
+                })
+                .catch(error => console.error('Error fetching employees data:', error));
+        });
 
-<script>
-    // JavaScript function to go back to the previous page
-    function goBack() {
-        window.history.back();
-    }
-</script>
+        function populateEmployees(employees) {
+            const tableBody = document.getElementById('employeesBody');
+            employees.forEach(employee => {
+                const row = document.createElement('tr');
 
+                // Create table data cells and set their values
+                const nameCell = document.createElement('td');
+                nameCell.textContent = employee.name;
+                const lastNameCell = document.createElement('td');
+                lastNameCell.textContent = employee.lastName;
+                const emailCell = document.createElement('td');
+                emailCell.textContent = employee.email;
+                const uploadCell = document.createElement('td');
+                const form = document.createElement('form');
+                form.setAttribute('method', 'post');
+                form.setAttribute('enctype', 'multipart/form-data');
+                form.setAttribute('action', '/api/upload-payslip');
+
+                // Prevent default form submission behavior
+                form.addEventListener('submit', function(event) {
+                    event.preventDefault();
+                    handleUpload(form);
+                });
+
+                form.innerHTML = `
+                    <input type="hidden" name="name" value="${employee.name}">
+                    <input type="hidden" name="lastName" value="${employee.lastName}">
+                    <input type="hidden" name="email" value="${employee.email}">
+                    <label for="payslip">Upload Payslip:</label>
+                    <input type="file" name="payslip" required>
+                    <button class="btn" type="submit">Upload</button>
+                `;
+                uploadCell.appendChild(form);
+
+                // Append table data cells to the table row
+                row.appendChild(nameCell);
+                row.appendChild(lastNameCell);
+                row.appendChild(emailCell);
+                row.appendChild(uploadCell);
+
+                // Append the table row to the table body
+                tableBody.appendChild(row);
+            });
+        }
+
+        function handleUpload(form) {
+            const formData = new FormData(form);
+            fetch(form.getAttribute('action'), {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Upload failed');
+                }
+                return response.json();
+            })
+            .then(data => {
+                alert('Upload successful');
+                // Optionally, update the UI to reflect the successful upload
+            })
+            .catch(error => {
+                alert('Error: ' + error.message);
+            });
+        }
+    </script>
 </body>
 </html>
-

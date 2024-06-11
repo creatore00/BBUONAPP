@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=100%, initial-scale=1.0">
+    <style>
+body {
+    /* Set the initial background color */
+    background-color: #4A90E2;
+    background-image: linear-gradient(135deg, #4A90E2 0%, #B0E0E6 100%);
+    margin: 0;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    text-transform: uppercase;
+    color: #60a2ee; /* Text color */
+    animation: changeBackgroundColor 5s infinite alternate; /* Animation for color change */
+} 
+    table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        background-color: #1E90FF; /* Blue background */
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Added box shadow for depth */
+    }
+    
+    th, td {
+        text-align: center;
+        padding: 12px;
+        white-space: nowrap;
+        background-color: #4A90E2; /* Light blue background */
+        color: #fff; /* White text */
+        font-weight: bold; /* Bold text */
+    }
+    
+    .btn, .btn1, button {
+        background-color: #4A90E2; /* Light blue button background */
+        color: #fff; /* White text */
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        align-self: center;
+        margin-top: 10px;
+        margin-bottom: 10px;
+        transition: background-color 0.3s ease; /* Smooth color transition */
+        font-size: 14px; /* Font size */
+        text-transform: uppercase;
+        font-family: Arial, sans-serif;
+    }
+    
+    .btn:hover, .btn1:hover, button:hover {
+        background-color: #1E90FF; /* Darker blue button background on hover */
+        transform: scale(1.05); /* Increase size by 5% */
+        transition: transform 0.3s ease; /* Add smooth transition effect */
+    }
+    
+    .draggable {
+        cursor: pointer;
+    }
+    
+    .dragging {
+        opacity: 0.5;
+    }
+    
+    .dragover {
+        background-color: #70ace7; /* Lighter blue background */
+    }
+    
+    .time-frame {
+        margin-bottom: 5px;
+        cursor: move;
+        border: 1px solid transparent; /* Added for highlighting */
+    }
+    
+    .selected {
+        background-color: #70ace7; /* Lighter blue background */
+        border-color: #ccc; /* Added for highlighting */
+    }
+    
+    #timeFrameInput {
+        display: none;
+        position: absolute;
+        background-color: rgba(176, 224, 230, 0.8); /* Light blue background */
+        border: 1px solid #ccc;
+        padding: 10px;
+    }
+    
+    #timeFrameInput.show {
+        display: block;
+    }
+    
+    #popupMessage {
+        display: none;
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: #4CAF50; /* Green background */
+        color: white;
+        padding: 10px;
+        border-radius: 5px;
+        z-index: 1000;
+        transition: opacity 0.3s ease; /* Smooth transition */
+    }
+    
+    #popupMessage.show {
+        display: block;
+        opacity: 1;
+    }
+    
+    #customWeekNavigation {
+        margin-bottom: 10px; /* Add some space above the new line */
+    }
+    
+    .date {
+        background-color: #70ace7; /* Blue background */
+        font-family: Arial, sans-serif;
+        text-transform: uppercase;
+        color: white;
+        border-radius: 5px; /* Rounded corners */
+        padding: 6px 12px; /* Adjust padding for better fit */
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.2); /* Added shadow for depth */
+    }
+    
+    /* Animation for table rows */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    tbody tr {
+        animation: fadeInUp 0.5s ease;
+    }
+    
+    </style>
+</head>
+<body>
+<h2>Holiday Requests</h2>
+<table id="holidayTable">
+   <thead>
+        <tr>
+            <th>Name</th>
+            <th>Last Name</th>
+            <th>Email</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Start Time</th>
+            <th>End Time</th>
+            <th>Request Date</th>
+            <th>Action</th>
+        </tr>
+   </thead>
+   <tbody id="holidayTableBody">
+            <!-- Holiday requests will be dynamically added here -->
+   </tbody>
+</table>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const tableBody = document.getElementById('holidayTableBody');
+
+        // Function to add a new row to the table
+        function addRow(request) {
+            const formattedStartDate = new Date(request.startDate).toLocaleDateString('en-US', { timeZone: 'UTC', dateStyle: 'medium' });
+            const formattedEndDate = new Date(request.endDate).toLocaleDateString('en-US', { timeZone: 'UTC', dateStyle: 'medium' });
+            const formattedRequestDate = new Date(request.requestDate).toLocaleString('en-US', { timeZone: 'UTC' });
+
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${request.name}</td>
+                <td>${request.lastName}</td>
+                <td>${request.email}</td>
+                <td>${formattedStartDate}</td>
+                <td>${formattedEndDate}</td>
+                <td>${request.startTime}</td>
+                <td>${request.endTime}</td>
+                <td>${formattedRequestDate}</td>
+                <td>${request.accepted ? 'Accepted' : `
+                    <button onclick="acceptRequest(${request.id})">Accept</button>
+                    <button onclick="declineRequest(${request.id}, '${request.name}', '${request.lastName}')">Decline</button>
+                    <input type="text" id="message-${request.id}" placeholder="Enter your message">
+
+                `}</td>
+            `;
+            tableBody.prepend(row);
+        }
+
+            // Function to fetch holiday requests from the server
+            function fetchHolidayRequests() {
+                fetch('/holidays')
+                    .then(response => response.json())
+                    .then(data => {
+                        data.forEach(request => {
+                            addRow(request);
+                        });
+                    })
+                    .catch(error => console.error('Error fetching holiday requests:', error));
+            }
+
+            fetchHolidayRequests();
+        });
+    // Function to handle accepting a holiday request
+    function acceptRequest(requestId) {
+        // Make a fetch request to update the database
+        fetch(`/updateRequest/${requestId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ accept: 'Accepted' })
+        })
+        .then(response => {
+            if (response.ok) {
+                console.log('Request accepted and database updated');
+                // Reload the page to reflect the change
+                location.reload();
+            } else {
+                console.error('Error updating database');
+            }
+        })
+        .catch(error => console.error('Error updating database:', error));
+    }
+// Function to handle declining a holiday request
+function declineRequest(requestId, name, lastName) {
+    const message = document.getElementById(`message-${requestId}`).value;
+    fetch(`/deleteRequest/${requestId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ 
+            message: message,
+            name: name,
+            lastName: lastName
+        })
+    })
+    .then(response => {
+        if (response.ok) {
+            console.log('Request declined successfully');
+            window.location.reload();
+            row.remove();
+            // Optionally, you can reload the page or update the UI
+        } else {
+            console.error('Failed to decline request:', response.status);
+            // Handle error scenarios
+        }
+    })
+    .catch(error => {
+        console.error('Error declining request:', error);
+        // Handle fetch errors
+    });
+}
+</script>
+</body>
+</html>

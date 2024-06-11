@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Work Hours Table</title>
+    <style>
+        body {
+        /* Set the background color with gradient effect */
+        background: linear-gradient(135deg, #4A90E2 0%, #B0E0E6 100%);
+        margin: 0;
+        font-family: Arial, sans-serif;
+        text-align: center;
+        text-transform: uppercase;
+        color: #60a2ee; /* Text color */
+    }
+    
+    table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        background-color: #1E90FF; /* Blue background */
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Added box shadow for depth */
+    }
+    
+    th, td {
+        text-align: center;
+        padding: 12px;
+        white-space: nowrap;
+        background-color: #4A90E2; /* Light blue background */
+        color: #fff; /* White text */
+        font-weight: bold; /* Bold text */
+    }
+    
+    .btn, .btn1 {
+        background-color: #4A90E2; /* Light blue button background */
+        color: #fff; /* White text */
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        align-self: center;
+        margin-top: 10px;
+        margin-bottom: 20px;
+        transition: background-color 0.3s ease; /* Smooth color transition */
+        font-size: 14px; /* Font size */
+    }
+    
+    .btn:hover, .btn1:hover {
+        background-color: #1E90FF; /* Darker blue button background on hover */
+        transform: scale(1.05); /* Increase size by 5% */
+        transition: transform 0.3s ease; /* Add smooth transition effect */
+    }
+    
+    .draggable {
+        cursor: pointer;
+    }
+    
+    .dragging {
+        opacity: 0.5;
+    }
+    
+    .dragover {
+        background-color: #70ace7; /* Lighter blue background */
+    }
+    
+    .time-frame {
+        margin-bottom: 5px;
+        cursor: move;
+        border: 1px solid transparent; /* Added for highlighting */
+    }
+    
+    .selected {
+        background-color: #70ace7; /* Lighter blue background */
+        border-color: #ccc; /* Added for highlighting */
+    }
+    
+    #timeFrameInput {
+        display: none;
+        position: absolute;
+        background-color: rgba(176, 224, 230, 0.8); /* Light blue background */
+        border: 1px solid #ccc;
+        padding: 10px;
+    }
+    
+    #timeFrameInput.show {
+        display: block;
+    }
+    
+    #popupMessage {
+        display: none;
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: #4CAF50; /* Green background */
+        color: white;
+        padding: 10px;
+        border-radius: 5px;
+        z-index: 1000;
+        transition: opacity 0.3s ease; /* Smooth transition */
+    }
+    
+    #popupMessage.show {
+        display: block;
+        opacity: 1;
+    }
+    
+    #customWeekNavigation {
+        margin-bottom: 10px; /* Add some space above the new line */
+    }
+    
+    .date {
+        background-color: #70ace7; /* Blue background */
+        font-family: Arial, sans-serif;
+        text-transform: uppercase;
+        color: white;
+        border-radius: 5px; /* Rounded corners */
+        padding: 6px 12px; /* Adjust padding for better fit */
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.2); /* Added shadow for depth */
+        margin-bottom: 10px;
+    }
+    
+    /* Animation for table rows */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    tbody tr {
+        animation: fadeInUp 0.5s ease;
+    }
+    
+    </style>
+</head>
+<body onload="loadrota()">
+    <h1>Work Hours Table</h1>
+    <div>
+        <input class="date" type="date" id="daySelect" onchange="loadrota()">
+    </div>
+    <table id="rota">
+        <thead>
+            <tr id="headerRow">
+                <th>Name</th>
+                <th>Last Name</th>
+                <!-- Days of the week will be inserted here -->
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Data will be inserted here -->
+        </tbody>
+    </table>
+    <script>
+function loadrota() {
+    const daySelect = document.getElementById('daySelect');
+    let selectedDate = new Date(daySelect.value);
+
+    // Check if no date is selected, default to current week
+    if (!(selectedDate instanceof Date && !isNaN(selectedDate))) {
+        selectedDate = new Date(); // Default to current date
+        daySelect.value = formatDate(selectedDate); // Update daySelect value
+    }
+
+    const monday = getMonday(selectedDate);
+    const sunday = new Date(monday);
+    sunday.setDate(sunday.getDate() + 6);
+
+    // Format start and end dates
+    const startDate = formatDate(monday);
+    const endDate = formatDate(sunday);
+
+    fetch(`/rota?start=${startDate}&end=${endDate}`)
+        .then(response => response.json())
+        .then(data => {
+            console.log('Fetched data:', data); // Debugging: Check the fetched data
+            const tbody = document.querySelector('#rota tbody');
+            tbody.innerHTML = ''; // Clear existing rows
+
+            const headerRow = document.getElementById('headerRow');
+            headerRow.innerHTML = '<th>Name</th><th>Last Name</th>';
+            const weekDays = getWeekDays(monday);
+            weekDays.forEach(day => {
+                headerRow.innerHTML += `<th>${day}</th>`;
+            });
+
+            const groupedData = groupByPerson(data);
+            console.log('Grouped data:', groupedData); // Debugging: Check the grouped data
+            groupedData.forEach(person => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${person.name}</td>
+                    <td>${person.lastName}</td>
+                    ${generateDayCells(person.days, weekDays)}
+                `;
+                tbody.appendChild(row);
+            });
+        })
+        .catch(error => console.error('Error fetching employee data:', error));
+}
+
+        function groupByPerson(data) {
+            const groupedData = [];
+            const map = new Map();
+            data.forEach(entry => {
+                const key = `${entry.name} ${entry.lastName}`;
+                if (!map.has(key)) {
+                    map.set(key, { name: entry.name, lastName: entry.lastName, days: {} });
+                }
+                const day = map.get(key).days[entry.day] || [];
+                day.push({ startTime: entry.startTime, endTime: entry.endTime });
+                map.get(key).days[entry.day] = day;
+            });
+            map.forEach((value, key) => {
+                groupedData.push(value);
+            });
+            return groupedData;
+        }
+        function generateDayCells(days, weekDays) {
+            return weekDays.map(day => {
+                if (days[day]) {
+                    return `<td>${days[day].map(time => `${time.startTime} - ${time.endTime}`).join('<br>')}</td>`;
+                } else {
+                    return `<td></td>`;
+                }
+            }).join('');
+        }
+        function formatDate(date) {
+    const day = ('0' + date.getDate()).slice(-2); // Add leading zero if necessary
+    const month = ('0' + (date.getMonth() + 1)).slice(-2); // Add leading zero if necessary
+    const year = date.getFullYear();
+    const dayOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][date.getDay()];
+    return `${day}/${month}/${year} (${dayOfWeek})`;
+}
+        function getMonday(date) {
+            const day = date.getDay();
+            const diff = date.getDate() - day + (day === 0 ? -6 : 1);
+            return new Date(date.setDate(diff));
+        }
+        function getWeekDays(monday) {
+            const weekDays = [];
+            for (let i = 0; i < 7; i++) {
+                const date = new Date(monday);
+                date.setDate(date.getDate() + i);
+                weekDays.push(formatDate(date));
+            }
+            return weekDays;
+        }
+    </script>
+</body>
+</html>
