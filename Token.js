@@ -6,7 +6,6 @@ const server = require('./server.js');
 const http = require('http');
 const pool = require('./db.js'); // Import the connection pool
 
-const port = process.env.PORT;
 const app = express();
 
 // Middleware to parse JSON data
@@ -45,6 +44,4 @@ app.get('/ConfirmPassword.html', (req, res) => {
 app.get('/WrongToken.html', (req, res) => {
   res.sendFile(__dirname + '/WrongToken.html');
 });
-app.listen(port, () => {
-  console.log(`Server listening at http://localhost:${port}`);
-});
+

@@ -9,7 +9,7 @@ const pool = require('./db.js'); // Import the connection pool
 
 // Create Express app
 const app = express();
-const port = process.env.PORT;
+
 
   // Middleware to parse JSON data
 app.use(express.json());
@@ -98,7 +98,5 @@ app.post('/submitHolidayRequest', (req, res) => {
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/Holidays.html');
 });
-app.listen(port, () => {
-    console.log(`Server listening at http://localhost:${port}`);
-  });
+
   exports.handler = app; // Export for deployment on GCP

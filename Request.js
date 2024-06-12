@@ -8,7 +8,7 @@ const server = require('./server.js');
 const nodemailer = require('nodemailer');
 const pool = require('./db.js'); // Import the connection pool
 
-const port = process.env.PORT;
+
 const app = express();
 
 app.use(bodyParser.json());
@@ -149,6 +149,3 @@ app.post('/deleteRequest/:id', (req, res) => {
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'Request.html'));
 });
-app.listen(port, () => {
-    console.log(`Server listening at http://localhost:${port}`);
-  });

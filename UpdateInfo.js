@@ -7,7 +7,6 @@ const fs = require('fs');
 const server = require('./server.js');
 const pool = require('./db.js'); // Import the connection pool
 
-const port = process.env.PORT;
 const app = express();
 
 app.use(bodyParser.json());
@@ -101,6 +100,3 @@ app.delete('/employee/:id', (req, res) => {
         });
     });
 });
-app.listen(port, () => {
-    console.log(`Server listening at http://localhost:${port}`);
-  });

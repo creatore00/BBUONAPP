@@ -8,7 +8,6 @@ const pool = require('./db.js'); // Import the connection pool
 const { format } = require('date-fns');
 
 const app = express();
-const port = process.env.PORT;
 
 // Middleware to parse JSON data
 app.use(express.json());
@@ -54,9 +53,5 @@ app.post('/api/clockout', (req, res) => {
 
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/Clock.html');
-  });
-  
-  app.listen(port, () => {
-    console.log(`Server listening at http://localhost:${port}`);
   });
   exports.handler = app; // Export for deployment on GCP

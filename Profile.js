@@ -9,7 +9,7 @@ const { v4: uuidv4 } = require('uuid');
 const pool = require('./db.js'); // Import the connection pool
 const path = require('path');
 
-const port = process.env.PORT;
+
 const app = express();
 
 // Middleware to parse JSON data
@@ -50,6 +50,4 @@ app.post('/api/update-password', (req, res) => {
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'Profile.html'));
 });
-app.listen(port, () => {
-    console.log(`Server is running on http://localhost:${port}`);
-});
+

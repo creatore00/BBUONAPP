@@ -8,7 +8,7 @@ const bodyParser = require('body-parser');
 const { v4: uuidv4 } = require('uuid');
 const pool = require('./db.js'); // Import the connection pool
 
-const port = process.env.PORT;
+
 const app = express();
 
 // Middleware to parse JSON data
@@ -368,6 +368,3 @@ app.get('/get-forecast', (req, res) => {
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/Rota.html');
 });
-app.listen(port, () => {
-    console.log(`Server listening at http://localhost:${port}`);
-  });

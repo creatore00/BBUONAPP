@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const pool = require('./db.js'); // Import the connection pool
 
 const app = express();
-const port = process.env.PORT;
+
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -48,6 +48,4 @@ app.get('/api/download-file/:id', (req, res) => {
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/PastPayslips.html');
 });
-app.listen(port, () => {
-    console.log(`Server listening at http://localhost:${port}`);
-});
+

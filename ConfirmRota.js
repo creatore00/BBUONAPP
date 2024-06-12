@@ -8,7 +8,7 @@ const fs = require('fs');
 const path = require('path');
 const pool = require('./db.js'); // Import the connection pool
 const app = express();
-const port = process.env.PORT;
+
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -63,6 +63,4 @@ app.get('/api/rota', (req, res) => {
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/ConfirmRota.html');
 });
-app.listen(port, () => {
-    console.log(`Server listening at http://localhost:${port}`);
-  });
+

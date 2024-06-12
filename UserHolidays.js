@@ -7,7 +7,7 @@ const fs = require('fs');
 const server = require('./server.js');
 const pool = require('./db.js'); // Import the connection pool
 
-const port = process.env.PORT;
+
 const app = express();
 
 app.use(bodyParser.json());
@@ -29,7 +29,3 @@ app.get('/holidays', (req, res) => {
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'UserHolidays.html'));
 });
-
-app.listen(port, () => {
-    console.log(`Server listening at http://localhost:${port}`);
-  });

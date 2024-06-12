@@ -9,7 +9,7 @@ const { v4: uuidv4 } = require('uuid');
 const nodemailer = require('nodemailer');
 const pool = require('./db.js'); // Import the connection pool
 const pdf = require('html-pdf');
-const port = process.env.PORT;
+
 const app = express();
 
 app.use(bodyParser.json());
@@ -108,6 +108,4 @@ app.get('/download-pdf', async (req, res) => {
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/Hours.html');
 });
-app.listen(port, () => {
-    console.log(`Server listening at http://localhost:${port}`);
-  });
+

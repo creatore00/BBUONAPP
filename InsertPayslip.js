@@ -12,7 +12,7 @@ const pool = require('./db.js'); // Import the connection pool
 
 const pdf = require('html-pdf');
 const app = express();
-const port = process.env.PORT;
+
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -57,7 +57,4 @@ app.post('/api/upload-payslip', upload.single('payslip'), (req, res) => {
 });
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/InsertPayslip.html');
-  });
-app.listen(port, () => {
-    console.log(`Server listening at http://localhost:${port}`);
   });
