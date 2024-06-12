@@ -20,14 +20,11 @@ const confirmrota = require('./ConfirmRota.js');
 const profile = require('./Profile.js');
 const UserTotalHours = require('./UserTotalHours.js');
 const insertpayslip = require('./InsertPayslip.js');
-const http = require('http');
-const fs = require('fs');
-const path = require('path');
 const pool = require('./db.js'); // Import the connection pool
 const pagePorts = require('./pagePorts.js');
 
 const app = express();
-const port = process.env.PORT || pagePorts['server'];
+const port = process.env.PORT || 8080;
 
 // Middleware to parse JSON data
 app.use(express.json());
