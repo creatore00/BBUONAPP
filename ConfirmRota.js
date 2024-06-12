@@ -8,7 +8,7 @@ const fs = require('fs');
 const path = require('path');
 const pool = require('./db.js'); // Import the connection pool
 const app = express();
-const port = process.env.PORT || 3015;
+const port = process.env.PORT;
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));

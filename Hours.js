@@ -9,7 +9,7 @@ const { v4: uuidv4 } = require('uuid');
 const nodemailer = require('nodemailer');
 const pool = require('./db.js'); // Import the connection pool
 const pdf = require('html-pdf');
-const port = process.env.PORT || 3006;
+const port = process.env.PORT;
 const app = express();
 
 app.use(bodyParser.json());

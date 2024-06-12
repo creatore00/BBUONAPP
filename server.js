@@ -20,6 +20,9 @@ const confirmrota = require('./ConfirmRota.js');
 const profile = require('./Profile.js');
 const UserTotalHours = require('./UserTotalHours.js');
 const insertpayslip = require('./InsertPayslip.js');
+const http = require('http');
+const fs = require('fs');
+const path = require('path');
 const pool = require('./db.js'); // Import the connection pool
 
 const app = express();

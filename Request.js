@@ -8,7 +8,7 @@ const server = require('./server.js');
 const nodemailer = require('nodemailer');
 const pool = require('./db.js'); // Import the connection pool
 
-const port = process.env.PORT || 3008;
+const port = process.env.PORT;
 const app = express();
 
 app.use(bodyParser.json());

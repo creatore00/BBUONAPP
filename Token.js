@@ -6,7 +6,7 @@ const server = require('./server.js');
 const http = require('http');
 const pool = require('./db.js'); // Import the connection pool
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT;
 const app = express();
 
 // Middleware to parse JSON data

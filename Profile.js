@@ -9,7 +9,7 @@ const { v4: uuidv4 } = require('uuid');
 const pool = require('./db.js'); // Import the connection pool
 const path = require('path');
 
-const port = process.env.PORT || 3018;
+const port = process.env.PORT;
 const app = express();
 
 // Middleware to parse JSON data

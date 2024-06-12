@@ -8,7 +8,7 @@ const pool = require('./db.js'); // Import the connection pool
 const { format } = require('date-fns');
 
 const app = express();
-const port = process.env.PORT || 3013;
+const port = process.env.PORT;
 
 // Middleware to parse JSON data
 app.use(express.json());

@@ -7,7 +7,7 @@ const fs = require('fs');
 const server = require('./server.js');
 const pool = require('./db.js'); // Import the connection pool
 
-const port = process.env.PORT || 3012;
+const port = process.env.PORT;
 const app = express();
 
 app.use(bodyParser.json());

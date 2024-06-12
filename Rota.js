@@ -8,7 +8,7 @@ const bodyParser = require('body-parser');
 const { v4: uuidv4 } = require('uuid');
 const pool = require('./db.js'); // Import the connection pool
 
-const port = process.env.PORT || 3007;
+const port = process.env.PORT;
 const app = express();
 
 // Middleware to parse JSON data

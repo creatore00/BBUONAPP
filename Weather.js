@@ -8,7 +8,7 @@ const path = require('path');
 const pool = require('./db.js'); // Import the connection pool
 
 const app = express();
-const port = process.env.PORT || 3013;
+const port = process.env.PORT;
 
 const apiKey = '3396d395dcb986a508e0c14af1b7ad3c';
 const city = 'Oxford';
