@@ -149,3 +149,4 @@ app.post('/deleteRequest/:id', (req, res) => {
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'Request.html'));
 });
+module.exports = app; // Export the entire Express application

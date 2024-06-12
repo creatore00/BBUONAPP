@@ -1,4 +1,3 @@
-const server = require('./server.js');
 const nodemailer = require('nodemailer');
 const http = require('http');
 const fs = require('fs');
@@ -7,7 +6,6 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const { v4: uuidv4 } = require('uuid');
 const pool = require('./db.js'); // Import the connection pool
-
 
 const app = express();
 
@@ -368,3 +366,4 @@ app.get('/get-forecast', (req, res) => {
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/Rota.html');
 });
+module.exports = app; // Export the entire Express application

@@ -6,12 +6,10 @@ const token = require('./Token.js');
 const generate = require('./Generate.js');
 const updateinfo = require('./UpdateInfo.js');
 const fp = require('./FP.js');
-const rota = require('./Rota.js');
 const crota = require('./CRota.js');
 const userholidays = require('./Holidays.js');
 const hours = require('./Hours.js');
 const pastpayslips = require('./PastPayslips.js');
-const request = require('./Request.js');
 const tip = require('./Tip.js');
 const TotalHolidays = require('./TotalHolidays.js');
 const UserCrota = require('./UserCRota.js');
@@ -24,13 +22,19 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const pool = require('./db.js'); // Import the connection pool
+const pagePorts = require('./pagePorts.js');
 
 const app = express();
-const port = process.env.PORT;
-
+const port = process.env.PORT || 8080;
 // Middleware to parse JSON data
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+const rotaRouter = require('./Rota.js');
+const request = require('./Request.js');
+
+app.use('/rota', rotaRouter);
+app.use('/request', request);
 
 app.post('/', (req, res) => {
       console.log('Request Body:', req.body);
@@ -110,4 +114,4 @@ app.get('/User.html', (req, res) => {
 app.listen(port, () => {
   console.log(`Server listening at http://localhost:${port}`);
 });
-exports.handler = app; // Export for deployment on GCP
+
