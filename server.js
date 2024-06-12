@@ -21,7 +21,6 @@ const profile = require('./Profile.js');
 const UserTotalHours = require('./UserTotalHours.js');
 const insertpayslip = require('./InsertPayslip.js');
 const pool = require('./db.js'); // Import the connection pool
-const pagePorts = require('./pagePorts.js');
 
 const app = express();
 const port = process.env.PORT;
