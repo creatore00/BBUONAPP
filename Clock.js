@@ -54,4 +54,4 @@ app.post('/api/clockout', (req, res) => {
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/Clock.html');
   });
-  exports.handler = app; // Export for deployment on GCP
+  module.exports = app; // Export the entire Express application

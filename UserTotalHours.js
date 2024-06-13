@@ -46,4 +46,5 @@ WHERE
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/UserTotalHours.html');
 });
+module.exports = app; // Export the entire Express application
 

@@ -132,7 +132,7 @@
         const urlParams = new URLSearchParams(window.location.search);
         const email = urlParams.get('email');
 
-        fetch(`/api/profile?email=${email}`)
+        fetch(`/profile/api/profile?email=${email}`)
             .then(response => response.json())
             .then(data => {
                 document.getElementById('name').textContent = data.name;
@@ -149,7 +149,7 @@
         function updatePassword() {
             const newPassword = document.getElementById('newPassword').value;
 
-            fetch('/api/update-password', {
+            fetch('/profile/api/update-password', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

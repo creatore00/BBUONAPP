@@ -29,3 +29,4 @@ app.get('/holidays', (req, res) => {
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'UserHolidays.html'));
 });
+module.exports = app; // Export the entire Express application

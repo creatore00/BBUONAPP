@@ -58,3 +58,4 @@ app.post('/api/upload-payslip', upload.single('payslip'), (req, res) => {
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/InsertPayslip.html');
   });
+  module.exports = app; // Export the entire Express application

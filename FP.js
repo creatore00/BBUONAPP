@@ -100,12 +100,12 @@ app.post('/', (req, res) => {
             if (err) {
               return res.status(500).json({ error: 'Error inserting token into the database' });
             }
-            return res.redirect('http://localhost:3000');
+            return res.redirect('/token');
           });
         }
       });
     } else {
-      return res.redirect('http://localhost:3019?alert=EmailDoesNotExist');
+      return res.redirect('/fp?alert=EmailDoesNotExist');
     }
   });
 });
@@ -114,3 +114,4 @@ app.post('/', (req, res) => {
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/FP.html');
 });
+module.exports = app; // Export the entire Express application

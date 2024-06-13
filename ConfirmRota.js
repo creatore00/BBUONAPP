@@ -63,4 +63,5 @@ app.get('/api/rota', (req, res) => {
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/ConfirmRota.html');
 });
+module.exports = app; // Export the entire Express application
 

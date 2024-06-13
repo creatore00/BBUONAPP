@@ -106,7 +106,7 @@
             const monthStart = document.getElementById('monthStart').value;
             const startDate = new Date(monthStart);
 
-            fetch(`/rota?startDate=${startDate.toISOString().split('T')[0]}`)
+            fetch(`/tip/rota?startDate=${startDate.toISOString().split('T')[0]}`)
                 .then(response => response.json())
                 .then(data => {
                     const totalHours = calculateTotalHours(data);
@@ -221,7 +221,7 @@
         function submitPayslips() {
             const payslipData = gatherTableData();
 
-            fetch('/submitPayslips', {
+            fetch('/tip/submitPayslips', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

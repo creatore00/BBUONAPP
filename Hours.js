@@ -108,4 +108,5 @@ app.get('/download-pdf', async (req, res) => {
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/Hours.html');
 });
+module.exports = app; // Export the entire Express application
 

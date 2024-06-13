@@ -50,4 +50,5 @@ app.post('/api/update-password', (req, res) => {
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'Profile.html'));
 });
+module.exports = app; // Export the entire Express application
 

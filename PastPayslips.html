@@ -222,7 +222,7 @@
     </table>
     <script>
 document.addEventListener('DOMContentLoaded', function() {
-    fetch('/api/payslips')
+    fetch('/pastpayslips/api/payslips')
         .then(response => response.json())
         .then(data => {
             data.sort((a, b) => new Date(b.date) - new Date(a.date)); // Sort by date, newest first
@@ -255,7 +255,7 @@ function populatePayslipsTable(payslips) {
 
 // Function to fetch payslip data and download only if it's a PDF
 function fetchAndDownloadPayslip(payslipId) {
-    fetch(`/api/download-file/${payslipId}`)
+    fetch(`/pastpayslips/api/download-file/${payslipId}`)
         .then(response => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');

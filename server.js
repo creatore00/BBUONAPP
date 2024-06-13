@@ -1,15 +1,16 @@
 const express = require('express');
 const mysql = require('mysql2');
 const bodyParser = require('body-parser');
+const newRota = require('./Rota.js');
 const confirmpassword = require('./ConfirmPassword.js'); 
 const token = require('./Token.js');
 const generate = require('./Generate.js');
 const updateinfo = require('./UpdateInfo.js');
 const fp = require('./FP.js');
-const crota = require('./CRota.js');
 const userholidays = require('./Holidays.js');
 const hours = require('./Hours.js');
 const pastpayslips = require('./PastPayslips.js');
+const request = require('./Request.js');
 const tip = require('./Tip.js');
 const TotalHolidays = require('./TotalHolidays.js');
 const UserCrota = require('./UserCRota.js');
@@ -22,19 +23,32 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const pool = require('./db.js'); // Import the connection pool
-const pagePorts = require('./pagePorts.js');
 
 const app = express();
 const port = process.env.PORT || 8080;
+
+app.use('/rota', newRota);
+app.use('/confirmpassword', confirmpassword);
+app.use('/token', token);
+app.use('/generate', generate);
+app.use('/updateinfo', updateinfo);
+app.use('/fp', fp);
+app.use('/userholidays', userholidays);
+app.use('/hours', hours);
+app.use('/pastpayslips', pastpayslips);
+app.use('/request', request);
+app.use('/tip', tip);
+app.use('/TotalHolidays', TotalHolidays);
+app.use('/UserCrota', UserCrota);
+app.use('/UserHoliday', UserHolidays);
+app.use('/confirmrota', confirmrota);
+app.use('/profile', profile);
+app.use('/UserTotalHours', UserTotalHours);
+app.use('/insertpayslip', insertpayslip);
+
 // Middleware to parse JSON data
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-const rotaRouter = require('./Rota.js');
-const request = require('./Request.js');
-
-app.use('/rota', rotaRouter);
-app.use('/request', request);
 
 app.post('/', (req, res) => {
       console.log('Request Body:', req.body);
@@ -110,8 +124,6 @@ app.get('/Admin.html', (req, res) => {
 app.get('/User.html', (req, res) => {
   res.sendFile(__dirname + '/User.html');
 });
-
 app.listen(port, () => {
   console.log(`Server listening at http://localhost:${port}`);
 });
-

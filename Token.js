@@ -29,7 +29,7 @@ app.post('/', (req, res) => {
       return res.redirect('/WrongToken.html');
     } else {
       // Token exists, redirect to success page
-      return res.redirect('http://localhost:3003');
+      return res.redirect('/confirmpassword');
     }
   });
 });
@@ -44,4 +44,5 @@ app.get('/ConfirmPassword.html', (req, res) => {
 app.get('/WrongToken.html', (req, res) => {
   res.sendFile(__dirname + '/WrongToken.html');
 });
+module.exports = app; // Export the entire Express application
 

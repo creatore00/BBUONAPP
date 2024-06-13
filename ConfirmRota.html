@@ -161,7 +161,7 @@
     <script>
         async function getTodayRota() {
             const today = getTodayDate();
-            const response = await fetch(`/api/rota?day=${encodeURIComponent(today)}`);
+            const response = await fetch(`/confirmrota/api/rota?day=${encodeURIComponent(today)}`);
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
@@ -270,7 +270,7 @@
             designation: entry.designation
         }));
 
-        const response = await fetch('/confirm-rota', {
+        const response = await fetch('/confirmrota/confirm-rota', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

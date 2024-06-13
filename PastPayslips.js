@@ -48,4 +48,5 @@ app.get('/api/download-file/:id', (req, res) => {
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/PastPayslips.html');
 });
+module.exports = app; // Export the entire Express application
 

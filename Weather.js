@@ -25,3 +25,4 @@ async function fetchWeatherData() {
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/Weather.html');
 });
+module.exports = app; // Export the entire Express application

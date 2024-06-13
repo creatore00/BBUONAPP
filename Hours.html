@@ -166,8 +166,8 @@
 
     // Fetch data from both tables for the selected month
     Promise.all([
-        fetch(`/rota?month=${selectedMonth}`).then(response => response.json()),
-        fetch(`/tip?month=${selectedMonth}`).then(response => response.json())
+        fetch(`/hours/rota?month=${selectedMonth}`).then(response => response.json()),
+        fetch(`/hours/tip?month=${selectedMonth}`).then(response => response.json())
     ]).then(([rotaData, tipData]) => {
 // Merge tip data by employee name and sum the tip values
 const tipMap = new Map();
@@ -234,7 +234,7 @@ console.log('Tip Map:', tipMap); // Log the tipMap to see the accumulated values
     const selectedMonth = getCurrentMonth();
 
     // Send a request to the server to generate the PDF with the table content
-    fetch('/generate-pdf', {
+    fetch('/hours/generate-pdf', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -243,7 +243,7 @@ console.log('Tip Map:', tipMap); // Log the tipMap to see the accumulated values
     })
     .then(response => {
         // Redirect to the generated PDF file
-        window.location.href = `/download-pdf?selectedMonth=${selectedMonth}`; // Include selectedMonth in the query parameters
+        window.location.href = `/hours/download-pdf?selectedMonth=${selectedMonth}`; // Include selectedMonth in the query parameters
     })
     .catch(error => {
         console.error('Error generating PDF:', error);

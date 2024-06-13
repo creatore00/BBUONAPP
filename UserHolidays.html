@@ -191,7 +191,7 @@
 
     // Function to fetch holiday requests from the server
     function fetchHolidayRequests() {
-        fetch('/holidays')
+        fetch('/UserHoliday/holidays')
             .then(response => response.json())
             .then(data => {
                 data.forEach(request => {

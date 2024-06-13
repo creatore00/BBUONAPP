@@ -105,7 +105,7 @@
             handleMonthSelection(); // Fetch data for the current month on page load
         }
         function fetchDataForMonth(startDate, endDate) {
-    fetch(`/rota?startDate=${startDate}&endDate=${endDate}`)
+    fetch(`/TotalHolidays/rota?startDate=${startDate}&endDate=${endDate}`)
         .then(response => response.json())
         .then(rotaData => {
             console.log('Rota data:', rotaData);
@@ -127,7 +127,7 @@
                 employeeData[entry.name].totalHours += hoursWorked;
             });
 
-            fetch(`/holiday?startDate=${startDate}&endDate=${endDate}`)
+            fetch(`/TotalHolidays/holiday?startDate=${startDate}&endDate=${endDate}`)
                 .then(response => response.json())
                 .then(holidayData => {
                     console.log('Holiday data:', holidayData);
@@ -188,7 +188,7 @@ function downloadPDF() {
     const table = document.getElementById('employeeData');
     const html = table.outerHTML;
 
-    fetch('/generate-pdf', {
+    fetch('/TotalHolidays/generate-pdf', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'

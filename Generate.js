@@ -124,7 +124,7 @@ app.post('/', (req, res) => {
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/GenerateFE.html');
   });
-app.get('/EmailExists.html', (req, res) => {
+app.get('/', (req, res) => {
     res.sendFile(__dirname + '/EmailExists.html');
   });
 app.get('/Token.html', (req, res) => {
@@ -133,3 +133,4 @@ app.get('/Token.html', (req, res) => {
 app.get('/Admin.html', (req, res) => {
     res.sendFile(__dirname + '/Admin.html');
   });
+  module.exports = app; // Export the entire Express application

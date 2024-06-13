@@ -68,4 +68,5 @@ app.post('/submitPayslips', (req, res) => {
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/Tip.html');
 });
+module.exports = app; // Export the entire Express application
 

@@ -223,7 +223,7 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            fetch('/api/employees')
+            fetch('/insertpayslip/api/employees')
                 .then(response => response.json())
                 .then(data => {
                     populateEmployees(data);
@@ -247,7 +247,7 @@
                 const form = document.createElement('form');
                 form.setAttribute('method', 'post');
                 form.setAttribute('enctype', 'multipart/form-data');
-                form.setAttribute('action', '/api/upload-payslip');
+                form.setAttribute('action', '/insertpayslip/api/upload-payslip');
 
                 // Prevent default form submission behavior
                 form.addEventListener('submit', function(event) {

@@ -177,7 +177,7 @@ function loadrota() {
     const startDate = formatDate(monday);
     const endDate = formatDate(sunday);
 
-    fetch(`/rota?start=${startDate}&end=${endDate}`)
+    fetch(`/UserCrota/rota?start=${startDate}&end=${endDate}`)
         .then(response => response.json())
         .then(data => {
             console.log('Fetched data:', data); // Debugging: Check the fetched data

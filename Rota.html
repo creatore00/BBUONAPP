@@ -267,11 +267,11 @@ tbody tr {
         <button id="submit-comment">Submit</button>
     </div>
     
-    <script>
+<script>
 // Function to fetch employee data from the backend server for the specified week start date
 function fetchEmployeeData(weekStart) {
     // Construct the URL with the week start date as a query parameter
-    const url = `/employees?weekStart=${weekStart.toISOString()}`;
+    const url = `/rota/employees?weekStart=${weekStart.toISOString()}`;
     fetch(url)
         .then(response => response.json())
         .then(data => {
@@ -395,7 +395,7 @@ document.addEventListener('click', (e) => {
 }
 // Function to fetch data from the rota table and populate the cells
 function fetchRotaData() {
-    fetch('/rota')
+    fetch('/rota/rota')
         .then(response => response.json())
         .then(data => {
             console.log('Fetched rota data:', data);
@@ -838,7 +838,7 @@ function deleteTime() {
             console.log('Time frame data to delete:', timeFrameData);
 
             // Send the data to the backend to delete the time frame from the database
-            fetch('/deleteTimeFrame', {
+            fetch('/rota/deleteTimeFrame', {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
@@ -881,7 +881,7 @@ function clearTable() {
 }
 // Function to fetch holiday data from the server
 function fetchHolidayData() {
-    return fetch('/getHolidayData')
+    return fetch('/rota/getHolidayData')
         .then(response => {
             if (!response.ok) {
                 throw new Error('Failed to fetch holiday data');
@@ -986,7 +986,7 @@ function saveData() {
 
     console.log('Table Data:', tableData);
 
-    fetch('/saveData', {
+    fetch('/rota/saveData', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -1037,7 +1037,7 @@ function submitData() {
 
     console.log('Table Data:', tableData);
 
-    fetch('/submitData', {
+    fetch('/rota/submitData', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -1075,7 +1075,7 @@ submitButton.addEventListener('click', () => {
     const weekStartDate = getWeekStartDate(); // Implement this function to get the current week's start date
 
     if (comment.trim() !== "") {
-        fetch('/submit-comment', {
+        fetch('/rota/submit-comment', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -1127,7 +1127,7 @@ function getWeekStartDate() {
 // Function to fetch and populate comment box with comments for the specified week start date
 function fetchCommentForWeek(weekStartDate) {
     getWeekStartDate();
-    fetch(`/get-comments?weekStartDate=${weekStartDate}`)
+    fetch(`/rota/get-comments?weekStartDate=${weekStartDate}`)
         .then(response => {
             if (!response.ok) {
                 throw new Error('Failed to fetch comments');
@@ -1173,7 +1173,7 @@ document.getElementById('submitForecast').addEventListener('click', function() {
             };
 
             // Send the forecast values to the backend for insertion
-            fetch('/insert-forecast', {
+            fetch('/rota/insert-forecast', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -1192,7 +1192,7 @@ document.getElementById('submitForecast').addEventListener('click', function() {
 // Function to fetch and populate forecast data for the specified week start date
 function fetchForecastForWeek(weekStartDate) {
             console.log(`Fetching forecast data for week starting on: ${weekStartDate}`);
-            fetch(`/get-forecast?weekStartDate=${weekStartDate}`)
+            fetch(`/rota/get-forecast?weekStartDate=${weekStartDate}`)
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Failed to fetch forecast data');

@@ -33,4 +33,5 @@ app.get('/rota', (req, res) => {
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/UserCRota.html');
 });
+module.exports = app; // Export the entire Express application
 
