@@ -23,6 +23,8 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const pool = require('./db.js'); // Import the connection pool
+const bcrypt = require('bcrypt');
+const saltRounds = 10; // Number of salt rounds, higher is more secure but slower
 
 const app = express();
 const port = process.env.PORT || 8080;
@@ -50,36 +52,52 @@ app.use('/insertpayslip', insertpayslip);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+
+// Route to handle login
 app.post('/', (req, res) => {
-      console.log('Request Body:', req.body);
-      const { email, password } = req.body;
+  console.log('Request Body:', req.body);
+  const { email, password } = req.body;
+
   // Query the database to check if the email belongs to an admin or a user
   const sql = 'SELECT Access, Password FROM users WHERE Email = ?';
-  pool.query(sql, [email], (err, results) => {
-    if (err) {
-      console.error('Error querying database:', err);
-      return res.status(500).json({ error: 'Internal Server Error' });
-    }
-    const storedPassword = results[0]?.Password;
-    // Determine the role (admin or user) based on the database result
-    const role = results[0]?.Access;
-    if (results.length === 0) {
-      // Email not found in the database
-      return res.status(401).json({ message: 'Incorrect email or password' });
-    } else { 
-      if (role === 'admin' && password === storedPassword) {
-        // Redirect to the admin page
-        return res.redirect('/Admin.html');
-      } else if (role === 'user' && password === storedPassword) {
-        // Redirect to the user page
-        return res.redirect('/User.html');
-      } else {
-        // Invalid role
-        return res.status(401).json({ message: 'Incorrect email or password' });
+  pool.query(sql, [email], async (err, results) => {
+      if (err) {
+          console.error('Error querying database:', err);
+          return res.status(500).json({ error: 'Internal Server Error' });
       }
-    }
+
+      if (results.length === 0) {
+          // Email not found in the database
+          return res.status(401).json({ message: 'Incorrect email or password' });
+      }
+
+      const storedPassword = results[0].Password;
+      const role = results[0].Access;
+
+      // Compare the entered password with the hashed password in the database
+      try {
+          const isMatch = await bcrypt.compare(password, storedPassword);
+          if (!isMatch) {
+              return res.status(401).json({ message: 'Incorrect email or password' });
+          }
+
+          if (role === 'admin') {
+              // Redirect to the admin page
+              return res.redirect('/Admin.html');
+          } else if (role === 'user') {
+              // Redirect to the user page
+              return res.redirect('/User.html');
+          } else {
+              // Invalid role
+              return res.status(401).json({ message: 'Incorrect email or password' });
+          }
+      } catch (err) {
+          console.error('Error comparing passwords:', err);
+          return res.status(500).json({ error: 'Internal Server Error' });
+      }
   });
 });
+
 // API endpoint to get rota data for a specific day
 app.get('/api/rota', (req, res) => {
   const day = req.query.day;
