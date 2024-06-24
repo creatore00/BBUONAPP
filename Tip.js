@@ -64,8 +64,11 @@ app.post('/submitPayslips', (req, res) => {
     });
 });
 
-app.get('/', isAuthenticated, isAdmin, isSupervisor, (req, res) => {
+app.get('/', isAuthenticated, isAdmin, (req, res) => {
     res.sendFile(__dirname + '/Tip.html');
+});
+app.get('/', isAuthenticated, isSupervisor, (req, res) => {
+  res.sendFile(__dirname + '/Tip.html');
 });
 module.exports = app; // Export the entire Express application
 

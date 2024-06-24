@@ -43,8 +43,13 @@ WHERE
         res.json(results);
     });
 });
-
-app.get('/', isAuthenticated, isAdmin, isSupervisor, isUser, (req, res) => {
+app.get('/', isAuthenticated, isAdmin, (req, res) => {
+    res.sendFile(__dirname + '/UserTotalHours.html');
+});
+app.get('/', isAuthenticated, isSupervisor, (req, res) => {
+    res.sendFile(__dirname + '/UserTotalHours.html');
+});
+app.get('/', isAuthenticated, isUser, (req, res) => {
     res.sendFile(__dirname + '/UserTotalHours.html');
 });
 module.exports = app; // Export the entire Express application

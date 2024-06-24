@@ -118,8 +118,13 @@ app.post('/api/update-password', isAuthenticated, (req, res) => {
     }
 });
 // Serve the profile page
-app.get('/', isAuthenticated, isAdmin, isSupervisor, isUser, (req, res) => {
+app.get('/', isAuthenticated, isAdmin, (req, res) => {
     res.sendFile(path.join(__dirname, 'Profile.html'));
 });
-
+app.get('/', isAuthenticated, isSupervisor, (req, res) => {
+    res.sendFile(path.join(__dirname, 'Profile.html'));
+});
+app.get('/', isAuthenticated, isUser, (req, res) => {
+    res.sendFile(path.join(__dirname, 'Profile.html'));
+});
 module.exports = app; // Export the entire Express application

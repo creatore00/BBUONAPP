@@ -24,8 +24,13 @@ app.get('/holidays', (req, res) => {
         }
     });
 });
-
-app.get('/', isAuthenticated, isAdmin, isSupervisor, isUser, (req, res) => {
+app.get('/', isAuthenticated, isAdmin, (req, res) => {
+    res.sendFile(path.join(__dirname, 'UserHolidays.html'));
+});
+app.get('/', isAuthenticated, isSupervisor, (req, res) => {
+    res.sendFile(path.join(__dirname, 'UserHolidays.html'));
+});
+app.get('/', isAuthenticated, isUser, (req, res) => {
     res.sendFile(path.join(__dirname, 'UserHolidays.html'));
 });
 module.exports = app; // Export the entire Express application

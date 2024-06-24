@@ -96,7 +96,13 @@ app.post('/submitHolidayRequest', (req, res) => {
     });
 });
 
-app.get('/', isAuthenticated, (req, res) => {
+app.get('/', isAuthenticated, isAdmin, (req, res) => {
+    res.sendFile(__dirname + '/Holidays.html');
+});
+app.get('/', isAuthenticated, isSupervisor, (req, res) => {
+    res.sendFile(__dirname + '/Holidays.html');
+});
+app.get('/', isAuthenticated, isUser, (req, res) => {
     res.sendFile(__dirname + '/Holidays.html');
 });
 module.exports = app; // Export the entire Express application

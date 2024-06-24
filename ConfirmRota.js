@@ -117,7 +117,10 @@ app.get('/logout', (req, res) => {
       res.redirect('/');
     }
   });
-app.get('/', isAuthenticated, isAdmin, isSupervisor, (req, res) => {
+app.get('/', isAuthenticated, isAdmin, (req, res) => {
+    res.sendFile(__dirname + '/ConfirmRota.html');
+});
+app.get('/', isAuthenticated, isSupervisor, (req, res) => {
     res.sendFile(__dirname + '/ConfirmRota.html');
 });
 module.exports = app; // Export the entire Express application

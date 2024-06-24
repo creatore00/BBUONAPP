@@ -48,7 +48,13 @@ app.get('/api/download-file/:id', (req, res) => {
       res.send(fileContent);
   });
 });
-app.get('/', isAuthenticated, isAdmin, isSupervisor, isUser, (req, res) => {
+app.get('/', isAuthenticated, isAdmin, (req, res) => {
+    res.sendFile(__dirname + '/PastPayslips.html');
+});
+app.get('/', isAuthenticated, isSupervisor, (req, res) => {
+    res.sendFile(__dirname + '/PastPayslips.html');
+});
+app.get('/', isAuthenticated, isUser, (req, res) => {
     res.sendFile(__dirname + '/PastPayslips.html');
 });
 module.exports = app; // Export the entire Express application
