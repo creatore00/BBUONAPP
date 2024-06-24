@@ -408,20 +408,26 @@ form label {
                 .catch(error => console.error('Error downloading image:', error));
         }
         function deleteEmployee(id) {
-            fetch(`/updateinfo/employee/${id}`, {
-                method: 'DELETE',
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Employee deleted successfully');
-                    loadEmployees();
-                } else {
-                    alert('Error deleting employee');
-                }
-            })
-            .catch(error => console.error('Error:', error));
-        }
+    // Show a confirmation dialog
+    const userConfirmed = confirm('Are you sure you want to delete this employee?');
+
+    // Proceed with the deletion if the user confirmed
+    if (userConfirmed) {
+        fetch(`/updateinfo/employee/${id}`, {
+            method: 'DELETE',
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Employee deleted successfully');
+                loadEmployees(); // Assuming this function reloads the employee list
+            } else {
+                alert('Error deleting employee');
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+}
         window.onload = loadEmployees;
     </script>
 </body>

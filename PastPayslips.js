@@ -1,25 +1,28 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const pool = require('./db.js'); // Import the connection pool
-
 const app = express();
-
-
+const { sessionMiddleware, isAuthenticated, isAdmin, isSupervisor, isUser } = require('./sessionConfig'); // Adjust the path as needed
+app.use(sessionMiddleware);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // Endpoint to fetch payslips data
 app.get('/api/payslips', (req, res) => {
-    const query = 'SELECT * FROM payslips';
-    pool.query(query, (err, results) => {
+    if (!req.session.user) {
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
+    const email = req.session.user.email;
+    const query = 'SELECT * FROM payslips WHERE email = ?';
+    pool.query(query, [email], (err, results) => {
         if (err) {
             console.error('Error fetching data:', err);
-            res.status(500).json({ error: 'Database query error' });
-            return;
+            return res.status(500).json({ error: 'Database query error' });
         }
         res.json(results);
     });
 });
+
 // Endpoint to download a specific payslip file
 app.get('/api/download-file/:id', (req, res) => {
   const payslipId = req.params.id;
@@ -45,7 +48,7 @@ app.get('/api/download-file/:id', (req, res) => {
       res.send(fileContent);
   });
 });
-app.get('/', (req, res) => {
+app.get('/', isAuthenticated, isAdmin, isSupervisor, isUser, (req, res) => {
     res.sendFile(__dirname + '/PastPayslips.html');
 });
 module.exports = app; // Export the entire Express application

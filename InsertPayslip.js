@@ -9,11 +9,10 @@ const fs = require('fs');
 const path = require('path');
 const { PDFDocument, rgb } = require('pdf-lib');
 const pool = require('./db.js'); // Import the connection pool
-
 const pdf = require('html-pdf');
 const app = express();
-
-
+const { sessionMiddleware, isAuthenticated, isAdmin, isSupervisor, isUser } = require('./sessionConfig'); // Adjust the path as needed
+app.use(sessionMiddleware);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -55,7 +54,7 @@ app.post('/api/upload-payslip', upload.single('payslip'), (req, res) => {
         res.json({ success: true, insertedId: insertResults.insertId });
     });
 });
-app.get('/', (req, res) => {
+app.get('/', isAuthenticated, isAdmin, (req, res) => {
     res.sendFile(__dirname + '/InsertPayslip.html');
   });
   module.exports = app; // Export the entire Express application

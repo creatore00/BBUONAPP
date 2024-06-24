@@ -6,10 +6,9 @@ const path = require('path');
 const fs = require('fs');
 const server = require('./server.js');
 const pool = require('./db.js'); // Import the connection pool
-
-
 const app = express();
-
+const { sessionMiddleware, isAuthenticated, isAdmin, isSupervisor, isUser } = require('./sessionConfig'); // Adjust the path as needed
+app.use(sessionMiddleware);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -26,7 +25,7 @@ app.get('/holidays', (req, res) => {
     });
 });
 
-app.get('/', (req, res) => {
+app.get('/', isAuthenticated, isAdmin, isSupervisor, isUser, (req, res) => {
     res.sendFile(path.join(__dirname, 'UserHolidays.html'));
 });
 module.exports = app; // Export the entire Express application

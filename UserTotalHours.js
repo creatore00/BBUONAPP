@@ -7,7 +7,8 @@ const bodyParser = require('body-parser');
 const { v4: uuidv4 } = require('uuid');
 const pool = require('./db.js'); // Import the connection pool
 const app = express();
-
+const { sessionMiddleware, isAuthenticated, isAdmin, isSupervisor, isUser } = require('./sessionConfig'); // Adjust the path as needed
+app.use(sessionMiddleware);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -43,7 +44,7 @@ WHERE
     });
 });
 
-app.get('/', (req, res) => {
+app.get('/', isAuthenticated, isAdmin, isSupervisor, isUser, (req, res) => {
     res.sendFile(__dirname + '/UserTotalHours.html');
 });
 module.exports = app; // Export the entire Express application

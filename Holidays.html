@@ -75,32 +75,12 @@
         <h1>Holiday Request Form</h1>
         <form id="holidayRequestForm">
             <div class="form-group">
-                <label for="name">Name:</label>
-                <input type="text" id="name" name="name" required>
-            </div>
-            <div class="form-group">
-                <label for="lastName">Last Name:</label>
-                <input type="text" id="lastName" name="lastName" required>
-            </div>
-            <div class="form-group">
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="email" required>
-            </div>
-            <div class="form-group">
                 <label for="startDate">Start Date:</label>
                 <input type="date" id="startDate" name="startDate" required>
             </div>
             <div class="form-group">
                 <label for="endDate">End Date:</label>
                 <input type="date" id="endDate" name="endDate" required>
-            </div>
-            <div class="form-group">
-                <label for="startTime">Start Time (optional):</label>
-                <input type="time" id="startTime" name="startTime">
-            </div>
-            <div class="form-group">
-                <label for="endTime">End Time (optional):</label>
-                <input type="time" id="endTime" name="endTime">
             </div>
             <div class="form-group button">
                 <button type="submit">Submit Request</button>
@@ -115,13 +95,8 @@
         document.getElementById('endDate').setAttribute('min', today);
         document.getElementById('holidayRequestForm').addEventListener('submit', function (event) {
             event.preventDefault();
-            const name = document.getElementById('name').value;
-            const lastName = document.getElementById('lastName').value;
-            const email = document.getElementById('email').value;
             const startDate = new Date(document.getElementById('startDate').value);
             const endDate = new Date(document.getElementById('endDate').value);
-            const startTime = document.getElementById('startTime').value;
-            const endTime = document.getElementById('endTime').value;
         
             const messageDiv = document.getElementById('message');
             messageDiv.innerHTML = '';
@@ -146,13 +121,8 @@
             }
         
             const requestData = {
-                name: name,
-                lastName: lastName,
-                email: email,
                 startDate: startDate.toISOString().split('T')[0],
                 endDate: endDate.toISOString().split('T')[0],
-                startTime: startTime,
-                endTime: endTime
             };
         
             fetch('/userholidays/submitHolidayRequest', {

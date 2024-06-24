@@ -6,10 +6,9 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const pool = require('./db.js'); // Import the connection pool
-
-
+const { sessionMiddleware, isAuthenticated, isAdmin } = require('./sessionConfig'); // Adjust the path as needed
 const app = express();
-
+app.use(sessionMiddleware);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -104,7 +103,7 @@ app.post('/generate-pdf', (req, res) => {
         res.sendFile(`${__dirname}/temp/pdf.pdf`);
     });
 });
-app.get('/', (req, res) => {
+app.get('/', isAuthenticated, isAdmin, (req, res) => {
     res.sendFile(__dirname + '/TotalHolidays.html');
 });
 module.exports = app; // Export the entire Express application

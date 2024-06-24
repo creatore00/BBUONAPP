@@ -6,10 +6,9 @@ const bodyParser = require('body-parser');
 const server = require('./server.js');
 const http = require('http');
 const pool = require('./db.js'); // Import the connection pool
-
-
 const app = express();
-
+const { sessionMiddleware, isAuthenticated, isAdmin } = require('./sessionConfig'); // Adjust the path as needed
+app.use(sessionMiddleware);
 // Middleware to parse JSON data
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -121,16 +120,16 @@ app.post('/', (req, res) => {
 });
   });
 // Endpoint to handle password reset form submission
-app.get('/', (req, res) => {
+app.get('/', isAuthenticated, isAdmin, (req, res) => {
     res.sendFile(__dirname + '/GenerateFE.html');
   });
-app.get('/', (req, res) => {
+app.get('/', isAuthenticated, isAdmin, (req, res) => {
     res.sendFile(__dirname + '/EmailExists.html');
   });
-app.get('/Token.html', (req, res) => {
+app.get('/Token.html', isAuthenticated, isAdmin, (req, res) => {
     res.sendFile(__dirname + '/Token.html');
   });
-app.get('/Admin.html', (req, res) => {
+app.get('/Admin.html', isAuthenticated, isAdmin, (req, res) => {
     res.sendFile(__dirname + '/Admin.html');
   });
   module.exports = app; // Export the entire Express application

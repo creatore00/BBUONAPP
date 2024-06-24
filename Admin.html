@@ -188,6 +188,7 @@
         <div class="header">
             <h1>Management</h1>
         </div>
+
         <div class="button-group">
             <a href="/rota">New Rota</a>
             <a href="/confirmrota">Confirm Rota</a>
@@ -223,8 +224,36 @@
             <!-- Data will be inserted here by JavaScript -->
         </tbody>
     </table>
-
-    <script>
+<script>
+let inactivityTimer;
+const resetInactivityTimer = () => {
+    clearTimeout(inactivityTimer);
+    inactivityTimer = setTimeout(() => {
+        alert('You have been logged out due to inactivity.');
+        window.location.href = '/logout'; // Replace with your logout route
+    }, 60 * 1000); // 5 minutes in milliseconds
+};
+// Track user activity
+window.onload = resetInactivityTimer;
+window.onmousemove = resetInactivityTimer;
+window.onkeypress = resetInactivityTimer;
+// Function to get query parameters
+function getQueryParams() {
+    const params = new URLSearchParams(window.location.search);
+        return {
+            name: params.get('name'),
+            lastName: params.get('lastName'),
+            email: params.get('email')
+        };
+    }
+// Function to display user info
+function displayUserInfo() {
+        const userInfo = getQueryParams();
+        document.getElementById('userName').textContent = `${userInfo.name} ${userInfo.lastName}`;
+        document.getElementById('userEmail').textContent = userInfo.email;
+    }
+// Call displayUserInfo when the page loads
+window.onload = displayUserInfo;
 async function getTodayRota() {
     const today = getTodayDate();
     const response = await fetch(`/api/rota?day=${encodeURIComponent(today)}`);
@@ -233,7 +262,6 @@ async function getTodayRota() {
     }
     return await response.json();
 }
-
 function getTodayDate() {
     const today = new Date();
     const day = String(today.getDate()).padStart(2, '0');
@@ -243,7 +271,6 @@ function getTodayDate() {
     const dayOfWeek = daysOfWeek[today.getDay()];
     return `${day}/${month}/${year} (${dayOfWeek})`;
 }
-
 async function populateTable() {
     try {
         const rotaData = await getTodayRota();
@@ -304,27 +331,35 @@ async function populateTable() {
         console.error('Error fetching rota data:', error);
     }
 }
-
-
 document.addEventListener('DOMContentLoaded', populateTable);
+    const menuBtn = document.getElementById('menuBtn');
+    const sidebar = document.getElementById('sidebar');
+    const main = document.getElementById('main');
+    const body = document.body;
+    menuBtn.addEventListener('click', () => {
+        sidebar.classList.toggle('open-sidebar');
+        main.classList.toggle('open-menu');
+        body.classList.toggle('sidebar-open');
+    });
+  // Function to handle logout button click
+  document.getElementById('logoutBtn').addEventListener('click', async () => {
+    try {
+      const response = await fetch('/logout', {
+        method: 'GET',
+        credentials: 'same-origin' // Ensures cookies are sent with the request
+      });
 
-        const menuBtn = document.getElementById('menuBtn');
-        const sidebar = document.getElementById('sidebar');
-        const main = document.getElementById('main');
-        const body = document.body;
-
-        menuBtn.addEventListener('click', () => {
-            sidebar.classList.toggle('open-sidebar');
-            main.classList.toggle('open-menu');
-            body.classList.toggle('sidebar-open');
-        });
-
-        document.getElementById('logoutBtn').addEventListener('click', () => {
-            // Manipulate browser history to prevent going back to the dashboard
-            history.pushState(null, null, window.location.href);
-            // Redirect to login page
-            window.location.href = 'http://localhost:8080';
-        });
-    </script>
+      if (response.ok) {
+        window.location.href = 'http://localhost:8080'; // Redirect to login page
+      } else {
+        console.error('Failed to logout:', response.statusText);
+        alert('Failed to logout. Please try again.');
+      }
+    } catch (error) {
+      console.error('Failed to logout:', error.message);
+      alert('Failed to logout. Please try again.');
+    }
+  });
+</script>
 </body>
 </html>

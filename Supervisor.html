@@ -157,6 +157,8 @@
 <body>
     <div class="sidebar" id="sidebar">
         <a href="/UserCrota">Current Rota</a>
+        <a href="/confirmrota">Confirm Rota</a>
+        <a href="/tip">Daily Tips</a>
         <a href="/userholidays">Holidays Request</a>
         <a href="/UserHolidays">Holidays</a>
     </div>
@@ -167,6 +169,8 @@
         </div>
         <div class="button-group">
             <a href="/UserCrota">Current Rota</a>
+            <a href="/confirmrota">Confirm Rota</a>
+            <a href="/tip">Daily Tips</a>
             <a href="/userholidays">Holidays Request</a>
             <a href="/UserHoliday">Holidays</a>
         </div>
@@ -192,7 +196,7 @@
             main.classList.toggle('open-menu');
             body.classList.toggle('sidebar-open');
         });
-  // Function to handle logout button click
+          // Function to handle logout button click
   document.getElementById('logoutBtn').addEventListener('click', async () => {
     try {
       const response = await fetch('/logout', {

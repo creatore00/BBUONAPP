@@ -6,9 +6,9 @@ const path = require('path');
 const fs = require('fs');
 const server = require('./server.js');
 const pool = require('./db.js'); // Import the connection pool
-
 const app = express();
-
+const { sessionMiddleware, isAuthenticated, isAdmin } = require('./sessionConfig'); // Adjust the path as needed
+app.use(sessionMiddleware);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -57,7 +57,7 @@ app.get('/employees', (req, res) => {
         res.json(results);
     });
 });
-app.get('/', (req, res) => {
+app.get('/', isAuthenticated, isAdmin, (req, res) => {
     res.sendFile(path.join(__dirname, 'PersonalInfo.html'));
 });
 // DELETE endpoint to remove an employee

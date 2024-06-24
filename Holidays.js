@@ -6,12 +6,10 @@ const bodyParser = require('body-parser');
 const server = require('./server.js');
 const http = require('http');
 const pool = require('./db.js'); // Import the connection pool
-
-// Create Express app
+const { sessionMiddleware, isAuthenticated, isAdmin, isSupervisor, isUser } = require('./sessionConfig'); // Adjust the path as needed
 const app = express();
-
-
-  // Middleware to parse JSON data
+app.use(sessionMiddleware);
+// Middleware to parse JSON data
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 // Configure the email transporter
@@ -63,7 +61,10 @@ function sendEmailNotification() {
     });
 }
 app.post('/submitHolidayRequest', (req, res) => {
-    const { name, lastName, email, startDate, endDate, startTime, endTime } = req.body;
+    const { startDate, endDate } = req.body;
+    const email = req.session.user.email; // Get email from session
+    const name = req.session.user.name; // Get email from session
+    const lastName = req.session.user.lastName; // Get email from session
     const today = new Date();
     const fourteenDaysLater = new Date();
     fourteenDaysLater.setDate(today.getDate() + 14);
@@ -81,8 +82,8 @@ app.post('/submitHolidayRequest', (req, res) => {
         return res.json({ success: false, message: 'Holiday requests can be for a maximum of two consecutive weeks.' });
     }
 
-    const sql = 'INSERT INTO Holiday (name, lastName, email, startDate, endDate, startTime, endTime) VALUES (?, ?, ?, ?, ?, ?, ?)';
-    const values = [name, lastName, email, startDate, endDate, startTime, endTime];
+    const sql = 'INSERT INTO Holiday (name, lastName, email, startDate, endDate) VALUES (?, ?, ?, ?, ?)';
+    const values = [name, lastName, email, startDate, endDate];
 
     pool.query(sql, values, (error, results) => {
         if (error) {
@@ -95,7 +96,7 @@ app.post('/submitHolidayRequest', (req, res) => {
     });
 });
 
-app.get('/', (req, res) => {
+app.get('/', isAuthenticated, (req, res) => {
     res.sendFile(__dirname + '/Holidays.html');
 });
 module.exports = app; // Export the entire Express application

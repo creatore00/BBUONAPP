@@ -6,9 +6,9 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const pool = require('./db.js'); // Import the connection pool
-
 const app = express();
-
+const { sessionMiddleware, isAuthenticated, isSupervisor, isUser } = require('./sessionConfig'); // Adjust the path as needed
+app.use(sessionMiddleware);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -30,7 +30,7 @@ app.get('/rota', (req, res) => {
 });
 
 
-app.get('/', (req, res) => {
+app.get('/', isAuthenticated, isUser, isSupervisor, (req, res) => {
     res.sendFile(__dirname + '/UserCRota.html');
 });
 module.exports = app; // Export the entire Express application

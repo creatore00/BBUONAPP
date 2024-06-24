@@ -7,10 +7,9 @@ const fs = require('fs');
 const server = require('./server.js');
 const nodemailer = require('nodemailer');
 const pool = require('./db.js'); // Import the connection pool
-
-
 const app = express();
-
+const { sessionMiddleware, isAuthenticated, isAdmin } = require('./sessionConfig'); // Adjust the path as needed
+app.use(sessionMiddleware);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 // Function to send email
@@ -146,7 +145,7 @@ app.post('/deleteRequest/:id', (req, res) => {
         }
     });
 });
-app.get('/', (req, res) => {
+app.get('/', isAuthenticated, isAdmin, (req, res) => {
     res.sendFile(path.join(__dirname, 'Request.html'));
 });
 module.exports = app; // Export the entire Express application

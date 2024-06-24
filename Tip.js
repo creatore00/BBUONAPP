@@ -6,10 +6,9 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const { v4: uuidv4 } = require('uuid');
 const pool = require('./db.js'); // Import the connection pool
-
-
 const app = express();
-
+const { sessionMiddleware, isAuthenticated, isAdmin, isSupervisor } = require('./sessionConfig'); // Adjust the path as needed
+app.use(sessionMiddleware);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -58,14 +57,14 @@ app.post('/submitPayslips', (req, res) => {
         }
   
         if (index === payslipData.length - 1) {
-          console.log('Data processed and saved to payslips table successfully');
-          res.status(200).send('Data processed and saved to payslips table successfully');
+          console.log('Data processed and saved successfully');
+          res.status(200).send('Data processed and saved successfully');
         }
       });
     });
 });
 
-app.get('/', (req, res) => {
+app.get('/', isAuthenticated, isAdmin, isSupervisor, (req, res) => {
     res.sendFile(__dirname + '/Tip.html');
 });
 module.exports = app; // Export the entire Express application

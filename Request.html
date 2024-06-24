@@ -152,8 +152,6 @@ body {
             <th>Email</th>
             <th>Start Date</th>
             <th>End Date</th>
-            <th>Start Time</th>
-            <th>End Time</th>
             <th>Request Date</th>
             <th>Action</th>
         </tr>
@@ -179,8 +177,6 @@ body {
                 <td>${request.email}</td>
                 <td>${formattedStartDate}</td>
                 <td>${formattedEndDate}</td>
-                <td>${request.startTime}</td>
-                <td>${request.endTime}</td>
                 <td>${formattedRequestDate}</td>
                 <td>${request.accepted ? 'Accepted' : `
                     <button onclick="acceptRequest(${request.id})">Accept</button>

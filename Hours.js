@@ -9,9 +9,9 @@ const { v4: uuidv4 } = require('uuid');
 const nodemailer = require('nodemailer');
 const pool = require('./db.js'); // Import the connection pool
 const pdf = require('html-pdf');
-
 const app = express();
-
+const { sessionMiddleware, isAuthenticated, isAdmin, isSupervisor, isUser } = require('./sessionConfig'); // Adjust the path as needed
+app.use(sessionMiddleware);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 // Route to retrieve data from the "rota" table
@@ -105,7 +105,7 @@ app.get('/download-pdf', async (req, res) => {
 });
 
 
-app.get('/', (req, res) => {
+app.get('/', isAuthenticated, isAdmin, (req, res) => {
     res.sendFile(__dirname + '/Hours.html');
 });
 module.exports = app; // Export the entire Express application

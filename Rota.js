@@ -6,8 +6,10 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const { v4: uuidv4 } = require('uuid');
 const pool = require('./db.js'); // Import the connection pool
-
+const { sessionMiddleware, isAuthenticated, isAdmin } = require('./sessionConfig'); // Adjust the path as needed
 const app = express();
+app.use(sessionMiddleware);
+
 
 // Middleware to parse JSON data
 app.use(bodyParser.json());
@@ -363,7 +365,7 @@ app.get('/get-forecast', (req, res) => {
         res.json({ success: true, forecasts });
     });
 });
-app.get('/', (req, res) => {
+app.get('/', isAuthenticated, isAdmin, (req, res) => {
     res.sendFile(__dirname + '/Rota.html');
 });
 module.exports = app; // Export the entire Express application

@@ -106,11 +106,15 @@
             <div class="form">
                 <label>Access Level:</label><br>
                 <div>
-                    <label for="admin">Admin</label>
+                    <label for="admin">Manager</label>
                     <input type="radio" id="admin" name="userType" value="admin" required>
                 </div>
                 <div>
-                    <label for="user">User</label>
+                    <label for="supervisor">Supervisor</label>
+                    <input type="radio" id="supervisor" name="userType" value="supervisor" required>
+                </div>
+                <div>
+                    <label for="user">Team Member</label>
                     <input type="radio" id="user" name="userType" value="user" required>
                 </div>
             </div>
@@ -123,12 +127,13 @@
         function submitForm() {
             const email = document.getElementById('email').value;
             const adminRadio = document.getElementById('admin').value;
+            const supervisorRadio = document.getElementById('supervisor').value;
             const userRadio = document.getElementById('user').value;
 
             // Check if either admin or user radio button is selected
-            if (adminRadio.checked || userRadio.checked) {
+            if (adminRadio.checked || userRadio.checked || supervisorRadio.checked) {
                 // Determine the selected user type
-                const userType = adminRadio.checked ? 'admin' : 'user';
+                const userType = adminRadio.checked ? 'admin' : (supervisorRadio.checked ? 'supervisor' : 'user');
 
                 // Create a JSON object with email and user type
                 const data = { email, userType };
@@ -149,7 +154,7 @@
                 .catch(error => console.error('Error:', error));
             } else {
                 // If neither admin nor user radio button is selected, show an alert
-                alert('Please select Access Level (Admin or User)');
+                alert('Please select Access Level');
             }
         }
     </script>

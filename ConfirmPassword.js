@@ -6,9 +6,9 @@ const http = require('http');
 const pool = require('./db.js'); // Import the connection pool
 const bcrypt = require('bcrypt');
 const saltRounds = 10; // Number of salt rounds, higher is more secure but slower
-
 const app = express();
-
+const { sessionMiddleware, isAuthenticated } = require('./sessionConfig'); // Adjust the path as needed
+app.use(sessionMiddleware);
 // Middleware to parse JSON data
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -53,7 +53,7 @@ app.post('/', async (req, res) => {
       return res.status(500).json({ error: 'Internal server error' });
   }
 });
-app.get('/', (req, res) => {
+app.get('/', isAuthenticated, (req, res) => {
     res.sendFile(__dirname + '/ConfirmPassword.html');
   });
 module.exports = app; // Export the entire Express application
