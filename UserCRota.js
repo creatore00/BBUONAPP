@@ -30,7 +30,7 @@ app.get('/rota', (req, res) => {
 });
 
 
-app.get('/', isAuthenticated, isUser, isSupervisor, (req, res) => {
+app.get('/', isAuthenticated, (req, res) => {
     res.sendFile(__dirname + '/UserCRota.html');
 });
 module.exports = app; // Export the entire Express application
