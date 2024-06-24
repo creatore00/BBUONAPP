@@ -176,26 +176,31 @@ function fetchDataForMonth(startDate, endDate) {
 function downloadPDF() {
     const table = document.getElementById('employeeData');
     const html = table.outerHTML;
-
-    fetch('/TotalHolidays/generate-pdf', {
+    fetch(`/TotalHolidays/generate-pdf`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({ html: html })
     })
-    .then(response => response.blob())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.blob();
+    })
     .then(blob => {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `Holiday_${currentMonth}.pdf`;
+        a.download = `Holiday_${new Date().getMonth() + 1}.pdf`; // Updated to get the current month dynamically
         document.body.appendChild(a);
         a.click();
         window.URL.revokeObjectURL(url);
     })
     .catch(error => console.error('Error generating PDF:', error));
 }
+
 </script>
 </body>
 </html>
