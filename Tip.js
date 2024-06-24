@@ -4,6 +4,7 @@ const fs = require('fs');
 const mysql = require('mysql2');
 const express = require('express');
 const bodyParser = require('body-parser');
+const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 const pool = require('./db.js'); // Import the connection pool
 const app = express();
@@ -63,12 +64,14 @@ app.post('/submitPayslips', (req, res) => {
       });
     });
 });
-
-app.get('/', isAuthenticated, isAdmin, (req, res) => {
-    res.sendFile(__dirname + '/Tip.html');
-});
-app.get('/', isAuthenticated, isSupervisor, (req, res) => {
-  res.sendFile(__dirname + '/Tip.html');
+app.get('/', isAuthenticated, (req, res) => {
+  if (req.session.user.role === 'admin') {
+      res.sendFile(path.join(__dirname, 'Tip.html'));
+  } else if (req.session.user.role === 'supervisor') {
+      res.sendFile(path.join(__dirname, 'Tip.html'));
+  } else {
+      res.status(403).json({ error: 'Access denied' });
+  }
 });
 module.exports = app; // Export the entire Express application
 

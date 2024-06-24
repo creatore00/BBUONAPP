@@ -24,13 +24,15 @@ app.get('/holidays', (req, res) => {
         }
     });
 });
-app.get('/', isAuthenticated, isAdmin, (req, res) => {
-    res.sendFile(path.join(__dirname, 'UserHolidays.html'));
-});
-app.get('/', isAuthenticated, isSupervisor, (req, res) => {
-    res.sendFile(path.join(__dirname, 'UserHolidays.html'));
-});
-app.get('/', isAuthenticated, isUser, (req, res) => {
-    res.sendFile(path.join(__dirname, 'UserHolidays.html'));
+app.get('/', isAuthenticated, (req, res) => {
+    if (req.session.user.role === 'admin') {
+        res.sendFile(path.join(__dirname, '/UserHolidays.html'));
+    } else if (req.session.user.role === 'supervisor') {
+        res.sendFile(path.join(__dirname, '/UserHolidays.html'));
+    } else if (req.session.user.role === 'user') {
+        res.sendFile(path.join(__dirname, '/UserHolidays.html'));
+    } else {
+        res.status(403).json({ error: 'Access denied' });
+    }
 });
 module.exports = app; // Export the entire Express application

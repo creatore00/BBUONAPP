@@ -4,6 +4,7 @@ const fs = require('fs');
 const mysql = require('mysql2');
 const express = require('express');
 const bodyParser = require('body-parser');
+const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 const pool = require('./db.js'); // Import the connection pool
 const app = express();
@@ -43,14 +44,17 @@ WHERE
         res.json(results);
     });
 });
-app.get('/', isAuthenticated, isAdmin, (req, res) => {
-    res.sendFile(__dirname + '/UserTotalHours.html');
+app.get('/', isAuthenticated, (req, res) => {
+    if (req.session.user.role === 'admin') {
+        res.sendFile(path.join(__dirname, 'UserTotalHours.html'));
+    } else if (req.session.user.role === 'supervisor') {
+        res.sendFile(path.join(__dirname, 'UserTotalHours.html'));
+    } else if (req.session.user.role === 'user') {
+        res.sendFile(path.join(__dirname, 'UserTotalHours.html'));
+    } else {
+        res.status(403).json({ error: 'Access denied' });
+    }
 });
-app.get('/', isAuthenticated, isSupervisor, (req, res) => {
-    res.sendFile(__dirname + '/UserTotalHours.html');
-});
-app.get('/', isAuthenticated, isUser, (req, res) => {
-    res.sendFile(__dirname + '/UserTotalHours.html');
-});
+
 module.exports = app; // Export the entire Express application
 

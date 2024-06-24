@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const pool = require('./db.js'); // Import the connection pool
 const app = express();
+const path = require('path');
 const { sessionMiddleware, isAuthenticated, isAdmin, isSupervisor, isUser } = require('./sessionConfig'); // Adjust the path as needed
 app.use(sessionMiddleware);
 app.use(bodyParser.json());
@@ -48,14 +49,16 @@ app.get('/api/download-file/:id', (req, res) => {
       res.send(fileContent);
   });
 });
-app.get('/', isAuthenticated, isAdmin, (req, res) => {
-    res.sendFile(__dirname + '/PastPayslips.html');
-});
-app.get('/', isAuthenticated, isSupervisor, (req, res) => {
-    res.sendFile(__dirname + '/PastPayslips.html');
-});
-app.get('/', isAuthenticated, isUser, (req, res) => {
-    res.sendFile(__dirname + '/PastPayslips.html');
+app.get('/', isAuthenticated, (req, res) => {
+    if (req.session.user.role === 'admin') {
+        res.sendFile(path.join(__dirname, '/PastPayslips.html'));
+    } else if (req.session.user.role === 'supervisor') {
+        res.sendFile(path.join(__dirname, '/PastPayslips.html'));
+    } else if (req.session.user.role === 'user') {
+        res.sendFile(path.join(__dirname, '/PastPayslips.html'));
+    } else {
+        res.status(403).json({ error: 'Access denied' });
+    }
 });
 module.exports = app; // Export the entire Express application
 

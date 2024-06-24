@@ -100,11 +100,16 @@
         </tbody>
     </table>
     <button class="btn" onclick="downloadPDF()">Download PDF</button>
-    <script>
-        window.onload = function () {
-            handleMonthSelection(); // Fetch data for the current month on page load
-        }
-        function fetchDataForMonth(startDate, endDate) {
+<script>
+function handleMonthSelection() {
+            const selectedMonth = document.getElementById('monthSelector').value;
+            const [year, month] = selectedMonth.split('-');
+            const startDate = `${year}-${month}-01`;
+            const lastDay = new Date(year, month, 0).getDate();
+            const endDate = `${year}-${month}-${lastDay}`;
+            fetchDataForMonth(startDate, endDate);
+}
+function fetchDataForMonth(startDate, endDate) {
     fetch(`/TotalHolidays/rota?startDate=${startDate}&endDate=${endDate}`)
         .then(response => response.json())
         .then(rotaData => {
@@ -168,22 +173,6 @@
         })
         .catch(error => console.error('Error fetching rota data:', error));
 }
-        function handleMonthSelection() {
-            const selectedMonth = document.getElementById('monthSelector').value;
-            const [year, month] = selectedMonth.split('-');
-            const startDate = `${year}-${month}-01`;
-            const lastDay = new Date(year, month, 0).getDate();
-            const endDate = `${year}-${month}-${lastDay}`;
-            fetchDataForMonth(startDate, endDate);
-        }
-// Initial load: Fetch data for the current month
-const currentDate = new Date();
-const currentMonth = currentDate.getMonth() + 1;
-const currentYear = currentDate.getFullYear();
-const startDate = `${currentYear}-${currentMonth}-01`;
-const lastDay = new Date(currentYear, currentMonth, 0).getDate();
-const endDate = `${currentYear}-${currentMonth}-${lastDay}`;
-fetchDataForMonth(startDate, endDate);
 function downloadPDF() {
     const table = document.getElementById('employeeData');
     const html = table.outerHTML;
@@ -207,7 +196,6 @@ function downloadPDF() {
     })
     .catch(error => console.error('Error generating PDF:', error));
 }
-
 </script>
 </body>
 </html>

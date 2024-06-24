@@ -3,6 +3,7 @@ const express = require('express');
 const mysql = require('mysql2');
 const nodemailer = require('nodemailer');
 const bodyParser = require('body-parser');
+const path = require('path');
 const server = require('./server.js');
 const http = require('http');
 const pool = require('./db.js'); // Import the connection pool
@@ -95,14 +96,15 @@ app.post('/submitHolidayRequest', (req, res) => {
         }
     });
 });
-
-app.get('/', isAuthenticated, isAdmin, (req, res) => {
-    res.sendFile(__dirname + '/Holidays.html');
-});
-app.get('/', isAuthenticated, isSupervisor, (req, res) => {
-    res.sendFile(__dirname + '/Holidays.html');
-});
-app.get('/', isAuthenticated, isUser, (req, res) => {
-    res.sendFile(__dirname + '/Holidays.html');
+app.get('/', isAuthenticated, (req, res) => {
+    if (req.session.user.role === 'admin') {
+        res.sendFile(path.join(__dirname, 'Holidays.html'));
+    } else if (req.session.user.role === 'supervisor') {
+        res.sendFile(path.join(__dirname, 'Holidays.html'));
+    } else if (req.session.user.role === 'user') {
+        res.sendFile(path.join(__dirname, 'Holidays.html'));
+    } else {
+        res.status(403).json({ error: 'Access denied' });
+    }
 });
 module.exports = app; // Export the entire Express application

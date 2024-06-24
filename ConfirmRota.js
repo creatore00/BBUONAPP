@@ -117,11 +117,14 @@ app.get('/logout', (req, res) => {
       res.redirect('/');
     }
   });
-app.get('/', isAuthenticated, isAdmin, (req, res) => {
-    res.sendFile(__dirname + '/ConfirmRota.html');
-});
-app.get('/', isAuthenticated, isSupervisor, (req, res) => {
-    res.sendFile(__dirname + '/ConfirmRota.html');
+app.get('/', isAuthenticated, (req, res) => {
+    if (req.session.user.role === 'admin') {
+        res.sendFile(path.join(__dirname, 'ConfirmRota.html'));
+    } else if (req.session.user.role === 'supervisor') {
+        res.sendFile(path.join(__dirname, 'ConfirmRota.html'));
+    } else {
+        res.status(403).json({ error: 'Access denied' });
+    }
 });
 module.exports = app; // Export the entire Express application
 

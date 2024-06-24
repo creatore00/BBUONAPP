@@ -117,14 +117,16 @@ app.post('/api/update-password', isAuthenticated, (req, res) => {
         res.status(401).json({ message: 'User not authenticated' });
     }
 });
-// Serve the profile page
-app.get('/', isAuthenticated, isAdmin, (req, res) => {
-    res.sendFile(path.join(__dirname, 'Profile.html'));
+app.get('/', isAuthenticated, (req, res) => {
+    if (req.session.user.role === 'admin') {
+        res.sendFile(path.join(__dirname, 'Profile.html'));
+    } else if (req.session.user.role === 'supervisor') {
+        res.sendFile(path.join(__dirname, 'Profile.html'));
+    } else if (req.session.user.role === 'user') {
+        res.sendFile(path.join(__dirname, 'Profile.html'));
+    } else {
+        res.status(403).json({ error: 'Access denied' });
+    }
 });
-app.get('/', isAuthenticated, isSupervisor, (req, res) => {
-    res.sendFile(path.join(__dirname, 'Profile.html'));
-});
-app.get('/', isAuthenticated, isUser, (req, res) => {
-    res.sendFile(path.join(__dirname, 'Profile.html'));
-});
+
 module.exports = app; // Export the entire Express application
