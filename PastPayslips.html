@@ -230,7 +230,6 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .catch(error => console.error('Error fetching payslips data:', error));
 });
-
 function populatePayslipsTable(payslips) {
     const tableBody = document.getElementById('payslipsTable').querySelector('tbody');
     tableBody.innerHTML = '';
@@ -252,8 +251,6 @@ function populatePayslipsTable(payslips) {
         tableBody.appendChild(row);
     });
 }
-
-// Function to fetch payslip data and download only if it's a PDF
 function fetchAndDownloadPayslip(payslipId) {
     fetch(`/pastpayslips/api/download-file/${payslipId}`)
         .then(response => {
@@ -265,25 +262,28 @@ function fetchAndDownloadPayslip(payslipId) {
         .then(blob => {
             const url = window.URL.createObjectURL(blob);
             const fileType = blob.type;
-            
+
             // Check if the file type is PDF
             if (fileType === 'application/pdf') {
                 // Extract month from payslip date
                 const payslipDate = new Date(); // Assuming payslip date is retrieved from the server
                 const month = payslipDate.toLocaleString('default', { month: 'long' });
-                
+
                 // Create a link element to trigger the download
                 const a = document.createElement('a');
                 a.href = url;
-                a.textContent = 'Download Payslip';
                 a.download = `Payslip_${month}.pdf`; // Set the download file name
+                document.body.appendChild(a);
                 a.click(); // Trigger the download
+                document.body.removeChild(a); // Clean up the link element
+                window.URL.revokeObjectURL(url); // Release the object URL
             } else {
                 console.error('File is not a PDF');
             }
         })
         .catch(error => console.error('Error fetching payslip:', error));
 }
+
     </script>
 </body>
 </html>
