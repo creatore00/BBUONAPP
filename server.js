@@ -115,6 +115,26 @@ app.post('/', (req, res) => {
       }
   });
 });
+// Route to retrieve data from the database
+app.post('/getRota', (req, res) => {
+  const selectedDate = req.body.date;
+  console.log('Received date:', selectedDate); // Debugging statement to check received date
+  const query = 'SELECT who FROM ConfirmedRota WHERE day = ?';
+  pool.query(query, [selectedDate], (error, results) => {
+      if (error) {
+          console.error('Error executing query:', error);
+          res.status(500).json({ error: 'Server error' }); // Send error as JSON
+          return;
+      }
+      console.log('Query results:', results); // Debugging statement to check query results
+      if (results.length > 0) {
+          res.json({ rota: results[0].who }); // Ensure 'who' column is the correct one
+      } else {
+          res.status(404).json({ error: 'No data found for the selected date' }); // Send error as JSON
+      }
+  });
+});
+
 // API endpoint to get rota data for a specific day
 app.get('/api/rota', (req, res) => {
   const day = req.query.day;

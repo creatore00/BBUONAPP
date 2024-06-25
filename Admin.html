@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
+    <link rel="icon" type="image/x-icon" href="/icon.jpg">
     <style>
         body {
             background: linear-gradient(135deg, #4A90E2 0%, #B0E0E6 100%);
@@ -33,6 +34,7 @@
         color: #fff; /* White text */
         font-weight: bold; /* Bold text */
     }
+
         .sidebar {
             height: 100%;
             margin-top: 20px;
@@ -121,6 +123,19 @@
             right: 15px;
             margin-top: 80px;
         }
+        .btn {
+            background-color: #4A90E2;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            align-self: center;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            transition: background-color 0.3s ease;
+            font-size: 14px;
+        }
         .dropbtn {
             background-color: #4682B4;
             color: white;
@@ -150,6 +165,15 @@
             text-decoration: none;
             display: block;
             transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+        .date {
+            background-color: #70ace7;
+            font-family: Arial, sans-serif;
+            text-transform: uppercase;
+            color: white;
+            border-radius: 5px;
+            padding: 6px 12px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
         }
         .dropdown-content a:hover {
             background-color: #f1f1f1;
@@ -188,7 +212,6 @@
         <div class="header">
             <h1>Management</h1>
         </div>
-
         <div class="button-group">
             <a href="/rota">New Rota</a>
             <a href="/confirmrota">Confirm Rota</a>
@@ -224,14 +247,66 @@
             <!-- Data will be inserted here by JavaScript -->
         </tbody>
     </table>
+    <form class="rota" id="rotaForm">
+        <label class="date" for="date">Date:</label>
+        <input class="date" type="date" id="date" name="date">
+        <button class="btn" type="submit">Get Info</button>
+    </form>
+    <div id="who"></div>
 <script>
+document.getElementById('rotaForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const date = document.getElementById('date').value;
+            const formattedDate = formatDate(date);
+
+            fetch('/getRota', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ date: formattedDate })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.rota) {
+                    const tableHtml = `
+                        <table border="1">
+                            <tr>
+                                <th>Selected Date</th>
+                                <th>Confirmed Rota</th>
+                            </tr>
+                            <tr>
+                                <td>${formattedDate}</td>
+                                <td>${data.rota}</td>
+                            </tr>
+                        </table>
+                    `;
+                    document.getElementById('who').innerHTML = tableHtml;
+                } else {
+                    document.getElementById('who').innerHTML = '<div class="date">No data found for the selected date</div>';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error);
+                document.getElementById('who').innerHTML = 'Error fetching data';
+            });
+        });
+function formatDate(date) {
+            const dateObj = new Date(date);
+            const day = String(dateObj.getDate()).padStart(2, '0');
+            const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+            const year = dateObj.getFullYear();
+            const dayName = dateObj.toLocaleDateString('en-GB', { weekday: 'long' });
+
+            return `${day}/${month}/${year} (${dayName})`;
+        }
 let inactivityTimer;
 const resetInactivityTimer = () => {
     clearTimeout(inactivityTimer);
     inactivityTimer = setTimeout(() => {
         alert('You have been logged out due to inactivity.');
         window.location.href = '/logout'; // Replace with your logout route
-    }, 60 * 1000); // 5 minutes in milliseconds
+    }, 5 * 60 * 1000); // 5 minutes in milliseconds
 };
 // Track user activity
 window.onload = resetInactivityTimer;
@@ -246,14 +321,6 @@ function getQueryParams() {
             email: params.get('email')
         };
     }
-// Function to display user info
-function displayUserInfo() {
-        const userInfo = getQueryParams();
-        document.getElementById('userName').textContent = `${userInfo.name} ${userInfo.lastName}`;
-        document.getElementById('userEmail').textContent = userInfo.email;
-    }
-// Call displayUserInfo when the page loads
-window.onload = displayUserInfo;
 async function getTodayRota() {
     const today = getTodayDate();
     const response = await fetch(`/api/rota?day=${encodeURIComponent(today)}`);
