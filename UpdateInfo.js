@@ -11,31 +11,31 @@ const { sessionMiddleware, isAuthenticated, isAdmin } = require('./sessionConfig
 app.use(sessionMiddleware);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
-
-// Configure multer for file uploads
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        const uploadPath = path.join(__dirname, 'uploads');
-        if (!fs.existsSync(uploadPath)) {
-            fs.mkdirSync(uploadPath);
-        }
-        cb(null, uploadPath);
-    },
-    filename: (req, file, cb) => {
-        cb(null, Date.now() + path.extname(file.originalname));
-    },
-});
-
-const upload = multer({ storage: storage });
-
-app.post('/', upload.single('passportImage'), (req, res) => {
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage }).fields([
+    { name: 'passportImage', maxCount: 1 },
+    { name: 'visa', maxCount: 1 }
+]);
+app.post('/', upload, (req, res) => {
+    console.log('Request Body:', req.body);
+    // Destructure fields from req.body
     const { name, lastName, email, phone, address, nin, wage, designation, holiday, dateStart } = req.body;
-    const passportImage = req.file.filename;
-    const query = 'INSERT INTO Employees (name, lastName, email, phone, address, nin, wage, designation, passportImage, TotalHoliday, startHoliday, dateStart) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+    const passportImageFile = req.files['passportImage'] ? req.files['passportImage'][0] : null;
+    const visaFile = req.files['visa'] ? req.files['visa'][0] : null;
 
-    pool.query(query, [name, lastName, email, phone, address, nin, wage, designation, passportImage, holiday, holiday, dateStart], (err, result) => {
+    // Check if required files were uploaded
+    if (!passportImageFile || !visaFile) {
+        return res.status(400).json({ success: false, message: 'Both passport image and visa files are required' });
+    }
+
+    // Extract file content (buffer) and MIME type
+    const passportImageContent = passportImageFile.buffer;
+    const visaContent = visaFile.buffer;
+
+    // Insert data into the database
+    const query = 'INSERT INTO Employees (name, lastName, email, phone, address, nin, wage, designation, passportImage, visa, TotalHoliday, startHoliday, dateStart) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+
+    pool.query(query, [name, lastName, email, phone, address, nin, wage, designation, passportImageContent, visaContent, holiday, holiday, dateStart], (err, result) => {
         if (err) {
             console.error('Error inserting data:', err);
             res.status(500).json({ success: false, message: 'Server error' });
@@ -44,7 +44,6 @@ app.post('/', upload.single('passportImage'), (req, res) => {
         res.json({ success: true, message: 'Employee data successfully inserted' });
     });
 });
-
 app.get('/employees', (req, res) => {
     const query = 'SELECT * FROM Employees ORDER BY designation DESC, id ASC';
 
@@ -57,8 +56,55 @@ app.get('/employees', (req, res) => {
         res.json(results);
     });
 });
-app.get('/', isAuthenticated, isAdmin, (req, res) => {
-    res.sendFile(path.join(__dirname, 'PersonalInfo.html'));
+// Endpoint to download a specific passport file based on employee ID
+app.get('/api/download-file/:id', (req, res) => {
+    const { id } = req.params; // Extract employee ID from URL parameter
+
+    const query = 'SELECT passportImage FROM Employees WHERE id = ?'; // SQL query to retrieve passportImage
+    pool.query(query, [id], (err, results) => {
+        if (err) {
+            console.error('Error fetching data:', err);
+            res.status(500).json({ error: 'Database query error' });
+            return;
+        }
+        if (results.length === 0) {
+            res.status(404).json({ error: 'Passport not found' });
+            return;
+        }
+        const passportImage = results[0].passportImage; // Retrieve passportImage from query results
+
+        // Set appropriate headers for file download
+        res.setHeader('Content-Type', 'application/pdf'); // Set Content-Type as PDF
+        res.setHeader('Content-Disposition', `attachment; filename=Passport_${id}.pdf`); // Set filename for download
+
+        // Send the file content as response
+        res.send(passportImage);
+    });
+});
+// Endpoint to download a specific passport file based on employee ID
+app.get('/api/download-visa/:id', (req, res) => {
+    const { id } = req.params; // Extract employee ID from URL parameter
+
+    const query = 'SELECT visa FROM Employees WHERE id = ?'; // SQL query to retrieve passportImage
+    pool.query(query, [id], (err, results) => {
+        if (err) {
+            console.error('Error fetching data:', err);
+            res.status(500).json({ error: 'Database query error' });
+            return;
+        }
+        if (results.length === 0) {
+            res.status(404).json({ error: 'Passport not found' });
+            return;
+        }
+        const visa = results[0].visa; // Retrieve passportImage from query results
+
+        // Set appropriate headers for file download
+        res.setHeader('Content-Type', 'application/pdf'); // Set Content-Type as PDF
+        res.setHeader('Content-Disposition', `attachment; filename=Passport_${id}.pdf`); // Set filename for download
+
+        // Send the file content as response
+        res.send(visa);
+    });
 });
 // DELETE endpoint to remove an employee
 app.delete('/employee/:id', (req, res) => {
@@ -75,10 +121,6 @@ app.delete('/employee/:id', (req, res) => {
         if (results.length === 0) {
             return res.status(404).json({ success: false, message: 'Employee not found' });
         }
-
-        const passportImage = results[0].passportImage.toString();
-        const imagePath = path.join(__dirname, 'uploads', passportImage);
-
         // Delete the database record
         const deleteQuery = 'DELETE FROM Employees WHERE id = ?';
         pool.query(deleteQuery, [id], (err, result) => {
@@ -86,18 +128,11 @@ app.delete('/employee/:id', (req, res) => {
                 console.error('Error deleting employee:', err);
                 return res.status(500).json({ success: false, message: 'Server error' });
             }
-
-            // Delete the file from the file system
-            fs.unlink(imagePath, (err) => {
-                if (err) {
-                    console.error('Error deleting image file:', err);
-                    // Still return success since the database record was deleted
-                    return res.json({ success: true, message: 'Employee deleted, but error removing image file' });
-                }
-
                 res.json({ success: true, message: 'Employee successfully deleted' });
-            });
         });
     });
+});
+app.get('/', isAuthenticated, isAdmin, (req, res) => {
+    res.sendFile(path.join(__dirname, 'PersonalInfo.html'));
 });
 module.exports = app; // Export the entire Express application

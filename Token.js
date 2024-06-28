@@ -7,7 +7,7 @@ const http = require('http');
 const pool = require('./db.js'); // Import the connection pool
 
 const app = express();
-
+app.use('/confirmpassword', confirmpassword);
 // Middleware to parse JSON data
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -38,8 +38,8 @@ app.post('/', (req, res) => {
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/Token.html');
 });
-app.get('/ConfirmPassword.html', (req, res) => {
-  res.sendFile(__dirname + '/ConfirmPassword.html');
+app.get('/confirmpassword', (req, res) => {
+  res.sendFile(__dirname + '/confirmpassword');
 });
 app.get('/WrongToken.html', (req, res) => {
   res.sendFile(__dirname + '/WrongToken.html');

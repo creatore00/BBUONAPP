@@ -12,30 +12,25 @@ const { sessionMiddleware, isAuthenticated, isAdmin, isSupervisor, isUser } = re
 app.use(sessionMiddleware);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-
 app.get('/rota', (req, res) => {
-    const startDate = req.query.startDate;
-    if (!startDate) {
-        return res.status(400).json({ success: false, message: 'Start date is required' });
+    const month = req.query.month;
+    if (!month) {
+        return res.status(400).json({ success: false, message: 'Month is required' });
     }
-
     const query = `
-    SELECT 
-    name,
-    lastName, 
-    DATE_FORMAT(STR_TO_DATE(day, '%d/%m/%Y'), '%d/%m/%Y') as day, 
-    startTime, 
-    endTime,
-    wage,
-    designation
-FROM 
-    rota
-WHERE 
-    STR_TO_DATE(day, '%d/%m/%Y') BETWEEN ? AND DATE_ADD(?, INTERVAL 6 DAY)
-
-`;
-
-    pool.query(query, [startDate, startDate], (err, results) => {
+        SELECT 
+            name,
+            lastName, 
+            DATE_FORMAT(STR_TO_DATE(day, '%d/%m/%Y'), '%d/%m/%Y') as day, 
+            startTime, 
+            endTime,
+            designation
+        FROM 
+            ConfirmedRota
+        WHERE 
+            DATE_FORMAT(STR_TO_DATE(day, '%d/%m/%Y'), '%Y-%m') = ?
+    `;
+    pool.query(query, [month], (err, results) => {
         if (err) {
             console.error('Error fetching data:', err);
             res.status(500).json({ success: false, message: 'Server error' });
@@ -44,6 +39,7 @@ WHERE
         res.json(results);
     });
 });
+
 app.get('/', isAuthenticated, (req, res) => {
     if (req.session.user.role === 'admin') {
         res.sendFile(path.join(__dirname, 'UserTotalHours.html'));

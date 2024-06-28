@@ -186,6 +186,18 @@
     </div>
 
     <script>
+        let inactivityTimer;
+const resetInactivityTimer = () => {
+    clearTimeout(inactivityTimer);
+    inactivityTimer = setTimeout(() => {
+        alert('You have been logged out due to inactivity.');
+        window.location.href = '/logout'; // Replace with your logout route
+    }, 60 * 60 * 1000); // 5 minutes in milliseconds
+};
+// Track user activity
+window.onload = resetInactivityTimer;
+window.onmousemove = resetInactivityTimer;
+window.onkeypress = resetInactivityTimer;
         const menuBtn = document.getElementById('menuBtn');
         const sidebar = document.getElementById('sidebar');
         const main = document.getElementById('main');

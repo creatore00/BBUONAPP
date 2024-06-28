@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=100%, initial-scale=1.0">
+    <title>Database Tables</title>
+    <style>
+        body {
+            background: linear-gradient(135deg, #4A90E2 0%, #B0E0E6 100%);
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            align-items: center;
+            justify-content: center;
+        }
+        table {
+        width: 80%;
+        margin: 0 auto; /* This centers the table horizontally */
+        border-collapse: separate;
+        border-spacing: 0;
+        background-image: linear-gradient(135deg, #4a91e260 0%, #32bacc 100%);
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Added box shadow for depth */
+    }
+    
+    th, td {
+        text-align: center;
+        padding: 12px;
+        white-space: nowrap;
+        background-color: linear-gradient(135deg, #4A90E2 0%, #B0E0E6 100%);
+        color: #fff; /* White text */
+        font-weight: bold; /* Bold text */
+    }
+
+        .sidebar {
+            height: 100%;
+            margin-top: 20px;
+            width: 250px;
+            position: fixed;
+            top: 0;
+            left: -250px;
+            background: linear-gradient(135deg, #1E90FF 0%, #ADD8E6 100%);
+            color: white;
+            transition: left 0.5s ease;
+            padding-top: 60px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        }
+        .sidebar a {
+            padding: 15px 25px;
+            text-decoration: none;
+            font-size: 18px;
+            color: white;
+            display: block;
+            transition: background-color 0.3s ease;
+        }
+        .sidebar a:hover {
+            background-color: #4682B4;
+        }
+        .main {
+            margin-left: 0;
+            transition: margin-left 0.5s ease;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .menu-btn {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            font-size: 30px;
+            cursor: pointer;
+            background-color: #4682B4;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+        .menu-btn:hover {
+            background-color: #1E90FF;
+            transform: rotate(90deg);
+        }
+        .header {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #1E90FF 0%, #ADD8E6 100%);
+            width: 100%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            color: white;
+            transition: background-color 0.5s ease;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+        }
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .button-group a {
+            background-color: #4682B4;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 5px;
+            text-align: center;
+            text-decoration: none;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+        .button-group a:hover {
+            background-color: #1E90FF;
+            transform: scale(1.1);
+        }
+        .dropdown {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            margin-top: 80px;
+        }
+        .btn {
+            background-color: #4A90E2;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            align-self: center;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            transition: background-color 0.3s ease;
+            font-size: 14px;
+        }
+        .dropbtn {
+            background-color: #4682B4;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+        .dropbtn:hover {
+            background-color: #1E90FF;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background-color: white;
+            min-width: 160px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        .dropdown-content a {
+            color: #333;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+        .date {
+            background-color: #70ace7;
+            font-family: Arial, sans-serif;
+            text-transform: uppercase;
+            color: white;
+            border-radius: 5px;
+            padding: 6px 12px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+        }
+        .dropdown-content a:hover {
+            background-color: #f1f1f1;
+            transform: scale(1.05);
+        }
+        .dropdown:hover .dropdown-content {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        .dropdown:hover .dropbtn {
+            background-color: #1E90FF;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .open-menu {
+            margin-left: 250px;
+        }
+        .open-sidebar {
+            left: 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Database Tables</h1>
+    <div id="tables"></div>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const response = await fetch('/modify/tables');
+                const tables = await response.json();
+
+                for (const table of tables) {
+                    const tableContainer = document.createElement('div');
+                    tableContainer.innerHTML = `<h2>${table}</h2>`;
+                    
+                    const tableResponse = await fetch(`/modify/table/${table}`);
+                    const tableData = await tableResponse.json();
+
+                    const tableElement = document.createElement('table');
+                    const headerRow = document.createElement('tr');
+                    
+                    if (tableData.length > 0) {
+                        // Add table headers
+                        Object.keys(tableData[0]).forEach(key => {
+                            const th = document.createElement('th');
+                            th.textContent = key;
+                            headerRow.appendChild(th);
+                        });
+                        tableElement.appendChild(headerRow);
+                        
+                        // Add table rows
+                        tableData.forEach(row => {
+                            const tr = document.createElement('tr');
+                            Object.entries(row).forEach(([key, value]) => {
+                                const td = document.createElement('td');
+                                if (key.toLowerCase().includes('pdf')) {
+                                    const fileInput = document.createElement('input');
+                                    fileInput.type = 'file';
+                                    fileInput.dataset.primaryKey = Object.keys(row)[0];
+                                    fileInput.dataset.primaryKeyValue = row[Object.keys(row)[0]];
+                                    fileInput.dataset.column = key;
+
+                                    const fileActions = document.createElement('div');
+                                    fileActions.className = 'file-actions';
+
+                                    const uploadButton = document.createElement('button');
+                                    uploadButton.textContent = value ? 'Update PDF' : 'Upload PDF';
+                                    uploadButton.addEventListener('click', () => fileInput.click());
+
+                                    const deleteButton = document.createElement('button');
+                                    deleteButton.textContent = 'Delete PDF';
+                                    deleteButton.addEventListener('click', async () => {
+                                        const primaryKey = fileInput.dataset.primaryKey;
+                                        const primaryKeyValue = fileInput.dataset.primaryKeyValue;
+                                        const column = fileInput.dataset.column;
+
+                                        const deleteResponse = await fetch(`/modify/table/${table}/delete`, {
+                                            method: 'POST',
+                                            headers: {
+                                                'Content-Type': 'application/json'
+                                            },
+                                            body: JSON.stringify({
+                                                primaryKey,
+                                                primaryKeyValue,
+                                                column
+                                            })
+                                        });
+
+                                        if (deleteResponse.ok) {
+                                            fileInput.value = '';
+                                            uploadButton.textContent = 'Upload PDF';
+                                            console.log('Delete successful');
+                                        } else {
+                                            console.error('Error deleting file');
+                                        }
+                                    });
+
+                                    fileActions.appendChild(uploadButton);
+                                    fileActions.appendChild(deleteButton);
+                                    td.appendChild(fileActions);
+                                    td.appendChild(fileInput);
+
+                                    fileInput.addEventListener('change', async (event) => {
+                                        const formData = new FormData();
+                                        formData.append('pdf', event.target.files[0]);
+                                        formData.append('primaryKey', fileInput.dataset.primaryKey);
+                                        formData.append('primaryKeyValue', fileInput.dataset.primaryKeyValue);
+                                        formData.append('column', fileInput.dataset.column);
+
+                                        const uploadResponse = await fetch(`/modify/table/${table}/upload`, {
+                                            method: 'POST',
+                                            body: formData
+                                        });
+
+                                        if (uploadResponse.ok) {
+                                            const data = await uploadResponse.json();
+                                            uploadButton.textContent = 'Update PDF';
+                                            console.log('Upload successful', data);
+                                        } else {
+                                            console.error('Error uploading file');
+                                        }
+                                    });
+
+                                } else {
+                                    const input = document.createElement('input');
+                                    input.type = 'text';
+                                    input.value = value;
+                                    input.dataset.primaryKey = Object.keys(row)[0]; // Assuming first column is the primary key
+                                    input.dataset.primaryKeyValue = row[Object.keys(row)[0]];
+                                    input.dataset.column = key;
+                                    input.addEventListener('change', async (event) => {
+                                        const newValue = event.target.value;
+                                        const primaryKey = event.target.dataset.primaryKey;
+                                        const primaryKeyValue = event.target.dataset.primaryKeyValue;
+                                        const column = event.target.dataset.column;
+
+                                        const updateResponse = await fetch(`/modify/table/${table}/update`, {
+                                            method: 'POST',
+                                            headers: {
+                                                'Content-Type': 'application/json'
+                                            },
+                                            body: JSON.stringify({
+                                                primaryKey,
+                                                primaryKeyValue,
+                                                column,
+                                                value: newValue
+                                            })
+                                        });
+
+                                        if (updateResponse.ok) {
+                                            console.log('Update successful');
+                                        } else {
+                                            console.error('Error updating data');
+                                        }
+                                    });
+                                    td.appendChild(input);
+                                }
+                                tr.appendChild(td);
+                            });
+                            tableElement.appendChild(tr);
+                        });
+                    } else {
+                        tableElement.innerHTML = '<tr><td>No data available</td></tr>';
+                    }
+
+                    tableContainer.appendChild(tableElement);
+                    document.getElementById('tables').appendChild(tableContainer);
+                }
+            } catch (error) {
+                console.error('Error fetching tables:', error);
+            }
+        });
+    </script>
+</body>
+</html>

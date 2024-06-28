@@ -1,6 +1,8 @@
 const nodemailer = require('nodemailer');
 const http = require('http');
 const fs = require('fs');
+const pdf = require('html-pdf');
+const ejs = require('ejs');
 const mysql = require('mysql2');
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -9,18 +11,15 @@ const pool = require('./db.js'); // Import the connection pool
 const { sessionMiddleware, isAuthenticated, isAdmin } = require('./sessionConfig'); // Adjust the path as needed
 const app = express();
 app.use(sessionMiddleware);
-
-
 // Middleware to parse JSON data
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-
 // Function to generate a unique 16-digit ID
 function generateUniqueId() {
     return Math.floor(Math.random() * 1e16).toString().padStart(16, '0');
 }
 // Function to send email
-function sendEmail(recipients) {
+function sendEmail(recipients, pdfPath, callback) {
     // Create a transporter
     const transporter = nodemailer.createTransport({
         service: 'gmail',
@@ -30,21 +29,27 @@ function sendEmail(recipients) {
         }
     });
 
-    // Setup email data
     const mailOptions = {
-        from: 'Yassir.nini27@gmail.com',
-        to: recipients.join(','), // Convert array of emails to comma-separated string
-        subject: 'Rota Updated',
-        text: 'The rota has been updated successfully.'
+        from: 'your-email@example.com',
+        to: recipients.join(','),
+        subject: 'Rota Table Published',
+        text: 'Please find the attached rota table.',
+        attachments: [
+            {
+                filename: 'rota.pdf',
+                path: pdfPath,
+                contentType: 'application/pdf'
+            }
+        ]
     };
 
-    // Send email
     transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
             console.error('Error sending email:', error);
-        } else {
-            console.log('Email sent:', info.response);
+            return callback(error);
         }
+        console.log('Email sent:', info.response);
+        callback(null, info);
     });
 }
 app.delete('/deleteTimeFrame', (req, res) => {
@@ -133,32 +138,57 @@ app.post('/saveData', (req, res) => {
     // Send a success response after all rows have been processed
     res.status(200).send(operationMessages.join('\n'));
 });
+// Helper function to group and merge time frames for the same person on the same day
+function groupAndMergeRotaData(data) {
+    const groupedData = {};
+
+    data.forEach(row => {
+        const key = `${row.name}-${row.lastName}-${row.day}`;
+        if (!groupedData[key]) {
+            groupedData[key] = {
+                name: row.name,
+                lastName: row.lastName,
+                day: row.day,
+                designation: row.designation,
+                timeFrames: []
+            };
+        }
+        groupedData[key].timeFrames.push({ startTime: row.startTime, endTime: row.endTime });
+    });
+
+    return Object.values(groupedData).map(entry => {
+        const { name, lastName, day, designation, timeFrames } = entry;
+        const mergedTimeFrames = timeFrames.map(tf => `${tf.startTime} - ${tf.endTime}`).join(', ');
+        return { name, lastName, day, timeFrames: mergedTimeFrames, designation };
+    });
+}
+// Modify the submitData endpoint to process the data before rendering the PDF
 app.post('/submitData', (req, res) => {
     console.log('Request Body:', req.body);
     const tableData = req.body;
+
+    const groupedData = groupAndMergeRotaData(tableData);
+
     const insertQuery = 'INSERT INTO rota (id, name, lastName, wage, day, startTime, endTime, designation) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
     const updateQuery = 'UPDATE rota SET name = ?, lastName = ?, wage = ?, day = ?, startTime = ?, endTime = ?, designation = ? WHERE id = ?';
     const updateByNameDayQuery = 'UPDATE rota SET wage = ?, designation = ? WHERE name = ? AND lastName = ? AND day = ? AND startTime = ? AND endTime = ?';
 
-    // Initialize an array to collect messages
     const operationMessages = [];
 
     tableData.forEach(row => {
         const id = generateUniqueId();
         const { name, lastName, wage, day, startTime, endTime, designation } = row;
 
-        // Check for existing record based on id
         pool.query('SELECT id FROM rota WHERE id = ?', [id], (checkIdErr, checkIdResult) => {
             if (checkIdErr) {
-                console.error('Error checking data by ID in the main database:', checkIdErr);
+                console.error('Error checking data by ID:', checkIdErr);
                 return res.status(500).send('Error saving data');
             }
 
             if (checkIdResult.length > 0) {
-                // If the record with the same id exists, update it
                 pool.query(updateQuery, [name, lastName, wage, day, startTime, endTime, designation, id], (updateIdErr, updateIdResult) => {
                     if (updateIdErr) {
-                        console.error('Error updating data by ID in the main database:', updateIdErr);
+                        console.error('Error updating data by ID:', updateIdErr);
                         return res.status(500).send('Error saving data');
                     } else {
                         console.log(`Record with ID ${id} updated.`);
@@ -166,18 +196,16 @@ app.post('/submitData', (req, res) => {
                     }
                 });
             } else {
-                // Check for existing record based on name, lastName, day, startTime, and endTime
                 pool.query('SELECT id FROM rota WHERE name = ? AND lastName = ? AND day = ? AND startTime = ? AND endTime = ?', [name, lastName, day, startTime, endTime], (checkNameDayErr, checkNameDayResult) => {
                     if (checkNameDayErr) {
-                        console.error('Error checking data by name, day, startTime, and endTime in the main database:', checkNameDayErr);
+                        console.error('Error checking data by name, day, startTime, and endTime:', checkNameDayErr);
                         return res.status(500).send('Error saving data');
                     }
 
                     if (checkNameDayResult.length > 0) {
-                        // If the record with the same name, lastName, day, startTime, and endTime exists, update it
                         pool.query(updateByNameDayQuery, [wage, designation, name, lastName, day, startTime, endTime], (updateNameDayErr, updateNameDayResult) => {
                             if (updateNameDayErr) {
-                                console.error('Error updating data by name, day, startTime, and endTime in the main database:', updateNameDayErr);
+                                console.error('Error updating data by name, day, startTime, and endTime:', updateNameDayErr);
                                 return res.status(500).send('Error saving data');
                             } else {
                                 console.log(`Record for ${name} ${lastName} on ${day} from ${startTime} to ${endTime} updated.`);
@@ -185,10 +213,9 @@ app.post('/submitData', (req, res) => {
                             }
                         });
                     } else {
-                        // If the record with the same name, lastName, day, startTime, and endTime does not exist, insert a new record
                         pool.query(insertQuery, [id, name, lastName, wage, day, startTime, endTime, designation], (insertErr, insertResult) => {
                             if (insertErr) {
-                                console.error('Error inserting data into the main database:', insertErr);
+                                console.error('Error inserting data:', insertErr);
                                 return res.status(500).send('Error saving data');
                             } else {
                                 console.log(`New record inserted with ID ${id}.`);
@@ -201,7 +228,7 @@ app.post('/submitData', (req, res) => {
         });
     });
 
-    // Get email addresses from the database
+    // Get email addresses from the database and generate PDF
     pool.query('SELECT email FROM Employees', (emailErr, emailResults) => {
         if (emailErr) {
             console.error('Error fetching emails from the database:', emailErr);
@@ -210,11 +237,31 @@ app.post('/submitData', (req, res) => {
 
         const recipients = emailResults.map(row => row.email);
 
-        // Send email to recipients
-        sendEmail(recipients);
+        // Render the rota table into HTML
+        ejs.renderFile('rotaTemplate.ejs', { rotaData: groupedData }, (renderErr, html) => {
+            if (renderErr) {
+                console.error('Error rendering EJS template:', renderErr);
+                return res.status(500).send('Error generating PDF');
+            }
+
+            // Generate PDF from HTML
+            pdf.create(html).toFile('./rota.pdf', (pdfErr, pdfRes) => {
+                if (pdfErr) {
+                    console.error('Error generating PDF:', pdfErr);
+                    return res.status(500).send('Error generating PDF');
+                }
+
+                // Send email with PDF attachment
+                sendEmail(recipients, pdfRes.filename, (emailErr, emailRes) => {
+                    if (emailErr) {
+                        return res.status(500).send('Error sending email');
+                    }
+                    // Send a success response after all rows have been processed
+                    res.status(200).send(operationMessages.join('\n'));
+                });
+            });
+        });
     });
-    // Send a success response after all rows have been processed
-    res.status(200).send(operationMessages.join('\n'));
 });
 // Route to retrieve data from the rota table
 app.get('/rota', (req, res) => {

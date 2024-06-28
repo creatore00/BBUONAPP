@@ -12,13 +12,11 @@ const { sessionMiddleware, isAuthenticated, isAdmin, isSupervisor } = require('.
 app.use(sessionMiddleware);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-
 app.get('/rota', (req, res) => {
     const startDate = req.query.startDate;
     if (!startDate) {
         return res.status(400).json({ success: false, message: 'Start date is required' });
     }
-
     const query = `
     SELECT 
         name,
@@ -41,29 +39,51 @@ app.get('/rota', (req, res) => {
         res.json(results);
     });
 });
-
 app.post('/submitPayslips', (req, res) => {
-    const payslipData = req.body;
-  
-    const insertQuery = `
-      INSERT INTO tip (name, lastName, totalHours, tip, day)
-      VALUES (?, ?, ?, ?, ?)
-    `;
-    
-    payslipData.forEach((entry, index) => {
-      pool.query(insertQuery, [entry.firstName, entry.lastName, entry.totalHours, entry.tip, entry.monthStart], (err) => {
-        if (err) {
-          console.error('Error inserting data:', err);
-          return res.status(500).send('Error inserting data');
-        }
-  
-        if (index === payslipData.length - 1) {
-          console.log('Data processed and saved successfully');
-          res.status(200).send('Data processed and saved successfully');
-        }
+  const payslipData = req.body;
+
+  const checkQuery = 'SELECT COUNT(*) AS count FROM tip WHERE day = ?';
+  const insertQuery = `
+    INSERT INTO tip (name, lastName, totalHours, tip, day)
+    VALUES (?, ?, ?, ?, ?)
+  `;
+
+  let duplicateFound = false;
+
+  payslipData.forEach((entry, index) => {
+      // Check for existing data for the day
+      pool.query(checkQuery, [entry.monthStart], (err, results) => {
+          if (err) {
+              console.error('Error checking for existing data:', err);
+              return res.status(500).send('Error checking for existing data');
+          }
+
+          if (results[0].count > 0) {
+              // If data for the day already exists, send a response and set duplicateFound to true
+              duplicateFound = true;
+              if (index === payslipData.length - 1) {
+                  return res.status(409).send(`Tip for the day ${entry.monthStart} has already been inserted`);
+              }
+          } else {
+              // If no duplicate found, proceed with insertion
+              if (!duplicateFound) {
+                  pool.query(insertQuery, [entry.firstName, entry.lastName, entry.totalHours, entry.tip, entry.monthStart], (err) => {
+                      if (err) {
+                          console.error('Error inserting data:', err);
+                          return res.status(500).send('Error inserting data');
+                      }
+
+                      if (index === payslipData.length - 1) {
+                          console.log('Data processed and saved successfully');
+                          res.status(200).send('Data processed and saved successfully');
+                      }
+                  });
+              }
+          }
       });
-    });
+  });
 });
+
 app.get('/', isAuthenticated, (req, res) => {
   if (req.session.user.role === 'admin') {
       res.sendFile(path.join(__dirname, 'Tip.html'));

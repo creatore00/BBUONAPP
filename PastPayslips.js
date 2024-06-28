@@ -7,7 +7,6 @@ const { sessionMiddleware, isAuthenticated, isAdmin, isSupervisor, isUser } = re
 app.use(sessionMiddleware);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-
 // Endpoint to fetch payslips data
 app.get('/api/payslips', (req, res) => {
     if (!req.session.user) {
@@ -23,7 +22,6 @@ app.get('/api/payslips', (req, res) => {
         res.json(results);
     });
 });
-
 // Endpoint to download a specific payslip file
 app.get('/api/download-file/:id', (req, res) => {
   const payslipId = req.params.id;

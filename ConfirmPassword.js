@@ -45,7 +45,7 @@ app.post('/', async (req, res) => {
                   return res.status(500).json({ error: 'Error updating password in the database' });
               }
               console.log('Password Saved');
-              return res.redirect('http://localhost:8080');
+              return res.redirect('/');
           });
       });
   } catch (err) {

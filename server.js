@@ -19,6 +19,7 @@ const confirmrota = require('./ConfirmRota.js');
 const profile = require('./Profile.js');
 const UserTotalHours = require('./UserTotalHours.js');
 const insertpayslip = require('./InsertPayslip.js');
+const modify = require('./Modify.js');
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
@@ -49,6 +50,7 @@ app.use('/confirmrota', confirmrota);
 app.use('/profile', profile);
 app.use('/UserTotalHours', UserTotalHours);
 app.use('/insertpayslip', insertpayslip);
+app.use('/modify', modify);
 // Middleware to parse JSON data
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

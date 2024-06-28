@@ -85,7 +85,7 @@ app.post('/', (req, res) => {
 
   // Send password reset link to the provided email address
 
-    const resetLink = `http://100.75.152.16:5001/Token.html`;
+    const resetLink = `https://bbuonapp-6fbdf6c6d835.herokuapp.com/token`;
 
   const transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -113,7 +113,7 @@ app.post('/', (req, res) => {
         if (err) {
           return res.status(500).json({ error: 'Error 500' });//inserting token into the database
         }
-        return res.redirect('http://localhost:8080');
+        return res.redirect('/Admin.html');
       });
     }
   });

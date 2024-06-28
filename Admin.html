@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
-    <link rel="icon" type="image/x-icon" href="/icon.jpg">
+    <link rel="icon" href="/icon.png" type="image/png">
     <style>
         body {
             background: linear-gradient(135deg, #4A90E2 0%, #B0E0E6 100%);
@@ -230,6 +230,7 @@
                 <a href="/TotalHolidays">Holidays Report</a>
                 <a href="/insertpayslip">Upload Payslips</a>
                 <a href="/pastpayslips">Past Payslips</a>
+                <a href="/modify">Modify Data</a>
                 <a href="#" id="logoutBtn">Logout</a>
             </div>
         </div>
@@ -306,7 +307,7 @@ const resetInactivityTimer = () => {
     inactivityTimer = setTimeout(() => {
         alert('You have been logged out due to inactivity.');
         window.location.href = '/logout'; // Replace with your logout route
-    }, 5 * 60 * 1000); // 5 minutes in milliseconds
+    }, 60 * 60 * 1000); // 5 minutes in milliseconds
 };
 // Track user activity
 window.onload = resetInactivityTimer;

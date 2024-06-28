@@ -40,7 +40,7 @@ function deleteExpiredTokens() {
   tokens.forEach((value, key) => {
     if (value.expirationTime <= currentTime) {
       tokens.delete(key);
-      const sql = 'DELETE FROM users WHERE Token = ?';
+      const sql = 'DELETE Token FROM users WHERE Token = ?';
       pool.query(sql, [key], (err, results) => {
         if (err) {
           console.error('Error deleting expired token from the database:', err);
@@ -51,7 +51,6 @@ function deleteExpiredTokens() {
     }
   });
 }
-
 // Schedule the deletion of expired tokens every ten minutes
 setInterval(deleteExpiredTokens, 600000); // 10 minutes = 600000 milliseconds
 
@@ -75,7 +74,7 @@ app.post('/', (req, res) => {
       tokens.set(token, { expirationTime });
 
       // Send password reset link to the provided email address
-      const resetLink = `http://100.75.152.16:5001/Token.html`;
+      const resetLink = `https://bbuonapp-6fbdf6c6d835.herokuapp.com/token`;
       const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
@@ -87,7 +86,9 @@ app.post('/', (req, res) => {
         from: 'Yassir.nini27@gmail.com',
         to: email,
         subject: 'Password Reset Link',
-        text: `Click the link to reset your password: ${resetLink} This is your token for security measures ${token}`
+        text: `Click the link to reset your password: ${resetLink} 
+This is your Token for security measures: ${token}
+Please insert it in the requested page`
       };
       transporter.sendMail(mailOptions, (error, info) => {
         if (error) {

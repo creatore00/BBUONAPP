@@ -104,6 +104,32 @@
 window.onload = function () {
             handleMonthSelection(); // Fetch data for the current month on page load
         }
+// Function to calculate average hours worked per day
+function calculateAverageHours(employeeName, employeeLastName) {
+    const threeMonthsAgo = new Date();
+    threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+    const rotaStartDate = threeMonthsAgo.toISOString().split('T')[0];
+    
+    return fetch(`/TotalHolidays/rota?name=${employeeName}&lastName=${employeeLastName}&startDate=${rotaStartDate}&endDate=${endDate}`)
+        .then(response => response.json())
+        .then(rotaData => {
+            const totalDays = rotaData.length;
+            if (totalDays === 0) {
+                return 0; // Return 0 if no data found
+            }
+            const totalHours = rotaData.reduce((sum, entry) => {
+                const startTime = new Date(`2000-01-01T${entry.startTime}`);
+                const endTime = new Date(`2000-01-01T${entry.endTime}`);
+                const hoursWorked = (endTime - startTime) / (1000 * 60 * 60);
+                return sum + hoursWorked;
+            }, 0);
+            return totalHours / totalDays; // Return average hours worked per day
+        })
+        .catch(error => {
+            console.error('Error calculating average hours:', error);
+            return 0; // Return 0 in case of error
+        });
+}
 function fetchDataForMonth(startDate, endDate) {
     fetch(`/TotalHolidays/rota?startDate=${startDate}&endDate=${endDate}`)
         .then(response => response.json())
@@ -111,6 +137,8 @@ function fetchDataForMonth(startDate, endDate) {
             console.log('Rota data:', rotaData);
             const tableBody = document.getElementById('tableBody');
             const employeeData = {};
+
+            // Process rota data to calculate total hours worked
             rotaData.forEach(entry => {
                 if (!employeeData[entry.name]) {
                     employeeData[entry.name] = {
@@ -118,7 +146,8 @@ function fetchDataForMonth(startDate, endDate) {
                         lastName: entry.lastName,
                         wage: entry.wage,
                         totalHours: 0,
-                        totalDaysOnHoliday: 0
+                        totalDaysOnHoliday: 0,
+                        costPerDay: 0
                     };
                 }
                 const startTime = new Date(`2000-01-01T${entry.startTime}`);
@@ -127,46 +156,69 @@ function fetchDataForMonth(startDate, endDate) {
                 employeeData[entry.name].totalHours += hoursWorked;
             });
 
+            // Fetch holiday data
             fetch(`/TotalHolidays/holiday?startDate=${startDate}&endDate=${endDate}`)
                 .then(response => response.json())
                 .then(holidayData => {
                     console.log('Holiday data:', holidayData);
+
+                    // Process each holiday data and calculate total days on holiday
                     holidayData.forEach(holiday => {
-                        const matchingEmployee = Object.values(employeeData).find(employee => {
-                            return employee.name === holiday.name && employee.lastName === holiday.lastName;
-                        });
+                        const matchingEmployee = employeeData[holiday.name];
                         if (matchingEmployee) {
                             const start = new Date(holiday.startDate);
                             const end = new Date(holiday.endDate);
                             const timeDifference = Math.abs(end.getTime() - start.getTime());
                             const totalDaysOnHoliday = Math.ceil(timeDifference / (1000 * 3600 * 24)) + 1;
                             matchingEmployee.totalDaysOnHoliday += totalDaysOnHoliday;
-                            // Retrieve wage from the employee data
-                            const wage = matchingEmployee.wage; // Assuming the wage is stored in the employee data
-                            // Calculate cost per day of holiday
-                            const costPerDay = wage * matchingEmployee.totalHours;
-                            matchingEmployee.costPerDay = costPerDay;
+
+                            // Calculate average hours and cost per day
+                            calculateAverageHours(matchingEmployee.name, matchingEmployee.lastName)
+                                .then(averageHours => {
+                                    if (averageHours > 0) {
+                                        const costPerDay = averageHours * matchingEmployee.wage;
+                                        matchingEmployee.costPerDay = costPerDay.toFixed(2);
+                                    } else {
+                                        matchingEmployee.costPerDay = 0; // Default to 0 if average hours calculation fails
+                                    }
+
+                                    // Update the table after all calculations are complete
+                                    updateTable(employeeData, tableBody);
+                                })
+                                .catch(error => {
+                                    console.error('Error calculating average hours:', error);
+                                    matchingEmployee.costPerDay = 0; // Default to 0 in case of error
+                                    updateTable(employeeData, tableBody); // Still update table on error
+                                });
                         }
                     });
 
-                    tableBody.innerHTML = '';
-                    Object.values(employeeData).forEach(employee => {
-                        if (employee.totalDaysOnHoliday > 0) {
-                            const row = document.createElement('tr');
-                            row.innerHTML = `
-                                <td>${employee.name}</td>
-                                <td>${employee.lastName}</td>
-                                <td>${employee.wage}</td>
-                                <td>${employee.totalHours}</td>
-                                <td>${employee.totalDaysOnHoliday}</td>
-                                <td>${employee.costPerDay}</td>`;
-                            tableBody.appendChild(row);
-                        }
-                    });
+                    // Update the table if there are no holiday entries
+                    if (holidayData.length === 0) {
+                        updateTable(employeeData, tableBody);
+                    }
                 })
                 .catch(error => console.error('Error fetching holiday data:', error));
         })
         .catch(error => console.error('Error fetching rota data:', error));
+}
+
+// Function to update the table with employee data
+function updateTable(employeeData, tableBody) {
+    tableBody.innerHTML = '';
+    Object.values(employeeData).forEach(employee => {
+        if (employee.totalDaysOnHoliday > 0) {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${employee.name}</td>
+                <td>${employee.lastName}</td>
+                <td>${employee.wage}</td>
+                <td>${employee.totalHours.toFixed(2)}</td>
+                <td>${employee.totalDaysOnHoliday}</td>
+                <td>${employee.costPerDay}</td>`;
+            tableBody.appendChild(row);
+        }
+    });
 }
 function handleMonthSelection() {
             const selectedMonth = document.getElementById('monthSelector').value;

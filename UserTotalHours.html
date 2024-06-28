@@ -206,23 +206,26 @@
 </head>
 <body>
     <h1>Work Hours Summary</h1>
-    <label class="text" for="weekStart"></label>
-    <input type="date" class="date" id="weekStart">
-    <button class="btn1" onclick="loadRota()">Load Week</button>
+    <label class="text" for="monthStart">Select Month:</label>
+    <input type="month" class="month" id="monthStart">
+    <button class="btn1" onclick="loadRota()">Load Month</button>
     <div id="hoursSummary">
         <!-- Total hours and name will be displayed here -->
     </div>
     <footer>
-        <button class="btn1" onclick="navigateWeek(-1)">Previous Week</button>
-        <button class="btn1" onclick="navigateWeek(1)">Next Week</button>
+        <button class="btn1" onclick="navigateMonth(-1)">Previous Month</button>
+        <button class="btn1" onclick="navigateMonth(1)">Next Month</button>
     </footer>
 
     <script>
         function loadRota() {
-            const weekStart = document.getElementById('weekStart').value;
-            const startDate = getMonday(new Date(weekStart));
+            const monthStart = document.getElementById('monthStart').value;
+            if (!monthStart) {
+                alert('Please select a month.');
+                return;
+            }
 
-            fetch(`/UserTotalHours/rota?startDate=${startDate.toISOString().split('T')[0]}`)
+            fetch(`/UserTotalHours/rota?month=${monthStart}`)
                 .then(response => response.json())
                 .then(data => {
                     const totalHours = calculateTotalHours(data);
@@ -233,7 +236,7 @@
 
         function calculateTotalHours(data) {
             const totalHours = { FOH: {}, BOH: {} }; // Group hours by FOH and BOH
-            let total = 0; // Total hours worked for the entire week
+            let total = 0; // Total hours worked for the entire month
 
             data.forEach(entry => {
                 const name = entry.name + ' ' + entry.lastName;
@@ -241,7 +244,7 @@
                 const startTime = new Date(`1970-01-01T${entry.startTime}Z`);
                 const endTime = new Date(`1970-01-01T${entry.endTime}Z`);
                 const hoursWorked = (endTime - startTime) / (1000 * 60 * 60); // Convert milliseconds to hours
-                total += hoursWorked; // Accumulate total hours worked for the week
+                total += hoursWorked; // Accumulate total hours worked for the month
 
                 // Initialize the designation group if not present
                 if (!totalHours[designation]) {
@@ -255,7 +258,7 @@
                 totalHours[designation][name] += hoursWorked; // Accumulate hours worked for the person
             });
 
-            return { totalHours, total }; // Return an object containing total hours per person and total hours for the week
+            return { totalHours, total }; // Return an object containing total hours per person and total hours for the month
         }
 
         function displayTotalHours(totalHours) {
@@ -289,37 +292,29 @@
             container.dataset.totalHours = totalHours.total; // Store total hours in dataset for later use
         }
 
-        function navigateWeek(offset) {
-            const weekStart = document.getElementById('weekStart').value;
-            if (!weekStart) {
+        function navigateMonth(offset) {
+            const monthStart = document.getElementById('monthStart').value;
+            if (!monthStart) {
                 alert('Please select a start date.');
                 return;
             }
 
-            const currentStartDate = new Date(weekStart);
-            const newStartDate = new Date(currentStartDate);
-            newStartDate.setDate(currentStartDate.getDate() + (offset * 7));
+            const currentStartDate = new Date(monthStart + '-01');
+            const newStartDate = new Date(currentStartDate.getFullYear(), currentStartDate.getMonth() + offset, 1);
 
-            document.getElementById('weekStart').value = newStartDate.toISOString().split('T')[0];
+            document.getElementById('monthStart').value = newStartDate.toISOString().split('T')[0].slice(0, 7);
             loadRota();
         }
 
-        function getMonday(date) {
-            date = new Date(date);
-            const day = date.getDay();
-            const diff = date.getDate() - day + (day === 0 ? -6 : 1); // Adjust when day is Sunday
-            return new Date(date.setDate(diff));
-        }
-
-        function setCurrentWeek() {
+        function setCurrentMonth() {
             const today = new Date();
-            const monday = getMonday(today);
-            document.getElementById('weekStart').value = monday.toISOString().split('T')[0];
+            const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+            document.getElementById('monthStart').value = monthStart.toISOString().split('T')[0].slice(0, 7);
             loadRota();
         }
 
-        document.getElementById('weekStart').addEventListener('change', loadRota);
-        window.onload = setCurrentWeek;
+        document.getElementById('monthStart').addEventListener('change', loadRota);
+        window.onload = setCurrentMonth;
     </script>
 </body>
 </html>

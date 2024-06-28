@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Rota Table</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h2>Rota Table</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Last Name</th>
+                <th>Day</th>
+                <th>Shift</th>
+                <th>Designation</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% rotaData.forEach(row => { %>
+                <tr>
+                    <td><%= row.name %></td>
+                    <td><%= row.lastName %></td>
+                    <td><%= row.day %></td>
+                    <td><%= row.timeFrames %></td>
+                    <td><%= row.designation %></td>
+                </tr>
+            <% }); %>
+        </tbody>
+    </table>
+</body>
+</html>

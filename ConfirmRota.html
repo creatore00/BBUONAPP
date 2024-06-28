@@ -149,7 +149,6 @@
                 <th>Day</th>
                 <th>Name</th>
                 <th>Last Name</th>
-                <th>Wage</th>
                 <th>Designation</th>
                 <th>Start and End Times</th>
             </tr>
@@ -237,10 +236,6 @@ function getTodayDate() {
                     const lastNameCell = document.createElement('td');
                     lastNameCell.textContent = entry.lastName;
                     row.appendChild(lastNameCell);
-
-                    const wageCell = document.createElement('td');
-                    wageCell.textContent = entry.wage;
-                    row.appendChild(wageCell);
 
                     const designationCell = document.createElement('td');
                     designationCell.textContent = entry.designation;
