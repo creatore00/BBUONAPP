@@ -3,7 +3,7 @@ const session = require('express-session');
 const MySQLStore = require('express-mysql-session')(session);
 const pool = require('./db.js'); // Adjust the path as needed
 const sessionStore = new MySQLStore({
-    expiration: 5 * 60 * 1000, // 5 minutes (session timeout)
+    expiration: 60 * 60 * 1000, // 5 minutes (session timeout)
     schema: {
         tableName: 'sessions'
     },
