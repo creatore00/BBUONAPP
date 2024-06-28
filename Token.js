@@ -39,7 +39,7 @@ app.get('/', (req, res) => {
     res.sendFile(__dirname + '/Token.html');
 });
 app.get('/confirmpassword', (req, res) => {
-  res.sendFile(__dirname + '/confirmpassword');
+  res.sendFile(__dirname + '/ConfirmPassword.html');
 });
 app.get('/WrongToken.html', (req, res) => {
   res.sendFile(__dirname + '/WrongToken.html');
