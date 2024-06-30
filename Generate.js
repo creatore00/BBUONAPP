@@ -69,13 +69,11 @@ app.post('/', (req, res) => {
             });
           }
           // Schedule the deletion of expired tokens every ten minutes
-        setInterval(deleteExpiredTokens, 600000); // 10 minutes = 600000 milliseconds
-        
+          setInterval(deleteExpiredTokens, 60000); // Check every 1 minute = 60000 milliseconds        
   // Generate a random token
   const token = generateToken();
   const expirationTime = new Date();
-  expirationTime.setMinutes(expirationTime.getMinutes() + 10); // Expires in 10 minutes
-
+  expirationTime.setUTCMinutes(expirationTime.getUTCMinutes() + 10); // Expires in 10 minutes in UTC  
   // Store token in the database
   tokens.set(token, { email, expirationTime }, userType);
 
@@ -126,4 +124,4 @@ app.get('/Token.html', isAuthenticated, isAdmin, (req, res) => {
 app.get('/Admin.html', isAuthenticated, isAdmin, (req, res) => {
     res.sendFile(__dirname + '/Admin.html');
   });
-  module.exports = app; // Export the entire Express application
+module.exports = app; // Export the entire Express application
