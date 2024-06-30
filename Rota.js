@@ -24,13 +24,13 @@ function sendEmail(recipients, pdfPath, callback) {
     const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
-            user: 'Yassir.nini27@gmail.com',
-            pass: 'oxih iwuk crfq ghjk'
+      user: 'oxfordbbuona@gmail.com',
+      pass: 'vkav xtuc ufwz sphn'
         }
     });
 
     const mailOptions = {
-        from: 'your-email@example.com',
+        from: 'oxfordbbuona@gmail.com',
         to: recipients.join(','),
         subject: 'Rota Table Published',
         text: 'Please find the attached rota table.',
@@ -166,7 +166,6 @@ function groupAndMergeRotaData(data) {
 app.post('/submitData', (req, res) => {
     console.log('Request Body:', req.body);
     const tableData = req.body;
-
     const groupedData = groupAndMergeRotaData(tableData);
 
     const insertQuery = 'INSERT INTO rota (id, name, lastName, wage, day, startTime, endTime, designation) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
@@ -229,7 +228,7 @@ app.post('/submitData', (req, res) => {
     });
 
     // Get email addresses from the database and generate PDF
-    pool.query('SELECT email FROM Employees', (emailErr, emailResults) => {
+    pool.query('SELECT email FROM users', (emailErr, emailResults) => {
         if (emailErr) {
             console.error('Error fetching emails from the database:', emailErr);
             return res.status(500).send('Error sending emails');

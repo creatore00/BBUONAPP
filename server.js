@@ -1,6 +1,7 @@
 const express = require('express');
 const mysql = require('mysql2');
 const bodyParser = require('body-parser');
+const cron = require('node-cron');
 const newRota = require('./Rota.js');
 const confirmpassword = require('./ConfirmPassword.js'); 
 const token = require('./Token.js');
@@ -55,18 +56,44 @@ app.use('/modify', modify);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(sessionMiddleware);
+// Cron job to run on the 1st day of every month at midnight (00:00)
+cron.schedule('0 0 1 * *', async () => {
+  try {
+      // Connect to the MySQL database
+      await connection.connect();
+
+      // Query to update Accrued column for all employees
+      const updateQuery = `
+          UPDATE Employees
+          SET Accrued = Accrued + 2.333
+      `;
+
+      // Execute the update query
+      await connection.execute(updateQuery);
+
+      console.log('Accrued column updated for all employees.');
+
+  } catch (error) {
+      console.error('Error updating Accrued column:', error);
+  } finally {
+      // Close the database connection
+      await connection.end();
+  }
+}, {
+  scheduled: true,
+  timezone: 'Europe/London' // Specify your timezone (e.g., 'America/New_York')
+});
 // Route to handle login
 app.post('/', (req, res) => {
-  const { email, password } = req.body;
-
-  // Query the database to check if the email belongs to an admin or a user
-  const sql = `
+const { email, password } = req.body;
+// Query the database to check if the email belongs to an admin or a user
+const sql = `
     SELECT u.Access, u.Password, u.Email, e.name, e.lastName
     FROM users u
     JOIN Employees e ON u.Email = e.email
     WHERE u.Email = ?
   `;
-  pool.query(sql, [email], async (err, results) => {
+pool.query(sql, [email], async (err, results) => {
       if (err) {
           console.error('Error querying database:', err);
           return res.status(500).json({ error: 'Internal Server Error' });
@@ -136,7 +163,6 @@ app.post('/getRota', (req, res) => {
       }
   });
 });
-
 // API endpoint to get rota data for a specific day
 app.get('/api/rota', (req, res) => {
   const day = req.query.day;

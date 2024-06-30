@@ -18,14 +18,14 @@ function sendEmail(recipients, message) {
     const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
-            user: 'Yassir.nini27@gmail.com',
-            pass: 'oxih iwuk crfq ghjk'
+      user: 'oxfordbbuona@gmail.com',
+      pass: 'vkav xtuc ufwz sphn'
         }
     });
 
 // Setup email data
 const mailOptions = {
-    from: 'Yassir.nini27@gmail.com',
+    from: 'oxfordbbuona@gmail.com',
     to: recipients.join(','), // Convert array of emails to comma-separated string
     subject: 'Updates on your Holiday Request',
     text: message // Include the message retrieved from the request body

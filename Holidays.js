@@ -17,8 +17,8 @@ app.use(express.urlencoded({ extended: true }));
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: 'Yassir.nini27@gmail.com',
-        pass: 'oxih iwuk crfq ghjk'
+      user: 'oxfordbbuona@gmail.com',
+      pass: 'vkav xtuc ufwz sphn'
       }
 });
 
@@ -46,7 +46,7 @@ function sendEmailNotification() {
         }
 
         const mailOptions = {
-            from: 'Yassir.nini27@gmail.com',
+            from: 'oxfordbbuona@gmail.com',
             to: emails.join(','),
             subject: 'New Request',
             text: 'Please visit Requests Page, You have new Requests needing your Action'

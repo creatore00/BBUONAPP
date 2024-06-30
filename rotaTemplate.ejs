@@ -3,17 +3,28 @@
 <head>
     <title>Rota Table</title>
     <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh; /* Ensure full viewport height */
+            margin: 0 auto; /* Remove default margin */
+            font-family: Arial, sans-serif; /* Optional: Choose a readable font */
+        }
         table {
             width: 100%;
             border-collapse: collapse;
+            margin-top: 20px; /* Adjust as needed */
+            font-size: 9px; /* Smaller font size */
         }
         th, td {
             border: 1px solid black;
             padding: 8px;
             text-align: left;
+            font-size: 12px; /* Smaller font size */
         }
-        th {
-            background-color: #f2f2f2;
+        h2 {
+            text-align: center;
         }
     </style>
 </head>
@@ -23,21 +34,30 @@
         <thead>
             <tr>
                 <th>Name</th>
-                <th>Last Name</th>
-                <th>Day</th>
-                <th>Shift</th>
-                <th>Designation</th>
+                <th>Role</th>
+                <% let uniqueDays = []; %>
+                <% rotaData.forEach(row => { %>
+                    <% if (!uniqueDays.includes(row.day)) { %>
+                        <th><%= row.day %></th>
+                        <% uniqueDays.push(row.day); %>
+                    <% } %>
+                <% }); %>
             </tr>
         </thead>
         <tbody>
+            <% let printedNames = []; %>
             <% rotaData.forEach(row => { %>
-                <tr>
-                    <td><%= row.name %></td>
-                    <td><%= row.lastName %></td>
-                    <td><%= row.day %></td>
-                    <td><%= row.timeFrames %></td>
-                    <td><%= row.designation %></td>
-                </tr>
+                <% if (!printedNames.includes(row.name)) { %>
+                    <% printedNames.push(row.name); %>
+                    <tr>
+                        <td><%= row.name %> <%= row.lastName %></td>
+                        <td><%= row.designation %></td>
+                        <% uniqueDays.forEach(day => { %>
+                            <% const matchingShift = rotaData.find(r => r.name === row.name && r.day === day); %>
+                            <td><%= matchingShift ? matchingShift.timeFrames : '' %></td>
+                        <% }); %>
+                    </tr>
+                <% } %>
             <% }); %>
         </tbody>
     </table>

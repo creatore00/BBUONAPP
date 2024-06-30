@@ -12,17 +12,13 @@ app.use(sessionMiddleware);
 // Middleware to parse JSON data
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
 // In-memory database for storing password reset tokens
 const tokens = new Map();
-
 // Function to generate a random token
 function generateToken() {
   return Math.random().toString(36).substr(2);
 }
-
 // Function to insert token into the database
-
 app.post('/', (req, res) => {
     console.log('Request Body:', req.body);
     const { email, userType } = req.body;
@@ -61,7 +57,7 @@ app.post('/', (req, res) => {
             tokens.forEach((value, key) => {
               if (value.expirationTime <= currentTime) {
                 tokens.delete(key);
-                const sql = 'DELETE FROM users WHERE Token = ?';
+                const sql = 'DELETE Token FROM users WHERE Token = ?';
                 pool.query(sql, [key], (err, results) => {
                   if (err) {
                     console.error('Error deleting expired token from the database:', err);
@@ -87,22 +83,20 @@ app.post('/', (req, res) => {
 
     const resetLink = `https://bbuonapp-6fbdf6c6d835.herokuapp.com/token`;
 
-  const transporter = nodemailer.createTransport({
+const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-      user: 'Yassir.nini27@gmail.com',
-      pass: 'oxih iwuk crfq ghjk'
+      user: 'oxfordbbuona@gmail.com',
+      pass: 'vkav xtuc ufwz sphn'
     }
   });
-
-  const mailOptions = {
-    from: 'Yassir.nini27@gmail.com',
+const mailOptions = {
+    from: 'oxfordbbuona@gmail.com',
     to: email,
     subject: 'Password Reset Link',
     text: `Click the link to reset your password: ${resetLink} This is your token for security measures ${token}`
   };
-
-  transporter.sendMail(mailOptions, (error, info) => {
+transporter.sendMail(mailOptions, (error, info) => {
     if (error) {
       console.log('Error sending email:', error);
       return res.status(500).json({ error: 'Error sending email' });
