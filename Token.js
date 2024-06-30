@@ -1,14 +1,13 @@
 const express = require('express');
 const mysql = require('mysql2');
 const bodyParser = require('body-parser');
-const confirmpassword = require('./ConfirmPassword.js');
+const confirmpassword = require('./ConfirmPassword.js'); 
 const server = require('./server.js');
 const http = require('http');
 const pool = require('./db.js'); // Import the connection pool
 
 const app = express();
 app.use('/confirmpassword', confirmpassword);
-
 // Middleware to parse JSON data
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -27,26 +26,23 @@ app.post('/', (req, res) => {
     }
     if (results.length === 0) {
       // Token does not exist, redirect to error page
-      return res.redirect('https://bbuonapp-6fbdf6c6d835.herokuapp.com/WrongToken.html');
+      return res.redirect('/WrongToken.html');
     } else {
       // Token exists, redirect to success page
-      return res.redirect('https://bbuonapp-6fbdf6c6d835.herokuapp.com/confirmpassword');
+      return res.redirect('/confirmpassword');
     }
   });
 });
 
 // Route to serve Token.html
 app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/Token.html');
+    res.sendFile(__dirname + '/Token.html');
 });
-
-// Serve other static files or pages
 app.get('/confirmpassword', (req, res) => {
   res.sendFile(__dirname + '/ConfirmPassword.html');
 });
-
 app.get('/WrongToken.html', (req, res) => {
   res.sendFile(__dirname + '/WrongToken.html');
 });
-
 module.exports = app; // Export the entire Express application
+
