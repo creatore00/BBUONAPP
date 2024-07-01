@@ -71,7 +71,6 @@ app.get('/api/profile', isAuthenticated, (req, res) => {
         res.status(401).json({ message: 'User not authenticated' });
     }
 });
-
 // Route to update user password
 app.post('/api/update-password', isAuthenticated, (req, res) => {
     if (req.session.user) {

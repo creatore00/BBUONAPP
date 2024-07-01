@@ -5,8 +5,9 @@ const confirmpassword = require('./ConfirmPassword.js');
 const server = require('./server.js');
 const http = require('http');
 const pool = require('./db.js'); // Import the connection pool
-
+const { sessionMiddleware, isAuthenticated, isAdmin } = require('./sessionConfig'); // Adjust the path as needed
 const app = express();
+app.use(sessionMiddleware);
 app.use('/confirmpassword', confirmpassword);
 // Middleware to parse JSON data
 app.use(express.json());
@@ -18,7 +19,7 @@ app.post('/', (req, res) => {
   const { token } = req.body;
 
   // Query the database to check if the token exists
-  const sql = 'SELECT Token FROM users WHERE Token = ?';
+  const sql = 'SELECT Token, Email FROM users WHERE Token = ?';
   pool.query(sql, [token], (err, results) => {
     if (err) {
       console.error('Error querying database:', err);
@@ -28,7 +29,9 @@ app.post('/', (req, res) => {
       // Token does not exist, redirect to error page
       return res.redirect('/WrongToken.html');
     } else {
-      // Token exists, redirect to success page
+      // Token exists, store token and email in session, and redirect to password reset page
+      req.session.token = token;
+      req.session.email = results[0].Email;
       return res.redirect('/confirmpassword');
     }
   });

@@ -11,11 +11,16 @@ const { sessionMiddleware, isAuthenticated, isAdmin, isSupervisor, isUser } = re
 app.use(sessionMiddleware);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-
-// Route to get all holiday requests
+// Route to get all holiday requests for the logged-in user
 app.get('/holidays', (req, res) => {
-    // Query the database to get holiday requests
-    pool.query('SELECT * FROM Holiday WHERE accepted = "Accepted"', (err, results) => {
+    // Get the email from the session
+    const email = req.session.email;
+    if (!email) {
+        return res.status(401).send('Unauthorized: No session found');
+    }
+    // Query the database to get holiday requests for the logged-in user
+    const sql = 'SELECT * FROM Holiday WHERE accepted = "Accepted" AND email = ?';
+    pool.query(sql, [email], (err, results) => {
         if (err) {
             console.error('Error fetching holiday requests:', err);
             res.status(500).send('Error fetching holiday requests');
