@@ -228,7 +228,7 @@ app.post('/submitData', (req, res) => {
     });
 
     // Get email addresses from the database and generate PDF
-    pool.query('SELECT email FROM Employees', (emailErr, emailResults) => {
+    pool.query('SELECT email FROM users', (emailErr, emailResults) => {
         if (emailErr) {
             console.error('Error fetching emails from the database:', emailErr);
             return res.status(500).send('Error sending emails');

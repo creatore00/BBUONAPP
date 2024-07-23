@@ -7,7 +7,7 @@ const fs = require('fs');
 const path = require('path');
 const pool = require('./db.js'); // Import the connection pool
 const app = express();
-const { sessionMiddleware, isAuthenticated, isSupervisor, isUser } = require('./sessionConfig'); // Adjust the path as needed
+const { sessionMiddleware, isAuthenticated, isAdmin, isSupervisor, isUser } = require('./sessionConfig'); // Adjust the path as needed
 app.use(sessionMiddleware);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -32,6 +32,8 @@ app.get('/', isAuthenticated, (req, res) => {
     if (req.session.user.role === 'supervisor') {
         res.sendFile(path.join(__dirname, 'UserCRota.html'));
     } else if (req.session.user.role === 'user') {
+        res.sendFile(path.join(__dirname, 'UserCRota.html'));
+    } else if (req.session.user.role === 'admin') {
         res.sendFile(path.join(__dirname, 'UserCRota.html'));
     } else {
         res.status(403).json({ error: 'Access denied' });
