@@ -128,7 +128,7 @@ pool.query(sql, [email], async (err, results) => {
           if (role === 'admin') {
               // Redirect to the admin page with user info
               return res.redirect(`/Admin.html${queryString}`);
-          } else if (role === 'user') {
+          } if (role === 'user') {
               // Redirect to the user page with user info
               return res.redirect(`/User.html${queryString}`);
           } else if (role === 'supervisor') {

@@ -79,27 +79,73 @@ app.post('/confirm-rota', (req, res) => {
         return res.status(400).send('Invalid rota data.');
     }
 
+    const day = rotaData[0].day;
+
+    // Queries
+    const deleteQuery = 'DELETE FROM ConfirmedRota WHERE day = ?';
     const insertQuery = `
         INSERT INTO ConfirmedRota (name, lastName, wage, day, startTime, endTime, designation, who) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES ?
+    `;
+    const updateRotaQuery = `
+        UPDATE rota
+        SET startTime = ?, endTime = ?
+        WHERE name = ? AND lastName = ? AND designation = ? AND day = ?
     `;
 
-    try {
-        rotaData.forEach(entry => {
-            const { name, lastName, wage, day, startTime, endTime, designation } = entry;
-            pool.query(insertQuery, [name, lastName, wage, day, startTime, endTime, designation, userEmail], (err, result) => {
-                if (err) {
-                    console.error('Error inserting rota data:', err);
-                    return res.status(500).send('Internal Server Error');
-                }
-            });
+    // Prepare values to insert
+    const values = rotaData.flatMap(entry => {
+        const { name, lastName, wage, day, designation, times } = entry;
+        return times.map(time => {
+            const { startTime, endTime } = time;
+            return [name, lastName, wage, day, startTime, endTime, designation, userEmail];
         });
+    });
 
-        res.status(200).send('Rota confirmed successfully.');
-    } catch (error) {
-        console.error('Error processing rota data:', error);
-        res.status(500).send('Internal Server Error');
-    }
+    // Print values to be inserted into the database
+    console.log('Values to be inserted into ConfirmedRota:', values);
+
+    // Delete old entries for the given day
+    pool.query(deleteQuery, [day], (err) => {
+        if (err) {
+            console.error('Error deleting existing confirmed rota data:', err);
+            return res.status(500).send('Internal Server Error');
+        }
+
+        // Insert new or updated values into ConfirmedRota
+        pool.query(insertQuery, [values], (err, result) => {
+            if (err) {
+                console.error('Error inserting rota data:', err);
+                return res.status(500).send('Internal Server Error');
+            }
+
+            // Update the existing rota table with confirmed data
+            const updateTasks = rotaData.flatMap(entry => {
+                const { name, lastName, day, designation, times } = entry;
+                return times.map(time => {
+                    const { startTime, endTime } = time;
+                    return new Promise((resolve, reject) => {
+                        pool.query(updateRotaQuery, [startTime, endTime, name, lastName, designation, day], (err) => {
+                            if (err) {
+                                reject(err);
+                            } else {
+                                resolve();
+                            }
+                        });
+                    });
+                });
+            });
+
+            Promise.all(updateTasks)
+                .then(() => {
+                    res.status(200).send('Rota confirmed and updated successfully.');
+                })
+                .catch(err => {
+                    console.error('Error updating rota data:', err);
+                    res.status(500).send('Internal Server Error');
+                });
+        });
+    });
 });
 app.get('/logout', (req, res) => {
     // Check if there is an active session

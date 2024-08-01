@@ -145,12 +145,10 @@
 </head>
 <body>
     <h1>Confirm Rota</h1>
-    
     <!-- Date input field -->
     <label for="rotaDate">Select Date:</label>
     <input class="date" type="date" id="rotaDate">
     <button id="fetchRotaButton">Fetch Rota</button>
-
     <table id="rotaTable">
         <thead>
             <tr>
@@ -165,169 +163,227 @@
             <!-- Data will be inserted here by JavaScript -->
         </tbody>
     </table>
-
     <button class="btn" id="confirmButton">Confirm Rota</button>
+<script>
+    async function getRotaByDate(date) {
+    const response = await fetch(`/confirmrota/api/rota?day=${encodeURIComponent(date)}`);
+    if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    return await response.json();
+}
 
-    <script>
-        async function getRotaByDate(date) {
-            const response = await fetch(`/confirmrota/api/rota?day=${encodeURIComponent(date)}`);
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            return await response.json();
-        }
+function formatDateForDisplay(date) {
+    const [year, month, day] = date.split('-');
+    const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const dayOfWeek = daysOfWeek[new Date(date).getDay()];
+    return `${day}/${month}/${year} (${dayOfWeek})`;
+}
 
-        function formatDateForDisplay(date) {
-            const [year, month, day] = date.split('-');
-            const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-            const dayOfWeek = daysOfWeek[new Date(date).getDay()];
-            return `${day}/${month}/${year} (${dayOfWeek})`;
-        }
+async function populateTable(date) {
+    try {
+        const formattedDate = formatDateForDisplay(date);
+        const [rotaData, confirmedRotaData] = await Promise.all([getRotaByDate(formattedDate), getConfirmedRota()]);
 
-        async function populateTable(date) {
-            try {
-                const formattedDate = formatDateForDisplay(date);
-                const [rotaData, confirmedRotaData] = await Promise.all([getRotaByDate(formattedDate), getConfirmedRota()]);
+        const confirmedRotaSet = new Set(confirmedRotaData.map(entry => `${entry.name} ${entry.lastName} ${entry.designation} ${entry.startTime} ${entry.endTime}`));
 
-                const confirmedRotaSet = new Set(confirmedRotaData.map(entry => `${entry.name} ${entry.lastName} ${entry.designation} ${entry.startTime} ${entry.endTime}`));
+        const tableBody = document.querySelector('#rotaTable tbody');
+        tableBody.innerHTML = ''; // Clear existing rows
 
-                const tableBody = document.querySelector('#rotaTable tbody');
-                tableBody.innerHTML = ''; // Clear existing rows
+        if (rotaData.length === 0) {
+            const row = document.createElement('tr');
+            const cell = document.createElement('td');
+            cell.colSpan = 6;
+            cell.textContent = "No data for today.";
+            row.appendChild(cell);
+            tableBody.appendChild(row);
+        } else {
+            // Sort rotaData by designation (FOH first, then BOH)
+            rotaData.sort((a, b) => {
+                if (a.designation === 'FOH' && b.designation === 'BOH') return -1;
+                if (a.designation === 'BOH' && b.designation === 'FOH') return 1;
+                return 0;
+            });
 
-                if (rotaData.length === 0) {
+            // Group rotaData by name and designation
+            const groupedData = rotaData.reduce((acc, entry) => {
+                const key = `${entry.name} ${entry.lastName} ${entry.designation}`;
+                if (!acc[key]) {
+                    acc[key] = {
+                        day: entry.day,
+                        name: entry.name,
+                        lastName: entry.lastName,
+                        wage: entry.wage,
+                        designation: entry.designation,
+                        times: []
+                    };
+                }
+                acc[key].times.push({ startTime: entry.startTime, endTime: entry.endTime });
+                return acc;
+            }, {});
+
+            // Loop through each entry in groupedData
+            Object.values(groupedData).forEach(entry => {
+                const timesKey = entry.times.map(time => `${time.startTime} ${time.endTime}`).join(' ');
+                const uniqueKey = `${entry.name} ${entry.lastName} ${entry.designation} ${timesKey}`;
+
+                if (!confirmedRotaSet.has(uniqueKey)) { // Check if the entry is not in ConfirmedRota
                     const row = document.createElement('tr');
-                    const cell = document.createElement('td');
-                    cell.colSpan = 6;
-                    cell.textContent = "No data for today.";
-                    row.appendChild(cell);
+
+                    const dayCell = document.createElement('td');
+                    dayCell.textContent = entry.day;
+                    row.appendChild(dayCell);
+
+                    const nameCell = document.createElement('td');
+                    nameCell.textContent = entry.name;
+                    row.appendChild(nameCell);
+
+                    const lastNameCell = document.createElement('td');
+                    lastNameCell.textContent = entry.lastName;
+                    row.appendChild(lastNameCell);
+
+                    const designationCell = document.createElement('td');
+                    designationCell.textContent = entry.designation;
+                    row.appendChild(designationCell);
+
+                    const timesCell = document.createElement('td');
+                    entry.times.forEach((time, index) => {
+                        const startTimeInput = document.createElement('input');
+                        startTimeInput.type = 'time';
+                        startTimeInput.value = time.startTime;
+                        startTimeInput.dataset.timeIndex = index;
+                        startTimeInput.dataset.name = entry.name;
+                        startTimeInput.dataset.lastName = entry.lastName;
+                        startTimeInput.dataset.designation = entry.designation;
+                        startTimeInput.dataset.timeType = 'start'; // Attribute to distinguish start time
+                        startTimeInput.classList.add('time-input');
+
+                        const endTimeInput = document.createElement('input');
+                        endTimeInput.type = 'time';
+                        endTimeInput.value = time.endTime;
+                        endTimeInput.dataset.timeIndex = index;
+                        endTimeInput.dataset.name = entry.name;
+                        endTimeInput.dataset.lastName = entry.lastName;
+                        endTimeInput.dataset.designation = entry.designation;
+                        endTimeInput.dataset.timeType = 'end'; // Attribute to distinguish end time
+                        endTimeInput.classList.add('time-input');
+
+                        timesCell.appendChild(startTimeInput);
+                        timesCell.appendChild(document.createTextNode(' - '));
+                        timesCell.appendChild(endTimeInput);
+                        timesCell.appendChild(document.createElement('br'));
+                    });
+                    row.appendChild(timesCell);
+
                     tableBody.appendChild(row);
-                } else {
-                    // Sort rotaData by designation (FOH first, then BOH)
-                    rotaData.sort((a, b) => {
-                        if (a.designation === 'FOH' && b.designation === 'BOH') return -1;
-                        if (a.designation === 'BOH' && b.designation === 'FOH') return 1;
-                        return 0;
-                    });
+                }
+            });
+        }
+    } catch (error) {
+        console.error('Error fetching rota data:', error);
+    }
+}
 
-                    // Group rotaData by name and designation
-                    const groupedData = rotaData.reduce((acc, entry) => {
-                        const key = `${entry.name} ${entry.lastName} ${entry.designation}`;
-                        if (!acc[key]) {
-                            acc[key] = {
-                                day: entry.day,
-                                name: entry.name,
-                                lastName: entry.lastName,
-                                wage: entry.wage,
-                                designation: entry.designation,
-                                times: []
-                            };
-                        }
-                        acc[key].times.push(`${entry.startTime} - ${entry.endTime}`);
-                        return acc;
-                    }, {});
+async function getConfirmedRota() {
+    try {
+        const response = await fetch('/confirmrota/api/confirmed-rota');
+        return response.json();
+    } catch (error) {
+        console.error('Error fetching confirmed rota data:', error);
+    }
+}
 
-                    // Loop through each entry in groupedData
-                    Object.values(groupedData).forEach(entry => {
-                        const timesKey = entry.times.join(' ');
-                        const uniqueKey = `${entry.name} ${entry.lastName} ${entry.designation} ${timesKey}`;
+function confirmRota() {
+    try {
+        const dateInput = document.getElementById('rotaDate').value;
+        const tableRows = document.querySelectorAll('#rotaTable tbody tr');
 
-                        if (!confirmedRotaSet.has(uniqueKey)) { // Check if the entry is not in ConfirmedRota
-                            const row = document.createElement('tr');
+        // Extract data from the table rows
+        const formattedData = Array.from(tableRows).map(row => {
+            const day = row.querySelector('td:nth-child(1)').textContent;
+            const name = row.querySelector('td:nth-child(2)').textContent;
+            const lastName = row.querySelector('td:nth-child(3)').textContent;
+            const designation = row.querySelector('td:nth-child(4)').textContent;
 
-                            const dayCell = document.createElement('td');
-                            dayCell.textContent = entry.day;
-                            row.appendChild(dayCell);
+            // Select all time inputs for this entry
+            const timeInputs = row.querySelectorAll('input[data-name][data-last-name][data-designation]');
 
-                            const nameCell = document.createElement('td');
-                            nameCell.textContent = entry.name;
-                            row.appendChild(nameCell);
+            // Process time inputs
+            const times = Array.from(timeInputs).reduce((acc, input) => {
+                const timeIndex = input.dataset.timeIndex;
+                const timeType = input.dataset.timeType; // Retrieve the timeType (start or end)
 
-                            const lastNameCell = document.createElement('td');
-                            lastNameCell.textContent = entry.lastName;
-                            row.appendChild(lastNameCell);
-
-                            const designationCell = document.createElement('td');
-                            designationCell.textContent = entry.designation;
-                            row.appendChild(designationCell);
-
-                            const timesCell = document.createElement('td');
-                            timesCell.innerHTML = entry.times.join('<br>'); // Use <br> to insert new lines
-                            row.appendChild(timesCell);
-
-                            tableBody.appendChild(row);
-                        }
-                    });
+                if (!acc[timeIndex]) {
+                    acc[timeIndex] = {};
                 }
 
-                return rotaData; // Return the rota data
-            } catch (error) {
-                console.error('Error fetching rota data:', error);
-            }
-        }
-
-        // Fetch confirmed rota data
-        async function getConfirmedRota() {
-            try {
-                const response = await fetch('/confirmrota/api/confirmed-rota');
-                return response.json();
-            } catch (error) {
-                console.error('Error fetching confirmed rota data:', error);
-            }
-        }
-
-        async function confirmRota() {
-            try {
-                const dateInput = document.getElementById('rotaDate').value;
-                const rotaData = await populateTable(dateInput); // Fetch rota data
-                console.log('Rota data to be confirmed:', rotaData); // Log rotaData to debug
-
-                // Ensure that we send only the necessary data
-                const formattedData = rotaData.map(entry => ({
-                    name: entry.name,
-                    lastName: entry.lastName,
-                    wage: entry.wage,
-                    day: entry.day,
-                    startTime: entry.startTime,
-                    endTime: entry.endTime,
-                    designation: entry.designation
-                }));
-
-                const response = await fetch('/confirmrota/confirm-rota', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(formattedData) // Send formatted rota data to server
-                });
-
-                if (response.ok) {
-                    console.log('Rota confirmed successfully.');
-                } else {
-                    const errorText = await response.text();
-                    console.error('Error confirming rota:', errorText);
+                if (input.type === 'time') {
+                    if (timeType === 'start') {
+                        acc[timeIndex].startTime = input.value;
+                    } else if (timeType === 'end') {
+                        acc[timeIndex].endTime = input.value;
+                    }
                 }
-            } catch (error) {
-                console.error('Error confirming rota:', error.message);
-            }
-        }
 
-        // Add event listener to fetch rota button
-        const fetchRotaButton = document.getElementById('fetchRotaButton');
-        fetchRotaButton.addEventListener('click', () => {
-            const dateInput = document.getElementById('rotaDate').value;
-            populateTable(dateInput);
+                return acc;
+            }, {});
+
+            // Convert the times object to an array
+            const timesArray = Object.values(times);
+
+            return {
+                name: name,
+                lastName: lastName,
+                wage: row.querySelector('td:nth-child(4)').textContent,
+                day: day,
+                designation: designation,
+                times: timesArray // Ensure the times array is correctly populated
+            };
         });
 
-        // Add event listener to confirm button
-        const confirmButton = document.getElementById('confirmButton');
-        confirmButton.addEventListener('click', confirmRota);
+        // Log formattedData to ensure it's correctly populated
+        console.log('Formatted data:', formattedData);
 
-        // Fetch rota data when the page loads with today's date as default
-        window.onload = () => {
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('rotaDate').value = today;
-            populateTable(today);
-        };
-    </script>
+        fetch('/confirmrota/confirm-rota', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formattedData) // Send formatted data to server
+        }).then(response => {
+            if (response.ok) {
+                console.log('Rota confirmed successfully.');
+            } else {
+                response.text().then(errorText => {
+                    console.error('Error confirming rota:', errorText);
+                });
+            }
+        }).catch(error => {
+            console.error('Error confirming rota:', error.message);
+        });
+    } catch (error) {
+        console.error('Error confirming rota:', error.message);
+    }
+}
+
+// Add event listener to fetch rota button
+const fetchRotaButton = document.getElementById('fetchRotaButton');
+fetchRotaButton.addEventListener('click', () => {
+    const dateInput = document.getElementById('rotaDate').value;
+    populateTable(dateInput);
+});
+
+// Add event listener to confirm button
+const confirmButton = document.getElementById('confirmButton');
+confirmButton.addEventListener('click', confirmRota);
+
+// Fetch rota data when the page loads with today's date as default
+window.onload = () => {
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('rotaDate').value = today;
+    populateTable(today);
+};
+
+</script>
 </body>
 </html>

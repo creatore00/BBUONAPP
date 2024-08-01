@@ -95,7 +95,6 @@
     <div id="hoursSummary">
         <!-- Total hours and tip will be displayed here -->
     </div>
-
     <footer>
         <button onclick="navigateDay(-1)" class="btn">Previous Day</button>
         <button onclick="navigateDay(1)" class="btn">Next Day</button>
@@ -103,18 +102,28 @@
             <button id="submitBtn" onclick="submitPayslips()" class="btn">Save Data</button>
         </div>
     </footer>
+
     <script>
         function loadRota() {
             const monthStart = document.getElementById('monthStart').value;
             const startDate = new Date(monthStart);
 
-            fetch(`/tip/rota?startDate=${startDate.toISOString().split('T')[0]}`)
+            fetch(`/tip/existing?date=${startDate.toISOString().split('T')[0]}`)
                 .then(response => response.json())
-                .then(data => {
-                    const totalHours = calculateTotalHours(data);
-                    displayTotalHours(totalHours);
+                .then(existingData => {
+                    if (existingData.length > 0) {
+                        displayExistingTips(existingData);
+                    } else {
+                        fetch(`/tip/rota?startDate=${startDate.toISOString().split('T')[0]}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                const totalHours = calculateTotalHours(data);
+                                displayTotalHours(totalHours);
+                            })
+                            .catch(error => console.error('Error fetching data:', error));
+                    }
                 })
-                .catch(error => console.error('Error fetching data:', error));
+                .catch(error => console.error('Error fetching existing tips:', error));
         }
 
         function calculateTotalHours(data) {
@@ -178,8 +187,35 @@
                 cells[2].textContent = `£${tipAmount.toFixed(2)}`;
             }
         }
+        function displayExistingTips(existingData) {
+    const container = document.getElementById('hoursSummary');
+    container.innerHTML = '';
 
-        function navigateDay(offset) {
+    const table = document.createElement('table');
+    const headerRow = document.createElement('tr');
+    headerRow.innerHTML = '<th>Name</th><th>Total Hours</th><th>Tip</th>';
+    table.appendChild(headerRow);
+
+    let totalTip = 0;
+    existingData.forEach(entry => {
+        const tip = Number(entry.tip); // Ensure `tip` is a number
+        const totalHours = Number(entry.totalHours) || 0; // Ensure `totalHours` is a number
+        totalTip += tip; // Add to totalTip
+
+        const row = document.createElement('tr');
+        row.innerHTML = `<td>${entry.name}</td><td>${totalHours.toFixed(2)}</td><td>£${isNaN(tip) ? '0.00' : tip.toFixed(2)}</td>`;
+        table.appendChild(row);
+    });
+
+    // Add a row for the total tip
+    const totalRow = document.createElement('tr');
+    totalRow.innerHTML = `<td><strong>Total</strong></td><td></td><td><strong>£${totalTip.toFixed(2)}</strong></td>`;
+    table.appendChild(totalRow);
+
+    container.appendChild(table);
+}
+
+    function navigateDay(offset) {
             const monthStart = document.getElementById('monthStart').value;
             if (!monthStart) {
                 alert('Please select a start date.');
@@ -219,29 +255,29 @@
 
             return payslipData;
         }
+
         function submitPayslips() {
-    const payslipData = gatherTableData();
+            const payslipData = gatherTableData();
 
-    fetch('/tip/submitPayslips', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payslipData),
-    })
-    .then(response => {
-        if (response.ok) {
-            alert('Data Submitted Successfully!');
-        } else {
-            return response.text().then(text => { throw new Error(text) });
+            fetch('/tip/submitPayslips', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payslipData),
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert('Data Submitted Successfully!');
+                } else {
+                    return response.text().then(text => { throw new Error(text) });
+                }
+            })
+            .catch((error) => {
+                alert(`Error: ${error.message}`);
+                console.error('Error:', error);
+            });
         }
-    })
-    .catch((error) => {
-        alert(`Error: ${error.message}`);
-        console.error('Error:', error);
-    });
-}
-
 
         document.getElementById('monthStart').addEventListener('change', loadRota);
         window.onload = setCurrentDay;

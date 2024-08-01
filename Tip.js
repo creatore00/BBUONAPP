@@ -83,7 +83,28 @@ app.post('/submitPayslips', (req, res) => {
       });
   });
 });
-
+app.get('/existing', (req, res) => {
+    const date = req.query.date;
+    if (!date) {
+        return res.status(400).send('Date is required');
+    }
+    
+    const query = `
+        SELECT CONCAT(name, ' ', lastName) AS name, 
+               CAST(tip AS DECIMAL(10,2)) AS tip, 
+               totalHours
+        FROM tip
+        WHERE day = ?
+    `;
+    
+    pool.query(query, [date], (err, results) => {
+        if (err) {
+            console.error('Error fetching existing tips:', err);
+            return res.status(500).json({ error: 'Internal Server Error' });
+        }
+        res.json(results);
+    });
+});
 app.get('/', isAuthenticated, (req, res) => {
   if (req.session.user.role === 'admin') {
       res.sendFile(path.join(__dirname, 'Tip.html'));
