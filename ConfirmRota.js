@@ -9,7 +9,9 @@ const path = require('path');
 const pool = require('./db.js'); // Import the connection pool
 const app = express();
 const { sessionMiddleware, isAuthenticated, isAdmin, isSupervisor } = require('./sessionConfig'); // Adjust the path as needed
-
+function generateUniqueId() {
+    return Math.floor(Math.random() * 1e16).toString().padStart(16, '0');
+}
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(sessionMiddleware);
@@ -70,6 +72,24 @@ app.get('/api/confirmed-rota', (req, res) => {
         res.json(results);
     });
 });
+// Function to generate a unique ID
+function generateUniqueId(callback) {
+    const id = Math.floor(Math.random() * 1e16).toString().padStart(16, '0');
+    
+    // Check if the ID already exists
+    pool.query('SELECT COUNT(*) AS count FROM rota WHERE id = ?', [id], (err, results) => {
+        if (err) {
+            callback(err);
+        } else if (results[0].count > 0) {
+            // ID exists, generate a new one
+            generateUniqueId(callback);
+        } else {
+            // ID is unique
+            callback(null, id);
+        }
+    });
+}
+
 app.post('/confirm-rota', (req, res) => {
     const rotaData = req.body;
     const userEmail = req.session.user.email; // Get the logged-in user's email
@@ -82,19 +102,22 @@ app.post('/confirm-rota', (req, res) => {
     const day = rotaData[0].day;
 
     // Queries
-    const deleteQuery = 'DELETE FROM ConfirmedRota WHERE day = ?';
-    const insertQuery = `
+    const deleteConfirmedRotaQuery = 'DELETE FROM ConfirmedRota WHERE day = ?';
+    const insertConfirmedRotaQuery = `
         INSERT INTO ConfirmedRota (name, lastName, wage, day, startTime, endTime, designation, who) 
         VALUES ?
     `;
-    const updateRotaQuery = `
-        UPDATE rota
-        SET startTime = ?, endTime = ?
+    const deleteRotaQuery = `
+        DELETE FROM rota
         WHERE name = ? AND lastName = ? AND designation = ? AND day = ?
     `;
+    const insertRotaQuery = `
+        INSERT INTO rota (id, name, lastName, designation, day, startTime, endTime)
+        VALUES ?
+    `;
 
-    // Prepare values to insert
-    const values = rotaData.flatMap(entry => {
+    // Prepare values to insert into ConfirmedRota
+    const confirmedRotaValues = rotaData.flatMap(entry => {
         const { name, lastName, wage, day, designation, times } = entry;
         return times.map(time => {
             const { startTime, endTime } = time;
@@ -103,38 +126,60 @@ app.post('/confirm-rota', (req, res) => {
     });
 
     // Print values to be inserted into the database
-    console.log('Values to be inserted into ConfirmedRota:', values);
+    console.log('Values to be inserted into ConfirmedRota:', confirmedRotaValues);
 
-    // Delete old entries for the given day
-    pool.query(deleteQuery, [day], (err) => {
+    // Delete old entries for the given day from ConfirmedRota
+    pool.query(deleteConfirmedRotaQuery, [day], (err) => {
         if (err) {
             console.error('Error deleting existing confirmed rota data:', err);
             return res.status(500).send('Internal Server Error');
         }
 
         // Insert new or updated values into ConfirmedRota
-        pool.query(insertQuery, [values], (err, result) => {
+        pool.query(insertConfirmedRotaQuery, [confirmedRotaValues], (err) => {
             if (err) {
                 console.error('Error inserting rota data:', err);
                 return res.status(500).send('Internal Server Error');
             }
 
-            // Update the existing rota table with confirmed data
+            // Generate unique IDs and handle each entry
             const updateTasks = rotaData.flatMap(entry => {
                 const { name, lastName, day, designation, times } = entry;
-                return times.map(time => {
+
+                // For each time frame, generate a unique ID
+                const timeFrameTasks = times.map(time => {
                     const { startTime, endTime } = time;
+
                     return new Promise((resolve, reject) => {
-                        pool.query(updateRotaQuery, [startTime, endTime, name, lastName, designation, day], (err) => {
+                        generateUniqueId((err, uniqueId) => {
                             if (err) {
                                 reject(err);
                             } else {
-                                resolve();
+                                // Delete old entries from `rota`
+                                pool.query(deleteRotaQuery, [name, lastName, designation, day], (err) => {
+                                    if (err) {
+                                        reject(err);
+                                    } else {
+                                        // Prepare value for insertion with the unique ID
+                                        const value = [uniqueId, name, lastName, designation, day, startTime, endTime];
+
+                                        // Insert new entry into `rota` with the unique ID
+                                        pool.query(insertRotaQuery, [[value]], (err) => {
+                                            if (err) {
+                                                reject(err);
+                                            } else {
+                                                resolve();
+                                            }
+                                        });
+                                    }
+                                });
                             }
                         });
                     });
                 });
-            });
+
+                return timeFrameTasks;
+            }).flat();
 
             Promise.all(updateTasks)
                 .then(() => {
@@ -147,6 +192,8 @@ app.post('/confirm-rota', (req, res) => {
         });
     });
 });
+
+
 app.get('/logout', (req, res) => {
     // Check if there is an active session
     if (req.session && req.session.user) {

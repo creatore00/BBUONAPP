@@ -237,31 +237,37 @@
         }
 
         function calculateTotalHours(data) {
-            const totalHours = { FOH: {}, BOH: {} }; // Group hours by FOH and BOH
-            let total = 0; // Total hours worked for the entire month
+    const totalHours = { FOH: {}, BOH: {} }; // Group hours by FOH and BOH
+    let total = 0; // Total hours worked for the entire month
 
-            data.forEach(entry => {
-                const name = entry.name + ' ' + entry.lastName;
-                const designation = entry.designation; // Get the designation from the entry
-                const startTime = new Date(`1970-01-01T${entry.startTime}Z`);
-                const endTime = new Date(`1970-01-01T${entry.endTime}Z`);
-                const hoursWorked = (endTime - startTime) / (1000 * 60 * 60); // Convert milliseconds to hours
-                total += hoursWorked; // Accumulate total hours worked for the month
-
-                // Initialize the designation group if not present
-                if (!totalHours[designation]) {
-                    totalHours[designation] = {};
-                }
-
-                // If the person's name doesn't exist in the designation group, initialize their hours to 0
-                if (!totalHours[designation][name]) {
-                    totalHours[designation][name] = 0;
-                }
-                totalHours[designation][name] += hoursWorked; // Accumulate hours worked for the person
-            });
-
-            return { totalHours, total }; // Return an object containing total hours per person and total hours for the month
+    data.forEach(entry => {
+        const name = `${entry.name} ${entry.lastName}`;
+        const designation = entry.designation;
+        const startTime = new Date(`1970-01-01T${entry.startTime}Z`);
+        let endTime = new Date(`1970-01-01T${entry.endTime}Z`);
+        
+        // Handle shifts that span midnight
+        if (endTime < startTime) {
+            endTime.setDate(endTime.getDate() + 1);
         }
+
+        const hoursWorked = (endTime - startTime) / (1000 * 60 * 60); // Convert milliseconds to hours
+        total += hoursWorked; // Accumulate total hours worked for the month
+
+        // Initialize the designation group if not present
+        if (!totalHours[designation]) {
+            totalHours[designation] = {};
+        }
+
+        // If the person's name doesn't exist in the designation group, initialize their hours to 0
+        if (!totalHours[designation][name]) {
+            totalHours[designation][name] = 0;
+        }
+        totalHours[designation][name] += hoursWorked; // Accumulate hours worked for the person
+    });
+
+    return { totalHours, total }; // Return an object containing total hours per person and total hours for the month
+}
 
         function displayTotalHours(totalHours) {
             const container = document.getElementById('hoursSummary');

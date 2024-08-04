@@ -165,7 +165,7 @@
     </table>
     <button class="btn" id="confirmButton">Confirm Rota</button>
 <script>
-    async function getRotaByDate(date) {
+async function getRotaByDate(date) {
     const response = await fetch(`/confirmrota/api/rota?day=${encodeURIComponent(date)}`);
     if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
@@ -183,14 +183,22 @@ function formatDateForDisplay(date) {
 async function populateTable(date) {
     try {
         const formattedDate = formatDateForDisplay(date);
+        console.log(`Fetching data for date: ${formattedDate}`);
         const [rotaData, confirmedRotaData] = await Promise.all([getRotaByDate(formattedDate), getConfirmedRota()]);
+        console.log('Rota Data:', rotaData);
+        console.log('Confirmed Rota Data:', confirmedRotaData);
 
-        const confirmedRotaSet = new Set(confirmedRotaData.map(entry => `${entry.name} ${entry.lastName} ${entry.designation} ${entry.startTime} ${entry.endTime}`));
+        // Update the set to include the day in the unique key
+        const confirmedRotaSet = new Set(
+            confirmedRotaData.map(entry => `${entry.day} ${entry.name} ${entry.lastName} ${entry.designation} ${entry.startTime} ${entry.endTime}`)
+        );
+        console.log('Confirmed Rota Set:', confirmedRotaSet);
 
         const tableBody = document.querySelector('#rotaTable tbody');
         tableBody.innerHTML = ''; // Clear existing rows
 
         if (rotaData.length === 0) {
+            console.log(`No data for date: ${formattedDate}`);
             const row = document.createElement('tr');
             const cell = document.createElement('td');
             cell.colSpan = 6;
@@ -205,9 +213,9 @@ async function populateTable(date) {
                 return 0;
             });
 
-            // Group rotaData by name and designation
+            // Group rotaData by name, designation, and day
             const groupedData = rotaData.reduce((acc, entry) => {
-                const key = `${entry.name} ${entry.lastName} ${entry.designation}`;
+                const key = `${entry.day} ${entry.name} ${entry.lastName} ${entry.designation}`;
                 if (!acc[key]) {
                     acc[key] = {
                         day: entry.day,
@@ -222,10 +230,13 @@ async function populateTable(date) {
                 return acc;
             }, {});
 
+            console.log('Grouped Data:', groupedData);
+
             // Loop through each entry in groupedData
             Object.values(groupedData).forEach(entry => {
                 const timesKey = entry.times.map(time => `${time.startTime} ${time.endTime}`).join(' ');
-                const uniqueKey = `${entry.name} ${entry.lastName} ${entry.designation} ${timesKey}`;
+                const uniqueKey = `${entry.day} ${entry.name} ${entry.lastName} ${entry.designation} ${timesKey}`;
+                console.log('Unique Key:', uniqueKey);
 
                 if (!confirmedRotaSet.has(uniqueKey)) { // Check if the entry is not in ConfirmedRota
                     const row = document.createElement('tr');
@@ -276,6 +287,8 @@ async function populateTable(date) {
                     row.appendChild(timesCell);
 
                     tableBody.appendChild(row);
+                } else {
+                    console.log(`Entry already confirmed: ${uniqueKey}`);
                 }
             });
         }
@@ -311,7 +324,7 @@ function confirmRota() {
             // Process time inputs
             const times = Array.from(timeInputs).reduce((acc, input) => {
                 const timeIndex = input.dataset.timeIndex;
-                const timeType = input.dataset.timeType; // Retrieve the timeType (start or end)
+                const timeType = input.dataset.timeType;
 
                 if (!acc[timeIndex]) {
                     acc[timeIndex] = {};
@@ -334,10 +347,10 @@ function confirmRota() {
             return {
                 name: name,
                 lastName: lastName,
-                wage: row.querySelector('td:nth-child(4)').textContent,
+                wage: row.querySelector('td:nth-child(5)').textContent,
                 day: day,
                 designation: designation,
-                times: timesArray // Ensure the times array is correctly populated
+                times: timesArray
             };
         });
 
