@@ -143,47 +143,87 @@
     </style>
 </head>
 <body>
-<h1>Work Hours Summary</h1>
-<div id="hoursSummary">
-    <!-- Total hours, wage, tip, result before tax, tax, and result after tax will be displayed here -->
-</div>
-
-<footer>
-    <div>
-        <button id="submitBtn" onclick="downloadPDF()" class="btn">Downlaod</button>
+    <h1>Work Hours Summary</h1>
+    
+    <div id="monthSelector">
+        <label for="month">Select Month:</label>
+        <input class="date" type="month" id="month" onchange="retrieveAndPrintData()"><br>
     </div>
-</footer>
-<script>
-    // Function to get the current month in the format 'YYYY-MM'
-    function getCurrentMonth() {
-        const currentDate = new Date();
-        const year = currentDate.getFullYear();
-        let month = currentDate.getMonth() + 1;
-        month = month < 10 ? '0' + month : month;
-        return `${year}-${month}`;
-    }
+    
+    <div id="hoursSummary">
+        <!-- Total hours, wage, tip, result before tax, tax, and result after tax will be displayed here -->
+    </div>
+    
+    <footer>
+        <div>
+            <button id="submitBtn" onclick="downloadPDF()" class="btn">Download</button>
+        </div>
+    </footer>
+    
+    <script>
+        // Function to get the list of months in the format 'YYYY-MM'
+        function getMonthList(startYear, endYear) {
+            const months = [];
+            for (let year = startYear; year <= endYear; year++) {
+                for (let month = 1; month <= 12; month++) {
+                    const monthStr = month < 10 ? '0' + month : month;
+                    months.push(`${year}-${monthStr}`);
+                }
+            }
+            return months;
+        }
 
-    function retrieveAndPrintData() {
-    const selectedMonth = getCurrentMonth();
+        // Function to populate month dropdown
+        function populateMonthDropdown() {
+            const monthSelect = document.getElementById('month');
+            const startYear = 2000; // Set your start year here
+            const endYear = 2100;   // Set your end year here
+
+            const months = getMonthList(startYear, endYear);
+            months.forEach(month => {
+                const option = document.createElement('option');
+                option.value = month;
+                option.text = month;
+                monthSelect.appendChild(option);
+            });
+            monthSelect.value = getCurrentMonth(); // Set default to current month
+        }
+
+        // Function to get the current month in the format 'YYYY-MM'
+        function getCurrentMonth() {
+            const currentDate = new Date();
+            const year = currentDate.getFullYear();
+            let month = currentDate.getMonth() + 1;
+            month = month < 10 ? '0' + month : month;
+            return `${year}-${month}`;
+        }
+
+        function retrieveAndPrintData() {
+    const selectedMonth = document.getElementById('month').value;
 
     // Fetch data from both tables for the selected month
     Promise.all([
         fetch(`/hours/rota?month=${selectedMonth}`).then(response => response.json()),
         fetch(`/hours/tip?month=${selectedMonth}`).then(response => response.json())
     ]).then(([rotaData, tipData]) => {
-// Merge tip data by employee name and sum the tip values
-const tipMap = new Map();
-tipData.forEach(tip => {
-    console.log('Tip:', tip); // Log each tip to see its structure and value
-    const name = tip.name + ' ' + tip.lastName;
-    if (tipMap.has(name)) {
-        tipMap.set(name, tipMap.get(name) + parseFloat(tip.tip)); // Convert tip to float and add
-    } else {
-        tipMap.set(name, parseFloat(tip.tip)); // Convert tip to float
-    }
-});
-console.log('Tip Map:', tipMap); // Log the tipMap to see the accumulated values
+        console.log('Rota Data:', rotaData);
+        console.log('Tip Data:', tipData);
 
+        // Merge tip data by employee name and sum the tip values
+        const tipMap = new Map();
+        tipData.forEach(tip => {
+            const name = tip.name + ' ' + tip.lastName;
+            const tipValue = parseFloat(tip.tip);
+            if (isNaN(tipValue)) {
+                console.warn('Invalid tip value:', tip.tip);
+            }
+            if (tipMap.has(name)) {
+                tipMap.set(name, tipMap.get(name) + tipValue);
+            } else {
+                tipMap.set(name, tipValue);
+            }
+        });
+        console.log('Tip Map:', Array.from(tipMap.entries()));
 
         // Calculate total hours and total tips for each employee
         const employeeData = {};
@@ -198,17 +238,16 @@ console.log('Tip Map:', tipMap); // Log the tipMap to see the accumulated values
                     totalTips: 0
                 };
             }
-            // Calculate hours from time frames
             const startTime = new Date(`1970-01-01T${entry.startTime}Z`);
             const endTime = new Date(`1970-01-01T${entry.endTime}Z`);
             const hoursWorked = (endTime - startTime) / (1000 * 60 * 60);
             employeeData[name].totalHours += hoursWorked;
-            employeeData[name].totalTips = tipMap.get(name) || 0; // Add tip value to total tips
+            employeeData[name].totalTips = tipMap.get(name) || 0;
         });
 
         // Print the data in the table
         const container = document.getElementById('hoursSummary');
-        container.innerHTML = ''; // Clear existing content
+        container.innerHTML = '';
 
         const table = document.createElement('table');
         const headerRow = document.createElement('tr');
@@ -216,11 +255,10 @@ console.log('Tip Map:', tipMap); // Log the tipMap to see the accumulated values
         table.appendChild(headerRow);
 
         Object.values(employeeData).forEach(employee => {
-    const row = document.createElement('tr');
-    row.innerHTML = `<td>${employee.name}</td><td>${employee.lastName}</td><td>${employee.wage}</td><td>${employee.totalHours.toFixed(2)}</td><td>${parseFloat(employee.totalTips).toFixed(2)}</td>`;
-
-    table.appendChild(row);
-});
+            const row = document.createElement('tr');
+            row.innerHTML = `<td>${employee.name}</td><td>${employee.lastName}</td><td>${employee.wage}</td><td>${employee.totalHours.toFixed(2)}</td><td>${parseFloat(employee.totalTips).toFixed(2)}</td>`;
+            table.appendChild(row);
+        });
 
         container.appendChild(table);
     }).catch(error => {
@@ -228,32 +266,29 @@ console.log('Tip Map:', tipMap); // Log the tipMap to see the accumulated values
     });
 }
 
-    function downloadPDF() {
-    // Get the HTML content of the table
-    const tableHTML = document.getElementById('hoursSummary').innerHTML;
+function downloadPDF() {
+            const tableHTML = document.getElementById('hoursSummary').innerHTML;
+            const selectedMonth = document.getElementById('month').value;
 
-    // Get the current month in the format 'YYYY-MM'
-    const selectedMonth = getCurrentMonth();
-
-    // Send a request to the server to generate the PDF with the table content
-    fetch('/hours/generate-pdf', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ tableHTML, selectedMonth }) // Include selectedMonth in the request body
-    })
-    .then(response => {
-        // Redirect to the generated PDF file
-        window.location.href = `/hours/download-pdf?selectedMonth=${selectedMonth}`; // Include selectedMonth in the query parameters
-    })
-    .catch(error => {
-        console.error('Error generating PDF:', error);
-    });
-}
-
-    window.onload = retrieveAndPrintData;
-</script>
+            fetch('/hours/generate-pdf', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ tableHTML, selectedMonth })
+            })
+            .then(response => {
+                window.location.href = `/hours/download-pdf?selectedMonth=${selectedMonth}`;
+            })
+            .catch(error => {
+                console.error('Error generating PDF:', error);
+            });
+        }
+        window.onload = () => {
+            populateMonthDropdown();
+            retrieveAndPrintData(); // Initial data load
+        };
+    </script>
 </body>
 </html>
 

@@ -14,9 +14,10 @@ const { sessionMiddleware, isAuthenticated, isAdmin, isSupervisor, isUser } = re
 app.use(sessionMiddleware);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-// Route to retrieve data from the "rota" table
+// Route to retrieve data from the "ConfirmedRota" table
 app.get('/rota', (req, res) => {
-    const selectedMonth = req.query.month || new Date().getMonth() + 1; // Default to current month
+    const selectedMonth = req.query.month || new Date().toISOString().slice(0, 7); // Default to current month in YYYY-MM format
+
     const query = `
         SELECT 
             name,
@@ -26,8 +27,11 @@ app.get('/rota', (req, res) => {
             endTime
         FROM 
             ConfirmedRota
+        WHERE 
+            DATE_FORMAT(STR_TO_DATE(day, '%d/%m/%Y'), '%Y-%m') = ?
     `;
-    pool.query(query, (err, results) => {
+
+    pool.query(query, [selectedMonth], (err, results) => {
         if (err) {
             console.error('Error fetching rota data:', err);
             res.status(500).json({ success: false, message: 'Server error' });
@@ -36,10 +40,10 @@ app.get('/rota', (req, res) => {
         res.json(results);
     });
 });
-
 // Route to retrieve data from the "tip" table
 app.get('/tip', (req, res) => {
-    const selectedMonth = req.query.month || new Date().getMonth() + 1; // Default to current month
+    const selectedMonth = req.query.month || new Date().toISOString().slice(0, 7); // Default to current month in YYYY-MM format
+
     const query = `
         SELECT 
             name,
@@ -48,8 +52,11 @@ app.get('/tip', (req, res) => {
             totalHours
         FROM 
             tip
+        WHERE 
+            DATE_FORMAT(STR_TO_DATE(day, '%d/%m/%Y'), '%Y-%m') = ?
     `;
-    pool.query(query, (err, results) => {
+
+    pool.query(query, [selectedMonth], (err, results) => {
         if (err) {
             console.error('Error fetching tip data:', err);
             res.status(500).json({ success: false, message: 'Server error' });
@@ -82,7 +89,6 @@ app.post('/generate-pdf', async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
-
 // Route to handle downloading the PDF file
 app.get('/download-pdf', async (req, res) => {
     try {
@@ -103,8 +109,6 @@ app.get('/download-pdf', async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
-
-
 app.get('/', isAuthenticated, isAdmin, (req, res) => {
     res.sendFile(__dirname + '/Hours.html');
 });
