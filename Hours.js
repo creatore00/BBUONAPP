@@ -40,22 +40,19 @@ app.get('/rota', (req, res) => {
         res.json(results);
     });
 });
-// Route to retrieve data from the "tip" table
 app.get('/tip', (req, res) => {
-    const selectedMonth = req.query.month || new Date().toISOString().slice(0, 7); // Default to current month in YYYY-MM format
-
+    const selectedMonth = req.query.month || new Date().toISOString().slice(0, 7); // Default to current month
     const query = `
-        SELECT 
-            name,
-            lastName, 
-            tip,
-            totalHours
-        FROM 
-            tip
-        WHERE 
-            DATE_FORMAT(STR_TO_DATE(day, '%d/%m/%Y'), '%Y-%m') = ?
-    `;
+SELECT 
+    name,
+    lastName,
+    tip
+FROM 
+    tip
+WHERE
+    DATE_FORMAT(day, '%Y-%m') = ?;
 
+    `;
     pool.query(query, [selectedMonth], (err, results) => {
         if (err) {
             console.error('Error fetching tip data:', err);

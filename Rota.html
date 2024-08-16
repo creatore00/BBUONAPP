@@ -7,84 +7,77 @@
 
     <title>Work Hours Table</title>
 <style>
-* {
+    * {
     box-sizing: border-box;
 }
 body {
-    /* Set the background color with gradient effect */
-    background: linear-gradient(135deg, #4A90E2 0%, #B0E0E6 100%);
+    background: #e2e2e2;
     margin: 0;
     font-family: Arial, sans-serif;
     text-align: center;
-    text-transform: uppercase;
-    color: #60a2ee; /* Text color */
+    color: #333; /* Darker text color */
+    min-height: 100vh;
     overflow-x: hidden; /* Prevent horizontal scrolling */
+    text-transform: uppercase;
 }
 table {
-    width: 80%;
-    margin: 0 auto; /* This centers the table horizontally */
+    width: 90%;
+    max-width: 1200px;
+    margin: 40px auto; /* This centers the table horizontally */
     border-collapse: separate;
     border-spacing: 0;
-    background-color: #1E90FF; /* Blue background */
-    border-radius: 10px;
+    background-color: #fff; /* White background */
+    border-radius: 8px;
     overflow: hidden;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Added box shadow for depth */
-    border: 0.1px solid #000; /* Border around the table */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Softer box shadow */
+    border: 1px solid #000000; /* Light grey border around the table */
 }
 th, td {
     text-align: center;
-    border: 1px solid #ffffff; /* Border for table cells */
+    border: 1px solid #000000; /* Light grey border for table cells */
     padding: 12px;
     white-space: nowrap;
-    background-color: #4A90E2; /* Light blue background */
-    color: #fff; /* White text */
+    background-color: #f1f3f5; /* Light grey background */
+    color: #333; /* Darker text color */
     font-weight: bold; /* Bold text */
 }
 .table1 {
     width: 74%;
-    border-collapse: separate;
     margin: 0 auto; /* This centers the table horizontally */
+    border-collapse: separate;
     border-spacing: 0;
-    background-color: #1E90FF; /* Blue background */
-    border-radius: 10px;
+    background-color: #fff; /* White background */
+    border-radius: 8px;
     overflow: hidden;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Added box shadow for depth */
-    border: 0.1px solid #000; /* Border around the table */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Softer box shadow */
+    border: 0.1px solid #ccc; /* Light grey border around the table */
 }
-.td1 {
+.td1, .td2 {
     text-align: center;
-    border: 1px solid #ffffff; /* Border for table cells */
+    border: 1px solid #000000; /* Light grey border for table cells */
     padding: 5px;
     white-space: nowrap;
-    background-color: #4A90E2; /* Light blue background */
-    color: #fff; /* White text */
+    background-color: #f1f3f5; /* Light grey background */
+    color: #333; /* Darker text color */
     font-weight: bold; /* Bold text */
-}
-.td2 {
-    width: 15%;
-    text-align: center;
-    border: 1px solid #ffffff; /* Border for table cells */
-    padding: 5px;
-    white-space: nowrap;
-    background-color: #4A90E2; /* Light blue background */
-    color: #fff; /* White text */
-    font-weight: bold; /* Bold text */
+    border-radius: 8px;
 }
 .btn, .btn1 {
-    background-color: #4A90E2; /* Light blue button background */
+    background-color: #474747; /* Blue button background */
     color: #fff; /* White text */
     padding: 10px 20px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
     align-self: center;
+    width: 200px;
     margin-top: 10px;
     margin-bottom: 10px;
     transition: background-color 0.3s ease; /* Smooth color transition */
     font-size: 14px; /* Font size */
 }
 .btn:hover, .btn1:hover {
-    background-color: #1E90FF; /* Darker blue button background on hover */
+    background-color: #000000; /* Darker blue button background on hover */
     transform: scale(1.05); /* Increase size by 5% */
     transition: transform 0.3s ease; /* Add smooth transition effect */
 }
@@ -95,25 +88,26 @@ th, td {
     opacity: 0.5;
 }
 .dragover {
-    background-color: #70ace7; /* Lighter blue background */
+    background-color: #f1f1f1; /* Light grey background */
 }
 .time-frame {
     margin-bottom: 5px;
     cursor: move;
-    border: 1px solid transparent; /* Added for highlighting */
+    border: 1px solid #000000; /* Added for highlighting */
 }
 .selected {
-    background-color: #659ed6; /* Lighter blue background */
-    border-color: #ccc; /* Added for highlighting */
+    background-color: #8f8f8f; /* Light blue background */
+    border-color: #000000; /* Light grey border */
 }
 #timeFrameInput {
     display: none;
     position:relative; /* Ensure it is positioned relative to the viewport */
     width: 20%;
-    background: linear-gradient(135deg, #4A90E2 0%, #B0E0E6 100%);
-    border: 1px solid #ccc;
+    background: #919191; /* White background */
+    border: 1px solid #000000;
     padding: 10px;
-    color: white;
+    color: #333; /* Darker text color */
+    border-radius: 8px;
 }
 #timeFrameInput.show {
     display: block;
@@ -124,7 +118,7 @@ th, td {
     bottom: 20px;
     left: 50%;
     transform: translateX(-50%);
-    background-color: #4CAF50; /* Green background */
+    background-color: #5c5c5c; /* Blue background */
     color: white;
     padding: 10px;
     border-radius: 5px;
@@ -138,57 +132,50 @@ th, td {
 #customWeekNavigation {
     margin-bottom: 10px; /* Add some space above the new line */
 }
-.date {
-    background-color: #70ace7; /* Blue background */
+.date, .date1 {
+    background-color: #868686; /* Blue background */
     font-family: Arial, sans-serif;
     text-transform: uppercase;
     color: white;
     border-radius: 5px; /* Rounded corners */
     padding: 6px 12px; /* Adjust padding for better fit */
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2); /* Added shadow for depth */
-}
-.date1 {
-    width: 50%;
-    background-color: #70ace7; /* Blue background */
-    font-family: Arial, sans-serif;
-    text-transform: uppercase;
-    color: white;
-    border-radius: 5px; /* Rounded corners */
-    padding: 6px 12px; /* Adjust padding for better fit */
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2); /* Added shadow for depth */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Softer shadow */
 }
 .holiday-cell {
-      background-color: green;
-      color: white;
+    background-color: rgb(79, 192, 79);
+    color: white;
 }
-    #comment-section {
+#comment-section {
     margin: 20px;
 }
 #comment-box {
-    color: white;
+    color: #333; /* Darker text color */
     border-radius: 5px;
     width: 25%;
     height: 100px;
     margin-bottom: 10px;
-    background: linear-gradient(135deg, #4A90E2 0%, #B0E0E6 100%);
+    background: #bebebe; /* White background */
+    border: 1px solid #ccc;
+    padding: 10px;
 }
 #char-count {
     margin-bottom: 10px;
     font-size: 14px;
-    color: #1286a3;
+    color: #666; /* Grey text color */
 }
 #submit-comment {
     padding: 10px 20px;
-    background-color: #1E90FF;
+    background-color: #818181; /* Blue background */
     color: white;
     border: none;
+    border-radius: 5px;
     cursor: pointer;
 }
 #submit-comment:hover:enabled {
-    background-color: #1C86EE;
+    background-color: #4d4d4d;
 }
 #submit-comment:disabled {
-    background-color: #ffffff;
+    background-color: #ccc;
     cursor: not-allowed;
 }
 /* Animation for table rows */
@@ -224,19 +211,6 @@ tbody tr {
         <button class="btn" onclick="addTime()" >Add Time</button>
         <button class="btn" onclick="deleteTime()">Delete Time</button>
     </div>
-    <button class="btn1" id="submitForecast">Submit Forecast</button>
-    <table class="table1">
-        <tr>
-            <td colspan="5">Forecast</td>
-            <td class="td1"><input type="number" class="date1" class="forecast-input" id="forecastMonday"> £</td>
-            <td class="td1"><input type="number" class="date1" class="forecast-input" id="forecastTuesday"> £</td>
-            <td class="td2"><input type="number" class="date1" class="forecast-input" id="forecastWednesday"> £</td>
-            <td><input type="number" class="date1" class="forecast-input" id="forecastThursday"> £</td>
-            <td><input type="number" class="date1" class="forecast-input" id="forecastFriday"> £</td>
-            <td><input type="number" class="date1" class="forecast-input" id="forecastSaturday"> £</td>
-            <td><input type="number" class="date1" class="forecast-input" id="forecastSunday"> £</td>
-        </tr>
-    </table>
     <table id="hoursTable">
         <thead>
         <tr>
@@ -259,7 +233,6 @@ tbody tr {
             <!-- Employee rows will be dynamically generated here -->
         </tbody>
     </table>
-
     <div id="popupMessage">Rota Updated Successfully</div>
     <button class="btn1" onclick="saveData()">Save</button>
     <button class="btn1" onclick="clearTable()">Clear All</button>
@@ -269,7 +242,6 @@ tbody tr {
         <div id="char-count">0/255</div>
         <button id="submit-comment">Submit</button>
     </div>
-    
 <script>
 // Function to fetch employee data from the backend server for the specified week start date
 function fetchEmployeeData(weekStart) {
@@ -303,35 +275,34 @@ function generateEmployeeRow(employee) {
 }
 // Function to populate employee rows in the table
 function populateEmployeeRows(employees) {
-    // Sort employees by designation with 'foh' first and 'boh' second
-    const sortedEmployees = employees.sort((a, b) => {
-    // First level sort by designation
-    if (a.designation === 'FOH' && b.designation === 'BOH') {
-        return -1;
+// Sort employees with BOH first, then by name
+const sortedEmployees = employees.sort((a, b) => {
+    // BOH should come before FOH
+    if (a.designation === 'BOH' && b.designation !== 'BOH') {
+        return -1; // BOH first
     }
-    if (a.designation === 'BOH' && b.designation === 'FOH') {
-        return 1;
+    if (a.designation !== 'BOH' && b.designation === 'BOH') {
+        return 1; // FOH after BOH
     }
 
     // If designations are the same, sort by name
-    if (a.designation === b.designation) {
-        if (a.name < b.name) {
-            return -1;
-        }
-        if (a.name > b.name) {
-            return 1;
-        }
+    if (a.name < b.name) {
+        return -1;
     }
+    if (a.name > b.name) {
+        return 1;
+    }
+
     // If designations and names are the same, return 0
     return 0;
 });
+
     const employeeRowsContainer = document.getElementById('employeeRows');
     let employeeRowsHTML = '';
     sortedEmployees.forEach(employee => {
         employeeRowsHTML += generateEmployeeRow(employee);
     });
     employeeRowsContainer.innerHTML = employeeRowsHTML;
-    // Attach event listeners to draggable elements
 // Attach event listeners to draggable elements
 const draggables = document.querySelectorAll('.draggable');
 draggables.forEach(draggable => {
