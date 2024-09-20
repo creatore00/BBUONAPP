@@ -282,6 +282,7 @@ app.post('/submitData', (req, res) => {
         });
     });
 });
+generatePDF();
 // Route to retrieve data from the rota table
 app.get('/rota', (req, res) => {
     pool.query('SELECT id, name, lastName, wage, day, startTime, endTime, designation FROM rota', (err, results) => {
