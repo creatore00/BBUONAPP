@@ -275,7 +275,16 @@ pool.query('SELECT email FROM users WHERE email = \'yassir.nini27@gmail.com\'', 
             async function generatePDF(html) {
                 // Set cache directory
                 process.env.PUPPETEER_CACHE_DIR = '/tmp/.cache/puppeteer';
-            
+                // Log the directory contents to check if Chrome is installed
+    const { exec } = require('child_process');
+
+    exec('ls /app/.apt/opt/google/chrome/', (error, stdout, stderr) => {
+        if (error) {
+            console.error(`exec error: ${error}`);
+            return;
+        }
+        console.log(`Directory contents: ${stdout}`);
+    });
                 const browser = await puppeteer.launch({
                     args: ['--no-sandbox', '--disable-setuid-sandbox'], // Necessary for Heroku
                     executablePath: process.env.CHROME_BIN || '/usr/bin/google-chrome', // Ensure the path is set correctly
