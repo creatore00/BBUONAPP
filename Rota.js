@@ -228,31 +228,49 @@ app.post('/submitData', (req, res) => {
         });
     });
 
-    // Get email addresses from the database and generate PDF
-    pool.query('SELECT email FROM users WHERE email = \'yassir.nini27@gmail.com\'', (emailErr, emailResults) => {
-        if (emailErr) {
-            console.error('Error fetching emails from the database:', emailErr);
-            return res.status(500).send('Error sending emails');
+// Get email addresses from the database and generate PDF
+pool.query('SELECT email FROM users WHERE email = \'yassir.nini27@gmail.com\'', async (emailErr, emailResults) => {
+    if (emailErr) {
+        console.error('Error fetching emails from the database:', emailErr);
+        return res.status(500).send('Error sending emails');
+    }
+
+    const recipients = emailResults.map(row => row.email);
+    const parseDateFromDay = (day) => {
+        const datePart = day.split(' ')[0]; 
+        return new Date(datePart.split('/').reverse().join('-')); // Convert to Date object
+    };
+
+    // Sort groupedData by the extracted date
+    const sortedData = groupedData.sort((a, b) => {
+        return parseDateFromDay(a.day) - parseDateFromDay(b.day);
+    });
+
+    ejs.renderFile('rotaTemplate.ejs', { rotaData: sortedData }, async (renderErr, html) => {
+        if (renderErr) {
+            console.error('Error rendering EJS template:', renderErr);
+            return res.status(500).send('Error generating PDF');
         }
 
-        const recipients = emailResults.map(row => row.email);
-        const parseDateFromDay = (day) => {
-            // Extracts date part from the day string
-            const datePart = day.split(' ')[0]; 
-            return new Date(datePart.split('/').reverse().join('-')); // Convert to Date object
-        };
-        
-        // Sort groupedData by the extracted date
-        const sortedData = groupedData.sort((a, b) => {
-            return parseDateFromDay(a.day) - parseDateFromDay(b.day);
-        });
-        
-        
-        ejs.renderFile('rotaTemplate.ejs', { rotaData: sortedData }, (renderErr, html) => {
-            if (renderErr) {
-                console.error('Error rendering EJS template:', renderErr);
-                return res.status(500).send('Error generating PDF');
-            }
+        try {
+            // Generate the PDF
+            await generatePDF(html);
+            console.log('PDF generated successfully: rota.pdf');
+
+            // Send email with the PDF attachment
+            sendEmail(recipients, '/tmp/rota.pdf', (emailErr, emailRes) => {
+                if (emailErr) {
+                    return res.status(500).send('Error sending email');
+                }
+                // Send a success response
+                res.status(200).send('PDF generated and email sent successfully');
+            });
+        } catch (pdfErr) {
+            console.error('Error generating PDF:', pdfErr);
+            return res.status(500).send('Error generating PDF');
+        }
+    
+
 
             async function generatePDF(html) {
                 // Set cache directory
@@ -282,7 +300,7 @@ app.post('/submitData', (req, res) => {
         });
     });
 });
-generatePDF();
+
 // Route to retrieve data from the rota table
 app.get('/rota', (req, res) => {
     pool.query('SELECT id, name, lastName, wage, day, startTime, endTime, designation FROM rota', (err, results) => {
