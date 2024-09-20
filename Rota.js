@@ -278,9 +278,8 @@ pool.query('SELECT email FROM users WHERE email = \'yassir.nini27@gmail.com\'', 
             
                 const browser = await puppeteer.launch({
                     args: ['--no-sandbox', '--disable-setuid-sandbox'], // Necessary for Heroku
+                    executablePath: process.env.CHROME_BIN || '/usr/bin/google-chrome', // Ensure the path is set correctly
                 });
-                const page = await browser.newPage();
-                await page.setContent(html);
                 
                 const options = {
                     path: '/tmp/rota.pdf', // Save path in Heroku's temporary directory
