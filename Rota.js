@@ -5,6 +5,7 @@ const pdf = require('html-pdf');
 const ejs = require('ejs');
 const mysql = require('mysql2');
 const express = require('express');
+const puppeteer = require('puppeteer');
 const bodyParser = require('body-parser');
 const { v4: uuidv4 } = require('uuid');
 const pool = require('./db.js'); // Import the connection pool
@@ -253,19 +254,20 @@ app.post('/submitData', (req, res) => {
                 return res.status(500).send('Error generating PDF');
             }
 
-            const puppeteer = require('puppeteer');
-
-            // PDF generation function
             async function generatePDF(html) {
-                const browser = await puppeteer.launch();
+                // Set cache directory
+                process.env.PUPPETEER_CACHE_DIR = '/tmp/.cache/puppeteer';
+            
+                const browser = await puppeteer.launch({
+                    args: ['--no-sandbox', '--disable-setuid-sandbox'], // Necessary for Heroku
+                });
                 const page = await browser.newPage();
                 await page.setContent(html);
                 
-                // Set PDF options
                 const options = {
-                    path: './rota.pdf', // Save path
+                    path: '/tmp/rota.pdf', // Save path in Heroku's temporary directory
                     format: 'A4',
-                    landscape: true, // Set landscape orientation
+                    landscape: true,
                     margin: {
                         top: '10mm',
                         right: '10mm',
@@ -274,30 +276,9 @@ app.post('/submitData', (req, res) => {
                     },
                 };
             
-                // Generate the PDF
                 await page.pdf(options);
                 await browser.close();
             }
-            
-            // Usage in your existing code
-            generatePDF(html)
-                .then(() => {
-                    console.log('PDF generated successfully: rota.pdf');
-                    
-                    // Send email with PDF attachment
-                    sendEmail(recipients, './rota.pdf', (emailErr, emailRes) => {
-                        if (emailErr) {
-                            return res.status(500).send('Error sending email');
-                        }
-                        // Send a success response after all rows have been processed
-                        res.status(200).send(operationMessages.join('\n'));
-                    });
-                })
-                .catch(pdfErr => {
-                    console.error('Error generating PDF:', pdfErr);
-                    return res.status(500).send('Error generating PDF');
-                });
-            
         });
     });
 });
