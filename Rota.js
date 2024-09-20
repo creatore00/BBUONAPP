@@ -253,33 +253,51 @@ app.post('/submitData', (req, res) => {
                 return res.status(500).send('Error generating PDF');
             }
 
-    // PDF options
-    const options = {
-        format: 'A4',
-        orientation: 'landscape', // Set landscape orientation
-        border: '10mm', // Optional: set borders
-    };
+            const puppeteer = require('puppeteer');
 
-    // Generate PDF from HTML
-    pdf.create(html, options).toFile('./rota.pdf', (pdfErr, pdfRes) => {
-        if (pdfErr) {
-            console.error('Error generating PDF:', pdfErr);
-            return res.status(500).send('Error generating PDF');
-        }
-
-        console.log('PDF generated successfully:', pdfRes.filename);
-        res.download(pdfRes.filename); // Optional: Send the file as a response
-
-
-                // Send email with PDF attachment
-                sendEmail(recipients, pdfRes.filename, (emailErr, emailRes) => {
-                    if (emailErr) {
-                        return res.status(500).send('Error sending email');
-                    }
-                    // Send a success response after all rows have been processed
-                    res.status(200).send(operationMessages.join('\n'));
+            // PDF generation function
+            async function generatePDF(html) {
+                const browser = await puppeteer.launch();
+                const page = await browser.newPage();
+                await page.setContent(html);
+                
+                // Set PDF options
+                const options = {
+                    path: './rota.pdf', // Save path
+                    format: 'A4',
+                    landscape: true, // Set landscape orientation
+                    margin: {
+                        top: '10mm',
+                        right: '10mm',
+                        bottom: '10mm',
+                        left: '10mm',
+                    },
+                };
+            
+                // Generate the PDF
+                await page.pdf(options);
+                await browser.close();
+            }
+            
+            // Usage in your existing code
+            generatePDF(html)
+                .then(() => {
+                    console.log('PDF generated successfully: rota.pdf');
+                    
+                    // Send email with PDF attachment
+                    sendEmail(recipients, './rota.pdf', (emailErr, emailRes) => {
+                        if (emailErr) {
+                            return res.status(500).send('Error sending email');
+                        }
+                        // Send a success response after all rows have been processed
+                        res.status(200).send(operationMessages.join('\n'));
+                    });
+                })
+                .catch(pdfErr => {
+                    console.error('Error generating PDF:', pdfErr);
+                    return res.status(500).send('Error generating PDF');
                 });
-            });
+            
         });
     });
 });
