@@ -143,12 +143,12 @@ function groupAndMergeRotaData(data) {
     const groupedData = {};
 
     data.forEach(row => {
-        const key = `${row.name}-${row.lastName}-${row.day}`;
+        const key = `${row.day}-${row.name}-${row.lastName}`;
         if (!groupedData[key]) {
             groupedData[key] = {
+                day: row.day,
                 name: row.name,
                 lastName: row.lastName,
-                day: row.day,
                 designation: row.designation,
                 timeFrames: []
             };
@@ -157,9 +157,9 @@ function groupAndMergeRotaData(data) {
     });
 
     return Object.values(groupedData).map(entry => {
-        const { name, lastName, day, designation, timeFrames } = entry;
+        const { day, name, lastName, designation, timeFrames } = entry;
         const mergedTimeFrames = timeFrames.map(tf => `${tf.startTime} - ${tf.endTime}`).join(', ');
-        return { name, lastName, day, timeFrames: mergedTimeFrames, designation };
+        return { day, name, lastName, timeFrames: mergedTimeFrames, designation };
     });
 }
 // Modify the submitData endpoint to process the data before rendering the PDF
@@ -228,27 +228,48 @@ app.post('/submitData', (req, res) => {
     });
 
     // Get email addresses from the database and generate PDF
-    pool.query('SELECT email FROM users', (emailErr, emailResults) => {
+    pool.query('SELECT email FROM users WHERE email = \'yassir.nini27@gmail.com\'', (emailErr, emailResults) => {
         if (emailErr) {
             console.error('Error fetching emails from the database:', emailErr);
             return res.status(500).send('Error sending emails');
         }
 
         const recipients = emailResults.map(row => row.email);
-
-        // Render the rota table into HTML
-        ejs.renderFile('rotaTemplate.ejs', { rotaData: groupedData }, (renderErr, html) => {
+        const parseDateFromDay = (day) => {
+            // Extracts date part from the day string
+            const datePart = day.split(' ')[0]; 
+            return new Date(datePart.split('/').reverse().join('-')); // Convert to Date object
+        };
+        
+        // Sort groupedData by the extracted date
+        const sortedData = groupedData.sort((a, b) => {
+            return parseDateFromDay(a.day) - parseDateFromDay(b.day);
+        });
+        
+        
+        ejs.renderFile('rotaTemplate.ejs', { rotaData: sortedData }, (renderErr, html) => {
             if (renderErr) {
                 console.error('Error rendering EJS template:', renderErr);
                 return res.status(500).send('Error generating PDF');
             }
 
-            // Generate PDF from HTML
-            pdf.create(html).toFile('./rota.pdf', (pdfErr, pdfRes) => {
-                if (pdfErr) {
-                    console.error('Error generating PDF:', pdfErr);
-                    return res.status(500).send('Error generating PDF');
-                }
+    // PDF options
+    const options = {
+        format: 'A4',
+        orientation: 'landscape', // Set landscape orientation
+        border: '10mm', // Optional: set borders
+    };
+
+    // Generate PDF from HTML
+    pdf.create(html, options).toFile('./rota.pdf', (pdfErr, pdfRes) => {
+        if (pdfErr) {
+            console.error('Error generating PDF:', pdfErr);
+            return res.status(500).send('Error generating PDF');
+        }
+
+        console.log('PDF generated successfully:', pdfRes.filename);
+        res.download(pdfRes.filename); // Optional: Send the file as a response
+
 
                 // Send email with PDF attachment
                 sendEmail(recipients, pdfRes.filename, (emailErr, emailRes) => {
